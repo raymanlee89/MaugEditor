@@ -107,9 +107,13 @@ function ProseView({mode, prose, links, linkIdx, changeTermsInLink}) {
                                     type="text"
                                     style={{ padding: "0.3em"}}
                                     // onClick={() => termOnClick(item)}
-                                    onMouseDown={() => termOnClick(item)}
-                                    onMouseEnter={(e) => {
-                                        if(e.buttons === 1){
+                                    onMouseDown={({buttons}) => {
+                                        if(buttons === 1){
+                                            termOnClick(item);
+                                        }
+                                    }}
+                                    onMouseEnter={({buttons}) => {
+                                        if(buttons === 1){
                                             termOnClick(item);
                                         }
                                     }}

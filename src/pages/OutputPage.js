@@ -84,7 +84,7 @@ function OutputPage({formula, prose, links, tabItems}) {
         let outputProse = addColorLatex("terms", prose);
         // console.log(outputProse);
     
-        changeOutput(header + "\n\n$$" + outputFormula + "$$\n\n" + outputProse);
+        changeOutput(header + "\n\n\\[" + outputFormula + "\\]\n\n" + outputProse);
     }, [tabItems, formula, prose, links])
 
     const [messageApi, contextHolder] = message.useMessage();

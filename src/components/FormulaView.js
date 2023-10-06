@@ -3,6 +3,8 @@ import Latex from '../react-latex/latex';
 import '../katex/katex.css';
 
 function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
+    const style = "\\displaystyle";
+
     // find the target symbols
     const getOffsetFromMathRegionNode = (node, attrSuffix) => {
         const attribute = `data-source-location-${attrSuffix}`;
@@ -89,11 +91,12 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
         }
 
         if(targetMathRegionNode){
-            const codeRange = {start: targetMathRegionNode.codeRange.start, end: targetMathRegionNode.codeRange.end};
+            // fix the code range with the length with style prefix
+            const codeRange = {start: targetMathRegionNode.codeRange.start - style.length - 2, end: targetMathRegionNode.codeRange.end - style.length - 2};
 
             const symbol = {
                 node: targetMathRegionNode.node,
-                text: formula.substring(codeRange.start+1, codeRange.end+1),
+                text: formula.substring(codeRange.start, codeRange.end),
                 location: {start: codeRange.start, end: codeRange.end}
             }
 
@@ -148,14 +151,18 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
             className='element horizontal formulaview unselectable'
             onMouseMove={({clientX, clientY}) => onMouseMove(clientX, clientY)} 
             // onClick={({clientX, clientY}) => symbolOnClick(clientX, clientY)}
-            onMouseDown={({clientX, clientY}) => symbolOnClick(clientX, clientY)}
+            onMouseDown={({buttons, clientX, clientY}) => {
+                if(buttons === 1){
+                    symbolOnClick(clientX, clientY)
+                }
+            }}
             onMouseOver={({buttons, clientX, clientY}) => {
                 if(buttons === 1){
                     symbolOnClick(clientX, clientY);
                 }
             }}
         >
-            <Latex >{formula}</Latex>
+            <Latex >{`\\[ ${style} ${formula}\\]`}</Latex>
         </div>
     );
 }

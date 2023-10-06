@@ -14,7 +14,7 @@ function ViewPage({mode, formula, prose, links, linkIdx, changeTermsInLink, chan
 
   useEffect(() => {
     // clean color (terms + symbols)
-    const defaultColorNodes = [...document.getElementsByClassName("link_")].concat([...document.querySelectorAll(".formulaview .katex .symbolNode")]);
+    const defaultColorNodes = [...document.getElementsByClassName("link_")].concat([...document.querySelectorAll(".formulaview .symbolNode")]).concat([...document.querySelectorAll(".formulaview .spanNode")]);
     defaultColorNodes.forEach((i) => {
       i.style.color = "#000000e0";
     });
@@ -34,7 +34,7 @@ function ViewPage({mode, formula, prose, links, linkIdx, changeTermsInLink, chan
   return(
     <div className='page vertical'>
       {mode !== 0 ? <div style={{ height: "50px" }}></div> : <></>}
-      <FormulaView mode={mode} formula={"$" + formula + "$"} links={links} linkIdx={linkIdx} changeSymbolsInLink={changeSymbolsInLink}/>
+      <FormulaView mode={mode} formula={formula} links={links} linkIdx={linkIdx} changeSymbolsInLink={changeSymbolsInLink}/>
       <Divider />
       <ProseView mode={mode} prose={prose} links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
       {mode !== 0 ? <ColorBar tabItems={tabItems} changeColor={changeColor}/> : <></>}
