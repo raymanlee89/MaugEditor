@@ -52,6 +52,7 @@ const useLinks = () => {
     }
 
     const changeTermsInLink = (type, term, range) => {
+        // console.log("changeTermsInLink", type, term, range);
         const newLinks = [...links];
         switch (type) {
             case "add":
@@ -70,6 +71,7 @@ const useLinks = () => {
     }
 
     const changeSymbolsInLink = (type, symbol, range) => {
+        // console.log("changeSymbolsInLink", type, symbol, range);
         const newLinks = [...links];
         switch (type) {
             case "add":

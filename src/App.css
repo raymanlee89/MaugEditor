@@ -2,6 +2,7 @@ p {
   font-size: 2em;
 }
 
+/* Basic Layout */
 .horizontal {
   display: flex;
   flex-direction: row;
@@ -16,6 +17,11 @@ p {
   align-items: center;
 }
 
+.push{
+  margin-left: auto;
+}
+
+/* Basic elements */
 .page {
   width: 50vw;
   height: 100%;
@@ -28,13 +34,11 @@ p {
 }
 
 .fixedHightElement{
-  height:40%;
+  /* Tabs: 16px + 2 * 9px + 2px + 1.6em,  Divider: 49px*/
+  min-height: calc((90% - 36px - 1.6em - 50px) / 2);
 }
 
-.push{
-  margin-left: auto;
-}
-
+/* Containers */
 .buttonsContainer {
   height: 80%;
   justify-content: space-around;
@@ -48,12 +52,9 @@ p {
   align-items: flex-start;
 }
 
-.formulaview .katex { 
-  font-size: 2.5em !important;
-} 
-
-.formulaview .katex .hovered {
-  background-color: darkgray;
+/* Formula View */
+.formulaView .katex .hovered {
+  background-color: rgba(150, 150, 150, 0.8);
 }
 
 .unselectable {
@@ -64,6 +65,27 @@ p {
   user-select: none;
 }
 
+.fontSizeLevel_1 .katex { 
+  font-size: 2.5em !important;
+}
+
+.fontSizeLevel_2 .katex { 
+  font-size: 3.5em !important;
+}
+
+.fontSizeLevel_3 .katex { 
+  font-size: 4.5em !important;
+}
+
+.fontSizeLevel_4 .katex { 
+  font-size: 5.5em !important;
+}
+
+.fontSizeLevel_5 .katex { 
+  font-size: 6.5em !important;
+}
+
+/* Output Area */
 .outputArea {
   width: 100%;
   height: auto;

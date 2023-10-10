@@ -58,6 +58,19 @@ function makeSourceLocationOrNullFrom(o) {
   return broadestSourceLocation;
 }
 
+// Custom addition: my own method to get source location without deep search
+function getSourceLocation(o) {
+  if (typeof o === "object" && o !== null) {
+    if(o.loc === null || o.loc === undefined){
+      return null;
+    }
+
+    return {start: o.loc.start, end: o.loc.end};
+  }
+
+  return null;
+}
+
 // Original katex.js
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4075,9 +4088,10 @@ var Span = /*#__PURE__*/function () {
 
     // Custom additions:
     this.group = group; // for debugging purposes
-    // console.log("Span", classes, group);
-
-    const sourceLocation = makeSourceLocationOrNullFrom(group);
+    const sourceLocation = getSourceLocation(group);
+    // if(sourceLocation !== null){
+    //   console.log("Span", group, sourceLocation);
+    // }
     this.hasSourceLocation = !!sourceLocation;
     this.sourceLocation = sourceLocation;
   }
@@ -4262,7 +4276,7 @@ var SymbolNode = /*#__PURE__*/function () {
 
     // Custom additions:
     this.group = group; // for debugging purposes
-    const sourceLocation = makeSourceLocationOrNullFrom(group);
+    const sourceLocation = getSourceLocation(group);
     // console.log("SymbolNode", this.text, sourceLocation);
     this.hasSourceLocation = !!sourceLocation;
     this.sourceLocation = sourceLocation;
@@ -4375,11 +4389,18 @@ var SymbolNode = /*#__PURE__*/function () {
  */
 
 var SvgNode = /*#__PURE__*/function () {
-  function SvgNode(children, attributes) {
+  function SvgNode(children, attributes, group /* custom addition, may be undefined */) {
     this.children = void 0;
     this.attributes = void 0;
     this.children = children || [];
     this.attributes = attributes || {};
+
+    // Custom additions:
+    this.group = group; // for debugging purposes
+    const sourceLocation = getSourceLocation(group);
+    // console.log("SvgNode", group, sourceLocation);
+    this.hasSourceLocation = !!sourceLocation;
+    this.sourceLocation = sourceLocation;
   }
 
   var _proto5 = SvgNode.prototype;
@@ -4408,6 +4429,12 @@ var SvgNode = /*#__PURE__*/function () {
       if (Object.prototype.hasOwnProperty.call(this.attributes, attr)) {
         markup += " " + attr + "='" + this.attributes[attr] + "'";
       }
+    }
+
+    if (this.hasSourceLocation) {
+      // console.log("SvgNode._toMarkup", this.sourceLocation);
+      markup += `data-source-location-start="${this.sourceLocation.start}"`;
+      markup += `data-source-location-end="${this.sourceLocation.end}"`;
     }
 
     markup += ">";
@@ -5605,6 +5632,8 @@ var makeOrd = function makeOrd(group, options, type) {
   var text = group.text;
   var classes = ["mord"]; // Math mode or Old font (i.e. \rm)
 
+  // console.log("makeOrd", text, group); // custom addition
+
   var isFont = mode === "math" || mode === "text" && options.font;
   var fontOrFamily = isFont ? options.font : options.fontFamily;
 
@@ -5773,6 +5802,11 @@ var sizeElementFromChildren = function sizeElementFromChildren(elem) {
 
 
 var makeSpan = function makeSpan(classes, children, options, style, group /* custom addition, may be undefined */) {
+  // // custonm addition
+  // if(group !== undefined){
+  //   console.log("makeSpan", group);
+  // }
+
   var span = new Span(classes, children, options, style, group /* custom addition, may be undefined */);
   sizeElementFromChildren(span);
   return span;
@@ -5780,8 +5814,8 @@ var makeSpan = function makeSpan(classes, children, options, style, group /* cus
 // This is also a separate method for typesafety.
 
 
-var makeSvgSpan = function makeSvgSpan(classes, children, options, style) {
-  return new Span(classes, children, options, style);
+var makeSvgSpan = function makeSvgSpan(classes, children, options, style, group /* custom addition, may be undefined */) {
+  return new Span(classes, children, options, style, group /* custom addition, may be undefined */);
 };
 
 // var makeLineSpan = function makeLineSpan(className, options, thickness, group /* new custom addition, may be undefined */) {
@@ -7511,7 +7545,7 @@ var svgSpan = function svgSpan(group, options) {
         "height": makeEm(_height),
         "viewBox": "0 0 " + viewBoxWidth + " " + viewBoxHeight,
         "preserveAspectRatio": "none"
-      });
+      }, group /* custom addition, may be undefined */);
       return {
         span: buildCommon.makeSvgSpan([], [svgNode], options),
         minWidth: 0,
@@ -7555,7 +7589,15 @@ var svgSpan = function svgSpan(group, options) {
           "preserveAspectRatio": aligns[i] + " slice"
         });
 
-        var _span = buildCommon.makeSvgSpan([widthClasses[i]], [_svgNode], options);
+        // custom change: deal with the combined elements
+        // var _span = buildCommon.makeSvgSpan([widthClasses[i]], [_svgNode], options);
+        // custom addition
+        var _span;
+        if(numSvgChildren === 1){
+          _span = buildCommon.makeSvgSpan([widthClasses[i]], [_svgNode], options, undefined, group /* custom addition, may be undefined */);
+        }else{
+          _span = buildCommon.makeSvgSpan([widthClasses[i]], [_svgNode], options);
+        }
 
         if (numSvgChildren === 1) {
           return {
@@ -7570,7 +7612,7 @@ var svgSpan = function svgSpan(group, options) {
       }
 
       return {
-        span: buildCommon.makeSpan(["stretchy"], spans, options),
+        span: buildCommon.makeSpan(["stretchy"], spans, options, undefined, group /* custom addition, may be undefined */),
         minWidth: _minWidth,
         height: _height2
       };
@@ -7709,6 +7751,7 @@ function checkSymbolNodeType(node) {
 // NOTE: Unlike most `htmlBuilder`s, this one handles not only "accent", but
 // also "supsub" since an accent can affect super/subscripting.
 var htmlBuilder = function htmlBuilder(grp, options) {
+  // console.log("htmlBuilder", grp); // custom addition
   // Accents are handled in the TeXbook pg. 443, rule 12.
   var base;
   var group;
@@ -7783,7 +7826,8 @@ var htmlBuilder = function htmlBuilder(grp, options) {
     } else {
       accent = buildCommon.makeOrd({
         mode: group.mode,
-        text: group.label
+        text: group.label,
+        loc: group.loc // custom addition
       }, options, "textord");
       accent = assertSymbolDomNode(accent); // Remove the italic correction of the accent, because it only serves to
       // shift the accent over to a place we don't want.
@@ -7900,7 +7944,8 @@ defineFunction({
       label: context.funcName,
       isStretchy: isStretchy,
       isShifty: isShifty,
-      base: base
+      base: base,
+      loc: context.loc // custom addition
     };
   },
   htmlBuilder: htmlBuilder,
@@ -7932,7 +7977,8 @@ defineFunction({
       label: context.funcName,
       isStretchy: false,
       isShifty: true,
-      base: base
+      base: base,
+      loc: context.loc // custom addition
     };
   },
   htmlBuilder: htmlBuilder,
@@ -7960,7 +8006,8 @@ defineFunction({
       type: "accentUnder",
       mode: parser.mode,
       label: funcName,
-      base: base
+      base: base,
+      loc: _ref.loc // custom addition
     };
   },
   htmlBuilder: function htmlBuilder(group, options) {
@@ -7975,16 +8022,15 @@ defineFunction({
       children: [{
         type: "elem",
         elem: accentBody,
-        wrapperClasses: ["svg-align"]
+        wrapperClasses: ["svg-align"],
       }, {
         type: "kern",
         size: kern
       }, {
         type: "elem",
         elem: innerGroup
-      }]
+      }],
     }, options);
-    // return buildCommon.makeSpan(["mord", "accentunder"], [vlist], options, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mord", "accentunder"], [vlist], options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -8039,7 +8085,6 @@ defineFunction({
     // Ref: amsmath.dtx:   \hbox{$\scriptstyle\mkern#3mu{#6}\mkern#4mu$}%
     // Some groups can return document fragments.  Handle those by wrapping
     // them in a span.
-
     var newOptions = options.havingStyle(style.sup());
     var upperGroup = buildCommon.wrapFragment(buildGroup(group.body, newOptions, options), options);
     var arrowPrefix = group.label.slice(0, 2) === "\\x" ? "x" : "cd";
@@ -17919,6 +17964,7 @@ var Parser = /*#__PURE__*/function () {
       this.consumeSpaces(); // Lex the first token
 
       var lex = this.fetch();
+      // console.log("parseAtom", lex, SourceLocation.range(lex)); // custom addition
 
       if (lex.text === "\\limits" || lex.text === "\\nolimits") {
         // We got a limit control
@@ -17958,7 +18004,8 @@ var Parser = /*#__PURE__*/function () {
         var prime = {
           type: "textord",
           mode: this.mode,
-          text: "\\prime"
+          text: "\\prime",
+          loc: SourceLocation.range(lex) // custom addition
         }; // Many primes can be grouped together, so we handle this here
 
         var primes = [prime];
@@ -17966,7 +18013,19 @@ var Parser = /*#__PURE__*/function () {
 
         while (this.fetch().text === "'") {
           // For each one, add another prime to the list
-          primes.push(prime);
+
+          // Custom change: make each prime has different location
+          // primes.push(prime);
+
+          // Custom addition
+          var newPrime = {
+            type: "textord",
+            mode: this.mode,
+            text: "\\prime",
+            loc: SourceLocation.range(this.fetch()) // custom addition
+          };
+          primes.push(newPrime);
+
           this.consume();
         } // If there's a superscript following the primes, combine that
         // superscript in with the primes.
@@ -18089,7 +18148,7 @@ var Parser = /*#__PURE__*/function () {
       parser: this,
       token: token,
       breakOnTokenText: breakOnTokenText,
-      loc: loc /* custom addition */
+      loc: loc // custom addition
     };
     var func = src_functions[name];
 

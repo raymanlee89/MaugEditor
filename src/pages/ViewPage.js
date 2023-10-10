@@ -13,19 +13,34 @@ function ViewPage({mode, formula, prose, links, linkIdx, changeTermsInLink, chan
   }
 
   useEffect(() => {
+    // clean color (SVGs)
+    const defaultColorSVGs = [...document.querySelectorAll(".formulaView svg")];
+    defaultColorSVGs.forEach((i) => {
+      i.style.fill = "#000000e0";
+    });
     // clean color (terms + symbols)
-    const defaultColorNodes = [...document.getElementsByClassName("link_")].concat([...document.querySelectorAll(".formulaview .symbolNode")]).concat([...document.querySelectorAll(".formulaview .spanNode")]);
+    const defaultColorNodes = [...document.getElementsByClassName("link_")].concat([...document.querySelectorAll(".formulaView .symbolNode")]).concat([...document.querySelectorAll(".formulaView .spanNode")]);
     defaultColorNodes.forEach((i) => {
       i.style.color = "#000000e0";
     });
+
     // draw color
     tabItems.forEach((item) => {
       const targetNodes = [...document.getElementsByClassName(`link_${item.key}`)];
       targetNodes.forEach((i) => {
-        if(i.className.includes("disabled") && mode === 1){
-          i.style.color = addAlpha(item.color, 0.4);
+        if(i instanceof SVGElement){
+          let className = i.getAttribute("class");
+          if(className?.includes("disabled") && mode === 1){
+            i.style.fill = addAlpha(item.color, 0.4);
+          }else{
+            i.style.fill = item.color;
+          }
         }else{
-          i.style.color = item.color;
+          if(i.className.includes("disabled") && mode === 1){
+            i.style.color = addAlpha(item.color, 0.4);
+          }else{
+            i.style.color = item.color;
+          }
         }
       });
     });
