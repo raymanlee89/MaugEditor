@@ -71,7 +71,7 @@ const useLinks = () => {
     }
 
     const changeSymbolsInLink = (type, symbol, range) => {
-        // console.log("changeSymbolsInLink", type, symbol, range);
+        console.log("changeSymbolsInLink", type, symbol, range);
         const newLinks = [...links];
         switch (type) {
             case "add":

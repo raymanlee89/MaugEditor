@@ -16,10 +16,12 @@ function ViewPage({mode, formula, prose, links, linkIdx, changeTermsInLink, chan
     // clean color (SVGs)
     const defaultColorSVGs = [...document.querySelectorAll(".formulaView svg")];
     defaultColorSVGs.forEach((i) => {
-      i.style.fill = "#000000e0";
+      if(i.style.fill !== ""){
+        i.style.fill = "#000000e0";
+      }
     });
     // clean color (terms + symbols)
-    const defaultColorNodes = [...document.getElementsByClassName("link_")].concat([...document.querySelectorAll(".formulaView .symbolNode")]).concat([...document.querySelectorAll(".formulaView .spanNode")]);
+    const defaultColorNodes = [...document.querySelectorAll(".formulaView .symbolNode")].concat([...document.querySelectorAll(".formulaView .spanNode")]);
     defaultColorNodes.forEach((i) => {
       i.style.color = "#000000e0";
     });

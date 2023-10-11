@@ -241,7 +241,7 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
 
     return(
         <div className='element horizontal'>
-            <Button type="text" icon={<ZoomOutOutlined />} onClick={() => changeFontSize("-")}/>
+            <Button type="text" icon={<ZoomOutOutlined />} disabled={fontSizeLevel===1} onClick={() => changeFontSize("-")}/>
             <div className='push'></div>
             <div 
                 className={`formulaView unselectable fontSizeLevel_${fontSizeLevel}`}
@@ -262,7 +262,7 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
                 <Latex >{`\\[ ${style} ${formula}\\]`}</Latex>
             </div>
             <div className='push'></div>
-            <Button type="text" icon={<ZoomInOutlined />} onClick={() => changeFontSize("+")}/>
+            <Button type="text" icon={<ZoomInOutlined />} disabled={fontSizeLevel===5} onClick={() => changeFontSize("+")}/>
         </div>
         
     );

@@ -53,6 +53,11 @@ p {
 }
 
 /* Formula View */
+.formulaView {
+  max-width: 100%;
+  height: auto;
+}
+
 .formulaView .katex .hovered {
   background-color: rgba(150, 150, 150, 0.8);
 }

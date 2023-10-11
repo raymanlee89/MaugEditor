@@ -5802,7 +5802,7 @@ var sizeElementFromChildren = function sizeElementFromChildren(elem) {
 
 
 var makeSpan = function makeSpan(classes, children, options, style, group /* custom addition, may be undefined */) {
-  // // custonm addition
+  // custonm addition
   // if(group !== undefined){
   //   console.log("makeSpan", group);
   // }
@@ -5818,10 +5818,8 @@ var makeSvgSpan = function makeSvgSpan(classes, children, options, style, group 
   return new Span(classes, children, options, style, group /* custom addition, may be undefined */);
 };
 
-// var makeLineSpan = function makeLineSpan(className, options, thickness, group /* new custom addition, may be undefined */) {
-var makeLineSpan = function makeLineSpan(className, options, thickness) {
-  // var line = makeSpan([className], [], options, undefined, group /* new custom addition, may be undefined */);
-  var line = makeSpan([className], [], options);
+var makeLineSpan = function makeLineSpan(className, options, thickness, group /* custom addition, may be undefined */) {
+  var line = makeSpan([className], [], options, undefined, group /* custom addition, may be undefined */);
   line.height = Math.max(thickness || options.fontMetrics().defaultRuleThickness, options.minRuleThickness);
   line.style.borderBottomWidth = makeEm(line.height);
   line.maxFontSize = 1.0;
@@ -6157,7 +6155,7 @@ var svgData = {
   oiiintSize2: ["oiiintSize2", 1.98, 0.659]
 };
 
-var staticSvg = function staticSvg(value, options) {
+var staticSvg = function staticSvg(value, options, group /* custom addition, may be undefined */) {
   // Create a span with inline SVG for the element.
   var _svgData$value = svgData[value],
       pathName = _svgData$value[0],
@@ -6171,7 +6169,7 @@ var staticSvg = function staticSvg(value, options) {
     "style": "width:" + makeEm(width),
     "viewBox": "0 0 " + 1000 * width + " " + 1000 * height,
     "preserveAspectRatio": "xMinYMin"
-  });
+  }, group /* custom addition */);
   var span = makeSvgSpan(["overlay"], [svgNode], options);
   span.height = height;
   span.style.height = makeEm(height);
@@ -7821,7 +7819,7 @@ var htmlBuilder = function htmlBuilder(grp, options) {
       // render combining characters when not preceded by a character.
       // So now we use an SVG.
       // If Safari reforms, we should consider reverting to the glyph.
-      accent = buildCommon.staticSvg("vec", options);
+      accent = buildCommon.staticSvg("vec", options, group /* custom addition */);
       width = buildCommon.svgData.vec[1];
     } else {
       accent = buildCommon.makeOrd({
@@ -9213,9 +9211,9 @@ var mathrmSize = function mathrmSize(value, size, mode, options) {
  */
 
 
-var makeLargeDelim = function makeLargeDelim(delim, size, center, options, mode, classes) {
+var makeLargeDelim = function makeLargeDelim(delim, size, center, options, mode, classes, group /* custom addition, may be undefined */) {
   var inner = mathrmSize(delim, size, mode, options);
-  var span = styleWrap(buildCommon.makeSpan(["delimsizing", "size" + size], [inner], options), src_Style.TEXT, options, classes);
+  var span = styleWrap(buildCommon.makeSpan(["delimsizing", "size" + size], [inner], options, undefined, group /* custom addition, may be undefined */), src_Style.TEXT, options, classes);
 
   if (center) {
     centerSpan(span, options, src_Style.TEXT);
@@ -9618,7 +9616,7 @@ var sizeToMaxHeight = [0, 1.2, 1.8, 2.4, 3.0];
  * Used to create a delimiter of a specific size, where `size` is 1, 2, 3, or 4.
  */
 
-var makeSizedDelim = function makeSizedDelim(delim, size, options, mode, classes) {
+var makeSizedDelim = function makeSizedDelim(delim, size, options, mode, classes, group /* custom addition, may be undefined */) {
   // < and > turn into \langle and \rangle in delimiters
   if (delim === "<" || delim === "\\lt" || delim === "\u27E8") {
     delim = "\\langle";
@@ -9628,7 +9626,7 @@ var makeSizedDelim = function makeSizedDelim(delim, size, options, mode, classes
 
 
   if (utils.contains(stackLargeDelimiters, delim) || utils.contains(stackNeverDelimiters, delim)) {
-    return makeLargeDelim(delim, size, false, options, mode, classes);
+    return makeLargeDelim(delim, size, false, options, mode, classes, group /* custom addition, may be undefined */);
   } else if (utils.contains(stackAlwaysDelimiters, delim)) {
     return makeStackedDelim(delim, sizeToMaxHeight[size], false, options, mode, classes);
   } else {
@@ -9939,12 +9937,14 @@ defineFunction({
   },
   handler: function handler(context, args) {
     var delim = checkDelimiter(args[0], context);
+    // console.log("delimsizing", context, args, makeSourceLocationOrNullFrom([context, args])); // custom addition
     return {
       type: "delimsizing",
       mode: context.parser.mode,
       size: delimiterSizes[context.funcName].size,
       mclass: delimiterSizes[context.funcName].mclass,
-      delim: delim.text
+      delim: delim.text,
+      loc: makeSourceLocationOrNullFrom([context, args]) // custom addition
     };
   },
   htmlBuilder: function htmlBuilder(group, options) {
@@ -9954,8 +9954,7 @@ defineFunction({
       return buildCommon.makeSpan([group.mclass]);
     } // Use delimiter.sizedDelim to generate the delimiter.
 
-
-    return delimiter.sizedDelim(group.delim, group.size, options, group.mode, [group.mclass]);
+    return delimiter.sizedDelim(group.delim, group.size, options, group.mode, [group.mclass], group /* custom addition, may be undefined */);
   },
   mathmlBuilder: function mathmlBuilder(group) {
     var children = [];
@@ -12521,7 +12520,7 @@ var horizBrace_htmlBuilder = function htmlBuilder(grp, options) {
 
   var body = buildGroup(group.base, options.havingBaseStyle(src_Style.DISPLAY)); // Create the stretchy element
 
-  var braceBody = stretchy.svgSpan(group, options); // Generate the vlist, with the appropriate kerns        ┏━━━━━━━━┓
+  var braceBody = stretchy.svgSpan(group, options, undefined, grp /* custom addition */); // Generate the vlist, with the appropriate kerns        ┏━━━━━━━━┓
   // This first vlist contains the content and the brace:   equation
 
   var vlist;
@@ -12603,7 +12602,6 @@ var horizBrace_htmlBuilder = function htmlBuilder(grp, options) {
     }
   }
 
-  // return buildCommon.makeSpan(["mord", group.isOver ? "mover" : "munder"], [vlist], options, undefined, grp /* new custom addition, may be undefined */);
   return buildCommon.makeSpan(["mord", group.isOver ? "mover" : "munder"], [vlist], options);
 };
 
@@ -12627,7 +12625,8 @@ defineFunction({
       mode: parser.mode,
       label: funcName,
       isOver: /^\\over/.test(funcName),
-      base: args[0]
+      base: args[0],
+      loc: _ref.loc // custom addition
     };
   },
   htmlBuilder: horizBrace_htmlBuilder,
@@ -13956,7 +13955,8 @@ defineFunction({
     return {
       type: "overline",
       mode: parser.mode,
-      body: body
+      body: body,
+      loc: _ref.loc // custom addition
     };
   },
   htmlBuilder: function htmlBuilder(group, options) {
@@ -13964,7 +13964,7 @@ defineFunction({
     // Build the inner group in the cramped style.
     var innerGroup = buildGroup(group.body, options.havingCrampedStyle()); // Create the line above the body
 
-    var line = buildCommon.makeLineSpan("overline-line", options); // Generate the vlist, with the appropriate kerns
+    var line = buildCommon.makeLineSpan("overline-line", options, undefined, group /* custom addition */); // Generate the vlist, with the appropriate kerns
 
     var defaultRuleThickness = options.fontMetrics().defaultRuleThickness;
     var vlist = buildCommon.makeVList({
@@ -15133,7 +15133,8 @@ defineFunction({
     return {
       type: "underline",
       mode: parser.mode,
-      body: args[0]
+      body: args[0],
+      loc: _ref.loc // custom addition
     };
   },
   htmlBuilder: function htmlBuilder(group, options) {
@@ -15141,7 +15142,7 @@ defineFunction({
     // Build the inner group.
     var innerGroup = buildGroup(group.body, options); // Create the line to go below the body
 
-    var line = buildCommon.makeLineSpan("underline-line", options); // Generate the vlist, with the appropriate kerns
+    var line = buildCommon.makeLineSpan("underline-line", options, undefined, group /* custom addition */); // Generate the vlist, with the appropriate kerns
 
     var defaultRuleThickness = options.fontMetrics().defaultRuleThickness;
     var vlist = buildCommon.makeVList({
