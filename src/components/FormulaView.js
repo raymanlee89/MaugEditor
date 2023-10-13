@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import formulaNode from '../functions/formulaNode';
 import Latex from '../react-latex/latex';
 import '../katex/katex.css';
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 
-function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
-    const style = "\\displaystyle";
+const style = "\\displaystyle ";
+const formulaFontSizeRange = {max: 5, min: 1};
 
-    const [fontSizeLevel, changeFontSizeLevel] = useState(3);
+function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, links, linkIdx, changeSymbolsInLink}) {
+    const { getClassName, changeClassName } = formulaNode();
 
     const changeFontSize = (type) => {
         switch (type) {
             case "+":
-                if(fontSizeLevel < 5){
-                    changeFontSizeLevel(fontSizeLevel + 1);
+                if(formulaFontSize < formulaFontSizeRange.max){
+                    changeFormulaFontSize(formulaFontSize + 1);
                 }
                 break;
             case "-":
-                if(fontSizeLevel > 1){
-                    changeFontSizeLevel(fontSizeLevel - 1);
+                if(formulaFontSize > formulaFontSizeRange.min){
+                    changeFormulaFontSize(formulaFontSize - 1);
                 }
                 break;
             default:
-                console.log("No such type in changeFontSize");
+                console.log("No such type in changeFormulaFontSize");
         }
     }
 
@@ -58,7 +60,8 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
                 mathRegionNodesContainingPositionToCodeRanges.push({node, codeRange});
             }
         }
-        
+        // console.log("mathRegionNodesContainingPositionToCodeRanges", mathRegionNodesContainingPositionToCodeRanges);
+
         let bestNodeAndCodeRange = null;
         for (let nodeAndCodeRange of mathRegionNodesContainingPositionToCodeRanges) {
             if (!bestNodeAndCodeRange) {
@@ -90,40 +93,24 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
             if(hoveredMathRegionNode === potentialMathRegionNode){
                 return;
             }
-            if(hoveredMathRegionNode instanceof SVGElement){
-                let className = hoveredMathRegionNode.getAttribute("class");
-                if(className !== null){
-                    hoveredMathRegionNode.setAttribute("class", className.replace(" hovered", ""));
-                }
-            }else{
-                hoveredMathRegionNode.className = hoveredMathRegionNode.className.replace(" hovered", "");
-            }
+            changeClassName("remove", hoveredMathRegionNode, "hovered");
             changeHoveredMathRegionNode(null);
         }
 
         // Set the new hovered math region
         if (potentialMathRegionNode) {
-            if(potentialMathRegionNode instanceof SVGElement){
-                let className = potentialMathRegionNode.getAttribute("class");
-                if(className !== null){
-                    if(!className.includes(" hovered") && !className.includes(" disabled")){
-                        potentialMathRegionNode.setAttribute("class", className.concat(" hovered"));
-                    }
-                }else{
-                    potentialMathRegionNode.setAttribute("class", " hovered");
-                }
-            }else{
-                if(!potentialMathRegionNode.className.includes(" hovered") && !potentialMathRegionNode.className.includes(" disabled")){
-                    potentialMathRegionNode.className = potentialMathRegionNode.className.concat(" hovered");
-                }
+            let className = getClassName(potentialMathRegionNode);
+            if(!className.includes(" hovered") && !className.includes(" disabled")){
+                changeClassName("add", potentialMathRegionNode, "hovered");
             }
+
             changeHoveredMathRegionNode(potentialMathRegionNode);
         }
     }
 
     const symbolOnClick = (clientX, clientY) => {
         const targetMathRegionNode = getDeepestMathRegionNodeContainingPosition(clientX, clientY);
-        // console.log(targetMathRegionNode?.node.innerHTML, targetMathRegionNode?.codeRange);
+        console.log(targetMathRegionNode);
 
         if(mode !== 1){
             return;
@@ -131,7 +118,7 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
 
         if(targetMathRegionNode){
             // fix the code range with the length with style prefix
-            const codeRange = {start: targetMathRegionNode.codeRange.start - style.length - 2, end: targetMathRegionNode.codeRange.end - style.length - 2};
+            const codeRange = {start: targetMathRegionNode.codeRange.start - style.length, end: targetMathRegionNode.codeRange.end - style.length};
 
             const symbol = {
                 node: targetMathRegionNode.node,
@@ -140,28 +127,14 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
             }
 
             const node = targetMathRegionNode.node;
-            if(node instanceof SVGElement){
-                let className = node.getAttribute("class");
-                if(className !== null){
-                    if(!className.includes(" disabled")){
-                        if(className.includes( ` link_${linkIdx}`)){
-                            node.setAttribute("class", className.replace(` link_${linkIdx}`, ""));
-                            changeSymbolsInLink("remove", symbol);
-                        }else{
-                            node.setAttribute("class", className.concat(` link_${linkIdx}`));
-                            changeSymbolsInLink("add", symbol);
-                        }
-                    }
-                }
-            }else{
-                if(!symbol.node.className.includes(" disabled")){
-                    if(symbol.node.className.includes( ` link_${linkIdx}`)){
-                        node.className = node.className.replace(` link_${linkIdx}`, "");
-                        changeSymbolsInLink("remove", symbol);
-                    }else{
-                        node.className = node.className.concat(` link_${linkIdx}`);
-                        changeSymbolsInLink("add", symbol);
-                    }
+            let className = getClassName(node);
+            if(!className.includes(" disabled")){
+                if(className.includes( ` link_${linkIdx}`)){
+                    changeClassName("remove", node, `link_${linkIdx}`);
+                    changeSymbolsInLink("remove", symbol);
+                }else{
+                    changeClassName("add", node, `link_${linkIdx}`);
+                    changeSymbolsInLink("add", symbol);
                 }
             }
         }
@@ -169,100 +142,43 @@ function FormulaView({mode, formula, links, linkIdx, changeSymbolsInLink}) {
 
     useEffect(() => {
         // clear all highlighted and disabled class
-        const allSVGs = [...document.querySelectorAll("svg")];
-        // console.log(allSVGs);
-        allSVGs.forEach((item) => {
-            let className = item.getAttribute("class");
-            if(className !== null)
-            {
-                for(let i=links.length-1 ; i>=0 ; i--){
-                    item.setAttribute("class", item.getAttribute("class").replace(` link_${i}`, ""));
-                }
-                item.setAttribute("class", item.getAttribute("class").replace(" disabled", ""));
-            }
-        });
-        const allSymbols = [...document.getElementsByClassName("symbolNode")].concat([...document.getElementsByClassName("spanNode")]);
+        const allSymbols = [...document.querySelectorAll("svg")].concat([...document.getElementsByClassName("symbolNode")]).concat([...document.getElementsByClassName("spanNode")]);
         // console.log(allSymbols);
         allSymbols.forEach((item) => {
             for(let i=links.length-1 ; i>=0 ; i--){
-                item.className = item.className.replace(` link_${i}`, "");
+                changeClassName("remove", item, `link_${i}`);
             }
-            item.className = item.className.replace(" disabled", "");
+            changeClassName("remove", item, "disabled");
         });
 
         // reassign class to all nodes
         // console.log(links);
-        if(mode === 1){
-            links.forEach((link, i) => {
-                link.symbols.forEach((item) => {
-                    const node = item.node;
-                    if(node instanceof SVGElement){
-                        let className = node.getAttribute("class");
-                        if(className !== null){
-                            if(i !== linkIdx){
-                                node.setAttribute("class", className.concat(` link_${i} disabled`));
-                            }else{
-                                node.setAttribute("class", className.concat(` link_${i}`));
-                            }
-                        }else{
-                            if(i !== linkIdx){
-                                node.setAttribute("class",` link_${i} disabled`);
-                            }else{
-                                node.setAttribute("class", ` link_${i}`);
-                            }
-                        }
-                    }else{
-                        if(i !== linkIdx){
-                            node.className = node.className.concat(` link_${i} disabled`);
-                        }else{
-                            node.className = node.className.concat(` link_${i}`);
-                        }
-                    }
-                })
-            });
-        }else{
-            links.forEach((link, i) => {
-                link.symbols.forEach((item) => {
-                    const node = item.node;
-                    if(node instanceof SVGElement){
-                        let className = node.getAttribute("class");
-                        if(className !== null){
-                            node.setAttribute("class", className.concat(` link_${i}`));
-                        }else{
-                            node.setAttribute("class", ` link_${i}`);
-                        }
-                    }else{
-                        node.className = node.className.concat(` link_${i}`);
-                    }
-                })
-            });
-        }
+        links.forEach((link, i) => {
+            link.symbols.forEach((item) => {
+                const node = item.node;
+                if(mode === 1 && i !== linkIdx){
+                    changeClassName("add", node, `link_${i} disabled`);
+                }else{
+                    changeClassName("add", node, `link_${i}`);
+                }
+            })
+        });
     }, [mode, links, linkIdx]);
 
     return(
         <div className='element horizontal'>
-            <Button type="text" icon={<ZoomOutOutlined />} disabled={fontSizeLevel===1} onClick={() => changeFontSize("-")}/>
+            <Button type="text" icon={<ZoomOutOutlined />} disabled={formulaFontSize===formulaFontSizeRange.min} onClick={() => changeFontSize("-")}/>
             <div className='push'></div>
             <div 
-                className={`formulaView unselectable fontSizeLevel_${fontSizeLevel}`}
+                className={`formulaView unselectable formulaFontSize_${formulaFontSize}`}
                 onMouseMove={({clientX, clientY}) => onMouseMove(clientX, clientY)} 
-                // onClick={({clientX, clientY}) => symbolOnClick(clientX, clientY)}
-                onMouseDown={({buttons, clientX, clientY}) => {
-                    if(buttons === 1){
-                        symbolOnClick(clientX, clientY)
-                    }
-                }}
-                onMouseOver={({buttons, clientX, clientY}) => {
-                    if(buttons === 1){
-                        symbolOnClick(clientX, clientY);
-                    }
-                }}
+                onClick={({clientX, clientY}) => symbolOnClick(clientX, clientY)}
             >
                 
-                <Latex >{`\\[ ${style} ${formula}\\]`}</Latex>
+                <Latex >{`\\[${style}${formula}\\]`}</Latex>
             </div>
             <div className='push'></div>
-            <Button type="text" icon={<ZoomInOutlined />} disabled={fontSizeLevel===5} onClick={() => changeFontSize("+")}/>
+            <Button type="text" icon={<ZoomInOutlined />} disabled={formulaFontSize===formulaFontSizeRange.max} onClick={() => changeFontSize("+")}/>
         </div>
         
     );

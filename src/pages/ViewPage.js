@@ -2,9 +2,12 @@ import { useEffect } from 'react';
 import FormulaView from '../components/FormulaView';
 import ProseView from '../components/ProseView';
 import ColorBar from '../components/ColorBar';
+import formulaNode from '../functions/formulaNode';
 import { Divider } from 'antd';
 
-function ViewPage({mode, formula, prose, links, linkIdx, changeTermsInLink, changeSymbolsInLink, tabItems, changeColor}) {
+function ViewPage({mode, formula, prose, formulaFontSize, changeFormulaFontSize, links, linkIdx, changeTermsInLink, changeSymbolsInLink, tabItems, changeColor}) {
+  const { getClassName, changeNodeColor } = formulaNode();
+
   // change alpha in a hex color
   const addAlpha = (color, opacity) => {
     // coerce values so ti is between 0 and 1.
@@ -13,36 +16,21 @@ function ViewPage({mode, formula, prose, links, linkIdx, changeTermsInLink, chan
   }
 
   useEffect(() => {
-    // clean color (SVGs)
-    const defaultColorSVGs = [...document.querySelectorAll(".formulaView svg")];
-    defaultColorSVGs.forEach((i) => {
-      if(i.style.fill !== ""){
-        i.style.fill = "#000000e0";
-      }
-    });
-    // clean color (terms + symbols)
-    const defaultColorNodes = [...document.querySelectorAll(".formulaView .symbolNode")].concat([...document.querySelectorAll(".formulaView .spanNode")]);
+    // clean color (SVGs + terms + symbols)
+    const defaultColorNodes = [...document.querySelectorAll(".formulaView svg")].concat([...document.querySelectorAll(".formulaView .symbolNode")]).concat([...document.querySelectorAll(".formulaView .spanNode")]);
     defaultColorNodes.forEach((i) => {
-      i.style.color = "#000000e0";
+      changeNodeColor(i, "#000000e0");
     });
 
     // draw color
     tabItems.forEach((item) => {
       const targetNodes = [...document.getElementsByClassName(`link_${item.key}`)];
       targetNodes.forEach((i) => {
-        if(i instanceof SVGElement){
-          let className = i.getAttribute("class");
-          if(className?.includes("disabled") && mode === 1){
-            i.style.fill = addAlpha(item.color, 0.4);
-          }else{
-            i.style.fill = item.color;
-          }
+        let className = getClassName(i);
+        if(className?.includes("disabled") && mode === 1){
+          changeNodeColor(i, addAlpha(item.color, 0.4));
         }else{
-          if(i.className.includes("disabled") && mode === 1){
-            i.style.color = addAlpha(item.color, 0.4);
-          }else{
-            i.style.color = item.color;
-          }
+          changeNodeColor(i, item.color);
         }
       });
     });
@@ -51,9 +39,12 @@ function ViewPage({mode, formula, prose, links, linkIdx, changeTermsInLink, chan
   return(
     <div className='page vertical'>
       {mode !== 0 ? <div style={{ height: "50px" }}></div> : <></>}
-      <FormulaView mode={mode} formula={formula} links={links} linkIdx={linkIdx} changeSymbolsInLink={changeSymbolsInLink}/>
+      <FormulaView mode={mode} formula={formula}
+        formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+        links={links} linkIdx={linkIdx} changeSymbolsInLink={changeSymbolsInLink}/>
       <Divider />
-      <ProseView mode={mode} prose={prose} links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
+      <ProseView mode={mode} prose={prose}
+        links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
       {mode !== 0 ? <ColorBar tabItems={tabItems} changeColor={changeColor}/> : <></>}
     </div>
   );

@@ -16,6 +16,7 @@ function App() {
   const [mode, changeMode] = useState(0);
   const [formula, changeFormula] = useState("c^2 = a^2 + b^2");
   const [prose, changeProse] = useState("When an object spans perpendicular directions, its area is the combined area of each part.");
+  const [formulaFontSize, changeFormulaFontSize] = useState(3);
   const {links, linkIdx, changeLinkIdx, changeLinkArray, changeTermsInLink, changeSymbolsInLink} = useLinks();
   // Warning: the label of tab is different from the link idx in links
   const {tabItems, changeTabs, changeColor} = useTabs();
@@ -34,8 +35,9 @@ function App() {
               return <InputPage formula={formula} changeFormula={changeFormula} prose={prose} changeProse={changeProse}/>;
             case 1:
             case 2:
-              return <ViewPage mode={mode} formula={formula} prose={prose} links={links} linkIdx={linkIdx}
-                changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+              return <ViewPage mode={mode} formula={formula} prose={prose}
+                formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                 tabItems={tabItems} changeColor={changeColor}/>;
             default:
               return <div className='page vertical'></div>;
@@ -45,8 +47,9 @@ function App() {
         {(() => {
           switch (mode) {
             case 0:
-              return <ViewPage mode={mode} formula={formula} prose={prose} links={links} linkIdx={linkIdx}
-                changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+              return <ViewPage mode={mode} formula={formula} prose={prose}
+                formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                 tabItems={tabItems} changeColor={changeColor}/>;
             case 1:
               return <LinkPage formula={formula} links={links} linkIdx={linkIdx}

@@ -70,23 +70,23 @@ p {
   user-select: none;
 }
 
-.fontSizeLevel_1 .katex { 
+.formulaFontSize_1 .katex { 
   font-size: 2.5em !important;
 }
 
-.fontSizeLevel_2 .katex { 
+.formulaFontSize_2 .katex { 
   font-size: 3.5em !important;
 }
 
-.fontSizeLevel_3 .katex { 
+.formulaFontSize_3 .katex { 
   font-size: 4.5em !important;
 }
 
-.fontSizeLevel_4 .katex { 
+.formulaFontSize_4 .katex { 
   font-size: 5.5em !important;
 }
 
-.fontSizeLevel_5 .katex { 
+.formulaFontSize_5 .katex { 
   font-size: 6.5em !important;
 }
 

@@ -9187,8 +9187,8 @@ var centerSpan = function centerSpan(span, options, style) {
  */
 
 
-var makeSmallDelim = function makeSmallDelim(delim, style, center, options, mode, classes) {
-  var text = buildCommon.makeSymbol(delim, "Main-Regular", mode, options);
+var makeSmallDelim = function makeSmallDelim(delim, style, center, options, mode, classes, group /* custom addition, may be undefined */) {
+  var text = buildCommon.makeSymbol(delim, "Main-Regular", mode, options, undefined, group /* custom addition, may be undefined */);
   var span = styleWrap(text, style, options, classes);
 
   if (center) {
@@ -9282,7 +9282,7 @@ var doubleVerts = ["\\|", "\\lVert", "\\rVert", "\\Vert"];
  * least `heightTotal`. This routine is mentioned on page 442 of the TeXbook.
  */
 
-var makeStackedDelim = function makeStackedDelim(delim, heightTotal, center, options, mode, classes) {
+var makeStackedDelim = function makeStackedDelim(delim, heightTotal, center, options, mode, classes, group /* custom addition, may be undefined */) {
   // There are four parts, the top, an optional middle, a repeated part, and a
   // bottom.
   var top;
@@ -9505,7 +9505,7 @@ var makeStackedDelim = function makeStackedDelim(delim, heightTotal, center, opt
     positionData: depth,
     children: stack
   }, newOptions);
-  return styleWrap(buildCommon.makeSpan(["delimsizing", "mult"], [inner], newOptions), src_Style.TEXT, options, classes);
+  return styleWrap(buildCommon.makeSpan(["delimsizing", "mult"], [inner], newOptions, undefined, group /* custom addition, may be undefined */), src_Style.TEXT, options, classes);
 }; // All surds have 0.08em padding above the vinculum inside the SVG.
 // That keeps browser span height rounding error from pinching the line.
 
@@ -9514,7 +9514,7 @@ var vbPad = 80; // padding above the surd, measured inside the viewBox.
 
 var emPad = 0.08; // padding, in ems, measured in the document.
 
-var sqrtSvg = function sqrtSvg(sqrtName, height, viewBoxHeight, extraVinculum, options) {
+var sqrtSvg = function sqrtSvg(sqrtName, height, viewBoxHeight, extraVinculum, options, group /* custom addition, may be undefined */) {
   var path = sqrtPath(sqrtName, extraVinculum, viewBoxHeight);
   var pathNode = new PathNode(sqrtName, path);
   var svg = new SvgNode([pathNode], {
@@ -9524,14 +9524,14 @@ var sqrtSvg = function sqrtSvg(sqrtName, height, viewBoxHeight, extraVinculum, o
     "viewBox": "0 0 400000 " + viewBoxHeight,
     "preserveAspectRatio": "xMinYMin slice"
   });
-  return buildCommon.makeSvgSpan(["hide-tail"], [svg], options);
+  return buildCommon.makeSvgSpan(["hide-tail"], [svg], options, undefined, group /* custom addition, may be undefined */);
 };
 /**
  * Make a sqrt image of the given height,
  */
 
 
-var makeSqrtImage = function makeSqrtImage(height, options) {
+var makeSqrtImage = function makeSqrtImage(height, options, group /* custom addition, may be undefined */) {
   // Define a newOptions that removes the effect of size changes such as \Huge.
   // We don't pick different a height surd for \Huge. For it, we scale up.
   var newOptions = options.havingBaseSizing(); // Pick the desired surd glyph from a sequence of surds.
@@ -9566,7 +9566,7 @@ var makeSqrtImage = function makeSqrtImage(height, options) {
 
     spanHeight = (1.0 + extraVinculum + emPad) / sizeMultiplier;
     texHeight = (1.00 + extraVinculum) / sizeMultiplier;
-    span = sqrtSvg("sqrtMain", spanHeight, viewBoxHeight, extraVinculum, options);
+    span = sqrtSvg("sqrtMain", spanHeight, viewBoxHeight, extraVinculum, options, group /* custom addition, may be undefined */);
     span.style.minWidth = "0.853em";
     advanceWidth = 0.833 / sizeMultiplier; // from the font.
   } else if (delim.type === "large") {
@@ -9574,7 +9574,7 @@ var makeSqrtImage = function makeSqrtImage(height, options) {
     viewBoxHeight = (1000 + vbPad) * sizeToMaxHeight[delim.size];
     texHeight = (sizeToMaxHeight[delim.size] + extraVinculum) / sizeMultiplier;
     spanHeight = (sizeToMaxHeight[delim.size] + extraVinculum + emPad) / sizeMultiplier;
-    span = sqrtSvg("sqrtSize" + delim.size, spanHeight, viewBoxHeight, extraVinculum, options);
+    span = sqrtSvg("sqrtSize" + delim.size, spanHeight, viewBoxHeight, extraVinculum, options, group /* custom addition, may be undefined */);
     span.style.minWidth = "1.02em";
     advanceWidth = 1.0 / sizeMultiplier; // 1.0 from the font.
   } else {
@@ -9583,7 +9583,7 @@ var makeSqrtImage = function makeSqrtImage(height, options) {
     spanHeight = height + extraVinculum + emPad;
     texHeight = height + extraVinculum;
     viewBoxHeight = Math.floor(1000 * height + extraVinculum) + vbPad;
-    span = sqrtSvg("sqrtTall", spanHeight, viewBoxHeight, extraVinculum, options);
+    span = sqrtSvg("sqrtTall", spanHeight, viewBoxHeight, extraVinculum, options, group /* custom addition, may be undefined */);
     span.style.minWidth = "0.742em";
     advanceWidth = 1.056;
   }
@@ -9628,7 +9628,7 @@ var makeSizedDelim = function makeSizedDelim(delim, size, options, mode, classes
   if (utils.contains(stackLargeDelimiters, delim) || utils.contains(stackNeverDelimiters, delim)) {
     return makeLargeDelim(delim, size, false, options, mode, classes, group /* custom addition, may be undefined */);
   } else if (utils.contains(stackAlwaysDelimiters, delim)) {
-    return makeStackedDelim(delim, sizeToMaxHeight[size], false, options, mode, classes);
+    return makeStackedDelim(delim, sizeToMaxHeight[size], false, options, mode, classes, group /* custom addition, may be undefined */);
   } else {
     throw new src_ParseError("Illegal delimiter: '" + delim + "'");
   }
@@ -9767,7 +9767,7 @@ var traverseSequence = function traverseSequence(delim, height, sequence, option
  */
 
 
-var makeCustomSizedDelim = function makeCustomSizedDelim(delim, height, center, options, mode, classes) {
+var makeCustomSizedDelim = function makeCustomSizedDelim(delim, height, center, options, mode, classes, group /* custom addition, may be undefined */) {
   if (delim === "<" || delim === "\\lt" || delim === "\u27E8") {
     delim = "\\langle";
   } else if (delim === ">" || delim === "\\gt" || delim === "\u27E9") {
@@ -9791,13 +9791,13 @@ var makeCustomSizedDelim = function makeCustomSizedDelim(delim, height, center, 
   // appropriate function.
 
   if (delimType.type === "small") {
-    return makeSmallDelim(delim, delimType.style, center, options, mode, classes);
+    return makeSmallDelim(delim, delimType.style, center, options, mode, classes, group /* custom addition, may be undefined */);
   } else if (delimType.type === "large") {
-    return makeLargeDelim(delim, delimType.size, center, options, mode, classes);
+    return makeLargeDelim(delim, delimType.size, center, options, mode, classes, group /* custom addition, may be undefined */);
   } else
     /* if (delimType.type === "stack") */
     {
-      return makeStackedDelim(delim, height, center, options, mode, classes);
+      return makeStackedDelim(delim, height, center, options, mode, classes, group /* custom addition, may be undefined */);
     }
 };
 /**
@@ -9806,7 +9806,7 @@ var makeCustomSizedDelim = function makeCustomSizedDelim(delim, height, center, 
  */
 
 
-var makeLeftRightDelim = function makeLeftRightDelim(delim, height, depth, options, mode, classes) {
+var makeLeftRightDelim = function makeLeftRightDelim(delim, height, depth, options, mode, classes, group /* custom addition, may be undefined */) {
   // We always center \left/\right delimiters, so the axis is always shifted
   var axisHeight = options.fontMetrics().axisHeight * options.sizeMultiplier; // Taken from TeX source, tex.web, function make_left_right
 
@@ -9825,7 +9825,7 @@ var makeLeftRightDelim = function makeLeftRightDelim(delim, height, depth, optio
   maxDistFromAxis / 500 * delimiterFactor, 2 * maxDistFromAxis - delimiterExtend); // Finally, we defer to `makeCustomSizedDelim` with our calculated total
   // height
 
-  return makeCustomSizedDelim(delim, totalHeight, true, options, mode, classes);
+  return makeCustomSizedDelim(delim, totalHeight, true, options, mode, classes, group /* custom addition, may be undefined */);
 };
 
 /* harmony default export */ var delimiter = ({
@@ -10010,8 +10010,8 @@ defineFunction({
       type: "leftright-right",
       mode: context.parser.mode,
       delim: checkDelimiter(args[0], context).text,
-      color: color // undefined if not set via \color
-
+      color: color, // undefined if not set via \color
+      loc: context.loc // custom addition
     };
   }
 });
@@ -10039,7 +10039,9 @@ defineFunction({
       body: body,
       left: delim.text,
       right: right.delim,
-      rightColor: right.color
+      rightColor: right.color,
+      leftLoc: {start: context.loc.start, end: context.loc.end + delim.text.length}, // custom addition
+      rightLoc: {start: right.loc.start, end: right.loc.end + right.delim.length} // custom addition
     };
   },
   htmlBuilder: function htmlBuilder(group, options) {
@@ -10075,7 +10077,7 @@ defineFunction({
     } else {
       // Otherwise, use leftRightDelim to generate the correct sized
       // delimiter.
-      leftDelim = delimiter.leftRightDelim(group.left, innerHeight, innerDepth, options, group.mode, ["mopen"]);
+      leftDelim = delimiter.leftRightDelim(group.left, innerHeight, innerDepth, options, group.mode, ["mopen"], {loc: group.leftLoc} /* custom addition, may be undefined */);
     } // Add it to the beginning of the expression
 
 
@@ -10102,12 +10104,11 @@ defineFunction({
       rightDelim = makeNullDelimiter(options, ["mclose"]);
     } else {
       var colorOptions = group.rightColor ? options.withColor(group.rightColor) : options;
-      rightDelim = delimiter.leftRightDelim(group.right, innerHeight, innerDepth, colorOptions, group.mode, ["mclose"]);
+      rightDelim = delimiter.leftRightDelim(group.right, innerHeight, innerDepth, colorOptions, group.mode, ["mclose"], {loc: group.rightLoc} /* custom addition, may be undefined */);
     } // Add it to the end of the expression.
 
 
     inner.push(rightDelim);
-    // return buildCommon.makeSpan(["minner"], inner, options, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["minner"], inner, options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -12163,8 +12164,7 @@ var genfrac_htmlBuilder = function htmlBuilder(group, options) {
     rightDelim = delimiter.customSizedDelim(group.rightDelim, delimSize, true, options.havingStyle(style), group.mode, ["mclose"]);
   }
 
-  // return buildCommon.makeSpan(["mord"].concat(newOptions.sizingClasses(options)), [leftDelim, buildCommon.makeSpan(["mfrac"], [frac]), rightDelim], options, undefined, group /* new custom addition, may be undefined */);
-  return buildCommon.makeSpan(["mord"].concat(newOptions.sizingClasses(options)), [leftDelim, buildCommon.makeSpan(["mfrac"], [frac]), rightDelim], options);
+  return buildCommon.makeSpan(["mord"].concat(newOptions.sizingClasses(options)), [leftDelim, buildCommon.makeSpan(["mfrac"], [frac]), rightDelim], options, undefined, group /* new custom addition, may be undefined */);
 };
 
 var genfrac_mathmlBuilder = function mathmlBuilder(group, options) {
@@ -12285,7 +12285,8 @@ defineFunction({
       leftDelim: leftDelim,
       rightDelim: rightDelim,
       size: size,
-      barSize: null
+      barSize: null,
+      loc: _ref.loc // custom addition
     };
   },
   htmlBuilder: genfrac_htmlBuilder,
@@ -12312,7 +12313,8 @@ defineFunction({
       leftDelim: null,
       rightDelim: null,
       size: "display",
-      barSize: null
+      barSize: null,
+      loc: _ref2.loc // custom addition
     };
   }
 }); // Infix generalized fractions -- these are not rendered directly, but replaced
@@ -12360,7 +12362,8 @@ defineFunction({
       type: "infix",
       mode: parser.mode,
       replaceWith: replaceWith,
-      token: token
+      token: token,
+      loc: _ref3.loc // custom addition
     };
   }
 });
@@ -12432,7 +12435,8 @@ defineFunction({
       barSize: barSize,
       leftDelim: leftDelim,
       rightDelim: rightDelim,
-      size: size
+      size: size,
+      loc: _ref4.loc // custom addition
     };
   },
   htmlBuilder: genfrac_htmlBuilder,
@@ -12456,7 +12460,8 @@ defineFunction({
       mode: parser.mode,
       replaceWith: "\\\\abovefrac",
       size: assertNodeType(args[0], "size").value,
-      token: token
+      token: token,
+      loc: _ref5.loc // custom addition
     };
   }
 });
@@ -12484,7 +12489,8 @@ defineFunction({
       barSize: barSize,
       leftDelim: null,
       rightDelim: null,
-      size: "auto"
+      size: "auto",
+      loc: _ref6.loc // custom addition
     };
   },
   htmlBuilder: genfrac_htmlBuilder,
@@ -13983,7 +13989,6 @@ defineFunction({
         size: defaultRuleThickness
       }]
     }, options);
-    // return buildCommon.makeSpan(["mord", "overline"], [vlist], options, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mord", "overline"], [vlist], options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -14448,7 +14453,8 @@ defineFunction({
       type: "sqrt",
       mode: parser.mode,
       body: body,
-      index: index
+      index: index,
+      loc: _ref.loc // custom addition
     };
   },
   htmlBuilder: function htmlBuilder(group, options) {
@@ -14478,7 +14484,7 @@ defineFunction({
     var lineClearance = theta + phi / 4;
     var minDelimiterHeight = inner.height + inner.depth + lineClearance + theta; // Create a sqrt SVG of the required minimum size
 
-    var _delimiter$sqrtImage = delimiter.sqrtImage(minDelimiterHeight, options),
+    var _delimiter$sqrtImage = delimiter.sqrtImage(minDelimiterHeight, options, group /* custom addition, may be undefined */),
         img = _delimiter$sqrtImage.span,
         ruleWidth = _delimiter$sqrtImage.ruleWidth,
         advanceWidth = _delimiter$sqrtImage.advanceWidth;
@@ -15162,7 +15168,6 @@ defineFunction({
         elem: innerGroup
       }]
     }, options);
-    // return buildCommon.makeSpan(["mord", "underline"], [vlist], options, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mord", "underline"], [vlist], options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -17880,11 +17885,19 @@ var Parser = /*#__PURE__*/function () {
       }
 
       var node;
+      // custom addition
+      var loc = undefined;
+      // console.log("handleInfixNodes", body);
+      body.forEach((i) => {
+        if(i.type === "infix"){
+          loc = i.loc;
+        }
+      })
 
       if (funcName === "\\\\abovefrac") {
-        node = this.callFunction(funcName, [numerNode, body[overIndex], denomNode], []);
+        node = this.callFunction(funcName, [numerNode, body[overIndex], denomNode], [], undefined, undefined, body[1]?.loc /* custom addition */);
       } else {
-        node = this.callFunction(funcName, [numerNode, denomNode], []);
+        node = this.callFunction(funcName, [numerNode, denomNode], [], undefined, undefined, body[1]?.loc /* custom addition */);
       }
 
       return [node];
@@ -18154,7 +18167,7 @@ var Parser = /*#__PURE__*/function () {
     var func = src_functions[name];
 
     if (func && func.handler) {
-      // console.log("callFunction", name, func); // custom addition
+      // console.log("callFunction", name, func, loc); // custom addition
       return func.handler(context, args, optArgs);
     } else {
       throw new src_ParseError("No function handler for " + name);
