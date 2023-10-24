@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import formulaNode from '../functions/formulaNode';
+import { getNodeClassName, changeNodeClassName } from '../functions/formulaNode';
 import Latex from '../react-latex/latex';
 import '../katex/katex.css';
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 
-const style = "\\displaystyle ";
 const formulaFontSizeRange = {max: 5, min: 1};
 
 function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, links, linkIdx, changeSymbolsInLink}) {
-    const { getClassName, changeClassName } = formulaNode();
-
     const changeFontSize = (type) => {
         switch (type) {
             case "+":
@@ -93,15 +90,15 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
             if(hoveredMathRegionNode === potentialMathRegionNode){
                 return;
             }
-            changeClassName("remove", hoveredMathRegionNode, "hovered");
+            changeNodeClassName("remove", hoveredMathRegionNode, "hovered");
             changeHoveredMathRegionNode(null);
         }
 
         // Set the new hovered math region
         if (potentialMathRegionNode) {
-            let className = getClassName(potentialMathRegionNode);
+            let className = getNodeClassName(potentialMathRegionNode);
             if(!className.includes(" hovered") && !className.includes(" disabled")){
-                changeClassName("add", potentialMathRegionNode, "hovered");
+                changeNodeClassName("add", potentialMathRegionNode, "hovered");
             }
 
             changeHoveredMathRegionNode(potentialMathRegionNode);
@@ -110,7 +107,7 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
 
     const symbolOnClick = (clientX, clientY) => {
         const targetMathRegionNode = getDeepestMathRegionNodeContainingPosition(clientX, clientY);
-        console.log(targetMathRegionNode);
+        // console.log(targetMathRegionNode);
 
         if(mode !== 1){
             return;
@@ -118,22 +115,23 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
 
         if(targetMathRegionNode){
             // fix the code range with the length with style prefix
-            const codeRange = {start: targetMathRegionNode.codeRange.start - style.length, end: targetMathRegionNode.codeRange.end - style.length};
+            const codeRange = {start: targetMathRegionNode.codeRange.start, end: targetMathRegionNode.codeRange.end};
 
             const symbol = {
                 node: targetMathRegionNode.node,
                 text: formula.substring(codeRange.start, codeRange.end),
-                location: {start: codeRange.start, end: codeRange.end}
+                start: codeRange.start,
+                end: codeRange.end
             }
 
             const node = targetMathRegionNode.node;
-            let className = getClassName(node);
+            let className = getNodeClassName(node);
             if(!className.includes(" disabled")){
                 if(className.includes( ` link_${linkIdx}`)){
-                    changeClassName("remove", node, `link_${linkIdx}`);
+                    changeNodeClassName("remove", node, `link_${linkIdx}`);
                     changeSymbolsInLink("remove", symbol);
                 }else{
-                    changeClassName("add", node, `link_${linkIdx}`);
+                    changeNodeClassName("add", node, `link_${linkIdx}`);
                     changeSymbolsInLink("add", symbol);
                 }
             }
@@ -146,9 +144,9 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
         // console.log(allSymbols);
         allSymbols.forEach((item) => {
             for(let i=links.length-1 ; i>=0 ; i--){
-                changeClassName("remove", item, `link_${i}`);
+                changeNodeClassName("remove", item, `link_${i}`);
             }
-            changeClassName("remove", item, "disabled");
+            changeNodeClassName("remove", item, "disabled");
         });
 
         // reassign class to all nodes
@@ -157,9 +155,9 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
             link.symbols.forEach((item) => {
                 const node = item.node;
                 if(mode === 1 && i !== linkIdx){
-                    changeClassName("add", node, `link_${i} disabled`);
+                    changeNodeClassName("add", node, `link_${i} disabled`);
                 }else{
-                    changeClassName("add", node, `link_${i}`);
+                    changeNodeClassName("add", node, `link_${i}`);
                 }
             })
         });
@@ -175,7 +173,7 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
                 onClick={({clientX, clientY}) => symbolOnClick(clientX, clientY)}
             >
                 
-                <Latex >{`\\[${style}${formula}\\]`}</Latex>
+                <Latex >{`\\[${formula}\\]`}</Latex>
             </div>
             <div className='push'></div>
             <Button type="text" icon={<ZoomInOutlined />} disabled={formulaFontSize===formulaFontSizeRange.max} onClick={() => changeFontSize("+")}/>

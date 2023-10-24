@@ -1,62 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Tooltip, message } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
+import { addColorToFormula, addColorToProse } from '../functions/outputCreation';
 
 function OutputPage({formula, prose, links, tabItems}) {
     const [output, changeOutput] = useState("");
-
-    const addColorLatex = (type, string) => {
-        if(type !== "terms" && type !== "symbols"){
-            console.log("Cannot deal with this type");
-            return "";
-        }
-    
-        // create the sorted array of the link marks
-        let linkMarks = links.reduce((accumulator, item, idx) => (
-            accumulator.concat(item[type].map((i) => (
-                {
-                    start: i.location.start,
-                    end: i.location.end,
-                    link: idx
-                }
-            )))
-        ), []);
-        linkMarks.sort((a, b) => b.start - a.start);
-    
-        if(type === "terms"){
-            // merge connected terms in the same link
-            for(let i=0 ; i<linkMarks.length-1 ; i++){
-                if(linkMarks[i].start === linkMarks[i+1].end + 1 && linkMarks[i].link === linkMarks[i+1].link){
-                    const newLinkMark = {
-                    start: linkMarks[i+1].start,
-                    end: linkMarks[i].end,
-                    link: linkMarks[i].link
-                    }
-                    linkMarks.splice(i, 2, newLinkMark);
-                }
-            }
-        }
-        // console.log(linkMarks);
-    
-        let result = string.trim();
-        linkMarks.forEach((item) => {
-            if(type === "terms"){
-                result = result.substring(0, item.start) + `\\link${item.link} ` + result.substring(item.start, item.end) + " \\plain" + result.substring(item.end);
-            }else if(type === "symbols"){
-                result = result.substring(0, item.start) + `{\\link${item.link} ` + result.substring(item.start, item.end) + "} \\plain" + result.substring(item.end);
-            }
-        });
-        if(!result.startsWith("\\link")){
-            result = "\\plain " + result;
-        }
-        result = result.replaceAll("\\plain \\link", "\\link");
-        // remove last \\plain
-        if(result.endsWith("\\plain")){
-            result = result.substring(0, result.lastIndexOf("\\plain"));
-        }
-        // console.log(result);
-        return result;
-    }
     
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -78,13 +26,13 @@ function OutputPage({formula, prose, links, tabItems}) {
         
         header = header + "\n\\newcommand{\\plain}{\\color{black}}\n\\newcommand{\\link}[1]{\\color{c#1}}";
     
-        let outputFormula = addColorLatex("symbols", formula);
+        let outputFormula = addColorToFormula(links, formula);
         // console.log(outputFormula);
     
-        let outputProse = addColorLatex("terms", prose);
+        let outputProse = addColorToProse(links, prose);
         // console.log(outputProse);
     
-        changeOutput(header + "\n\n\\[" + outputFormula + "\\]\n\n" + outputProse);
+        changeOutput(header + "\n\n\\[" + outputFormula + "\n\\]\n\n" + outputProse);
     }, [tabItems, formula, prose, links])
 
     const [messageApi, contextHolder] = message.useMessage();

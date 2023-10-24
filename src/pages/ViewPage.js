@@ -2,12 +2,10 @@ import { useEffect } from 'react';
 import FormulaView from '../components/FormulaView';
 import ProseView from '../components/ProseView';
 import ColorBar from '../components/ColorBar';
-import formulaNode from '../functions/formulaNode';
+import { getNodeClassName, changeNodeColor } from '../functions/formulaNode';
 import { Divider } from 'antd';
 
 function ViewPage({mode, formula, prose, formulaFontSize, changeFormulaFontSize, links, linkIdx, changeTermsInLink, changeSymbolsInLink, tabItems, changeColor}) {
-  const { getClassName, changeNodeColor } = formulaNode();
-
   // change alpha in a hex color
   const addAlpha = (color, opacity) => {
     // coerce values so ti is between 0 and 1.
@@ -16,17 +14,20 @@ function ViewPage({mode, formula, prose, formulaFontSize, changeFormulaFontSize,
   }
 
   useEffect(() => {
-    // clean color (SVGs + terms + symbols)
-    const defaultColorNodes = [...document.querySelectorAll(".formulaView svg")].concat([...document.querySelectorAll(".formulaView .symbolNode")]).concat([...document.querySelectorAll(".formulaView .spanNode")]);
-    defaultColorNodes.forEach((i) => {
-      changeNodeColor(i, "#000000e0");
+    // clean color (terms + HTML symbols + SVGs)
+    const defaultColorNodes = [...document.querySelectorAll("link_")]
+      .concat([...document.querySelectorAll(".formulaView .symbolNode")])
+      .concat([...document.querySelectorAll(".formulaView .spanNode")])
+      .concat([...document.querySelectorAll(".formulaView .svgNode")]);
+    defaultColorNodes.forEach((item) => {
+      changeNodeColor(item, "#000000e0");
     });
 
     // draw color
     tabItems.forEach((item) => {
       const targetNodes = [...document.getElementsByClassName(`link_${item.key}`)];
       targetNodes.forEach((i) => {
-        let className = getClassName(i);
+        let className = getNodeClassName(i);
         if(className?.includes("disabled") && mode === 1){
           changeNodeColor(i, addAlpha(item.color, 0.4));
         }else{

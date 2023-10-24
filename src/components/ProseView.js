@@ -10,26 +10,25 @@ function ProseView({mode, prose, links, linkIdx, changeTermsInLink}) {
 
     // split prose for the buttons => terms
     const creatTerms = (prose) => {
-        let copiedProse = prose;
         let mark = 0;
         let latexMode = false;
         let terms = [];
-        let firstBracket = copiedProse.indexOf("$");
+        let firstBracket = prose.indexOf("$");
         while (firstBracket !== -1) {
-            const newItems = copiedProse.substring(0, firstBracket).split(' ');
+            const newItems = prose.substring(0, firstBracket).split(' ');
             for (let i = 0; i< newItems.length; i++){
                 let item = newItems[i];
                 let start = mark;
                 let end = mark + item.length;
                 if (latexMode) {
-                    terms.push({text: "$" + item + "$", location: {start: start, end: end}});
+                    terms.push({text: "$" + item + "$", start: start, end: end});
                 }else{
-                    terms.push({text: item, location: {start: start, end: end}});
+                    terms.push({text: item, start: start, end: end});
                 }
                 mark = end + 1;
             }
-            copiedProse = copiedProse.substring(firstBracket + 1);
-            firstBracket = copiedProse.indexOf("$");
+            prose = prose.substring(firstBracket + 1);
+            firstBracket = prose.indexOf("$");
             
             if (latexMode) {
                 latexMode = false;
@@ -37,12 +36,12 @@ function ProseView({mode, prose, links, linkIdx, changeTermsInLink}) {
                 latexMode = true;
             }
         };
-        if(copiedProse.length > 0){
-            const newItems = copiedProse.split(' ');
+        if(prose.length > 0){
+            const newItems = prose.split(' ');
             newItems.forEach((item) => {
                 let start = mark;
                 let end = mark + item.length;
-                terms.push({text: item, location: {start: start, end: end}});
+                terms.push({text: item, start: start, end: end});
                 mark = end + 1;
             });
         };
@@ -54,7 +53,7 @@ function ProseView({mode, prose, links, linkIdx, changeTermsInLink}) {
     // handle click on term
     const termOnClick = (term) => {
         // console.log("termOnClick", term);
-        if(links[linkIdx].terms.find(item => item.location.start === term.location.start)){
+        if(links[linkIdx].terms.find(item => item.start === term.start)){
             changeTermsInLink("remove", term);
         }else{
             changeTermsInLink("add", term);
@@ -64,7 +63,7 @@ function ProseView({mode, prose, links, linkIdx, changeTermsInLink}) {
 
     // if the term is picked in this link
     const isPicked = (idx, term) => {
-        return links[idx]?.terms.find(item => item.location.start === term.location.start);
+        return links[idx]?.terms.find(item => item.start === term.start);
     }
 
     // if the term is picked in other link

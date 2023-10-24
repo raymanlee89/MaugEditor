@@ -4337,7 +4337,7 @@ var SymbolNode = /*#__PURE__*/function () {
       needsSpan = true;
       markup += " class=\"";
       markup += utils.escape(createClass(this.classes));
-      markup += " symbolNode"// Custom addition
+      markup += ((this.hasSourceLocation) ? " symbolNode" : "")// Custom addition
       markup += "\"";
     }
 
@@ -4433,6 +4433,7 @@ var SvgNode = /*#__PURE__*/function () {
 
     if (this.hasSourceLocation) {
       // console.log("SvgNode._toMarkup", this.sourceLocation);
+      markup += `class="svgNode"`;
       markup += `data-source-location-start="${this.sourceLocation.start}"`;
       markup += `data-source-location-end="${this.sourceLocation.end}"`;
     }
@@ -5591,6 +5592,7 @@ var mathsym = function mathsym(value, mode, options, classes, group /* custom ad
   // text ordinal and is therefore not present as a symbol in the symbols
   // table for text, as well as a special case for boldsymbol because it
   // can be used for bold + and -
+  // console.log("mathsym", group); // custom addition
   if (options.font === "boldsymbol" && lookupSymbol(value, "Main-Bold", mode).metrics) {
     return makeSymbol(value, "Main-Bold", mode, options, classes.concat(["mathbf"]), group /* custom addition, may be undefined */);
   } else if (value === "\\" || src_symbols[mode][value].font === "main") {
@@ -10608,6 +10610,7 @@ var SourceLocation = /*#__PURE__*/function () {
 
 
   SourceLocation.range = function range(first, second) {
+    // console.log("SourceLocation.range", first, second); // custom addition
     if (!second) {
       return first && first.loc;
     } else if (!first || !first.loc || !second.loc || first.loc.lexer !== second.loc.lexer) {
@@ -14882,6 +14885,7 @@ defineFunctionBuilders({
 defineFunctionBuilders({
   type: "atom",
   htmlBuilder: function htmlBuilder(group, options) {
+    // console.log("atom htmlBuilder", group); // custom addition
     return buildCommon.mathsym(group.text, group.mode, options, ["m" + group.family], group /* custom addition, may be undefined */);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {

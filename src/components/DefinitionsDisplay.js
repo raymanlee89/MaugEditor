@@ -1,32 +1,14 @@
 import Latex from '../react-latex/latex';
 import { Button } from 'antd';
+import { mergeConnectedTerms } from '../functions/mergeConnectedString';
 
 function DefinitionsDisplay({pickedTerms, changeTermsInLink}) {
     const createDifinitions = (pickedTerms) => {
-        const definitions = [];
-        let i = 0;
-        let newDef = {text: "", location: {start: 0, end: 0}};
-        while(i < pickedTerms?.length){
-            if(newDef.location.end + 1 === pickedTerms[i].location.start){
-                newDef.text = newDef.text.concat(" ", pickedTerms[i].text);
-                newDef.location.end = pickedTerms[i].location.end;
-            }else{
-                if(newDef.text !== ""){
-                    definitions.push(newDef);
-                }
-                newDef = {text: pickedTerms[i].text, location: {start: pickedTerms[i].location.start, end: pickedTerms[i].location.end}};
-            }
-            i++;
-        }
-        if(newDef.text !== ""){
-            definitions.push(newDef);
-        }
-        
-        return definitions;
+        return mergeConnectedTerms(pickedTerms, -1);
     }
 
-    const definitionOnClick = ({start, end}) => {
-        changeTermsInLink("remove with range", undefined, {start, end});
+    const definitionOnClick = (difinition) => {
+        changeTermsInLink("remove with range", undefined, {start: difinition.start, end: difinition.end});
     }
     
     return(
@@ -35,8 +17,8 @@ function DefinitionsDisplay({pickedTerms, changeTermsInLink}) {
             <div className='horizontal buttonsContainer'>
                 {createDifinitions(pickedTerms).map((item) => (
                     <Button type="primary" shape="round" size="large"
-                        key={`${item.text}-${item.location.start}`}
-                        onClick={() => definitionOnClick(item.location)}
+                        key={`${item.text}-${item.start}`}
+                        onClick={() => definitionOnClick(item)}
                     >
                         {item.text.length < 20 ? 
                             <Latex>{item.text}</Latex> : 

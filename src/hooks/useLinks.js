@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 const useLinks = () => {
-    // term = {text: "", location: { start: 0, end: 0}}
-    // symbol = {node: node, text: "", location: { start: 0, end: 0}}
+    // term = {text: "", start: 0, end: 0}
+    // symbol = {node: node, text: "", start: 0, end: 0}
     // link = {terms: [], symbols: []}
     const [links, changeLinks] = useState([
         {terms: [], symbols: []},
@@ -13,18 +13,17 @@ const useLinks = () => {
     const [linkIdx, changeLinkIdx] = useState(0);
 
     const compareLocationStart = (a, b) => {
-        return a.location.start - b.location.start;
+        return a.start - b.start;
     }
 
     const haveSameLocation = (a, b) => {
-        return a.location.start === b.location.start && a.location.end === b.location.end;
+        return a.start === b.start && a.end === b.end;
     }
 
     const changeLinkArray = (type, idx) => {
         switch (type) {
             case "add":
                 const newLink = {terms: [], symbols: []};
-        
                 changeLinks([...links, newLink]);
                 break;
             case "remove":
@@ -62,7 +61,7 @@ const useLinks = () => {
                 newLinks[linkIdx].terms = newLinks[linkIdx].terms.filter((item) => !haveSameLocation(item, term)).sort(compareLocationStart);
                 break;
             case "remove with range":
-                newLinks[linkIdx].terms = newLinks[linkIdx].terms.filter((item) => !(range.start <= item.location.start && item.location.end <= range.end));
+                newLinks[linkIdx].terms = newLinks[linkIdx].terms.filter((item) => !(range.start <= item.start && item.end <= range.end));
                 break;
             default:
                 console.log("No such type in changeTermInLink");
@@ -81,7 +80,7 @@ const useLinks = () => {
                 newLinks[linkIdx].symbols = newLinks[linkIdx].symbols.filter((item) => !haveSameLocation(item, symbol)).sort(compareLocationStart);
                 break;
             case "remove with range":
-                newLinks[linkIdx].symbols = newLinks[linkIdx].symbols.filter((item) => !(range.start <= item.location.start && item.location.end <= range.end));
+                newLinks[linkIdx].symbols = newLinks[linkIdx].symbols.filter((item) => !(range.start <= item.start && item.end <= range.end));
                 break;
             default:
                 console.log("No such type in changeSymbolInLink");
