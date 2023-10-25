@@ -8098,7 +8098,6 @@ defineFunction({
       lowerGroup.classes.push(arrowPrefix + "-arrow-pad");
     }
 
-    console.log("xArrow", group); // custom addition
     var arrowBody = stretchy.svgSpan(group, options, undefined, group /* custom addition */); // Re shift: Note that stretchy.svgSpan returned arrowBody.depth = 0.
     // The point we want on the math axis is at 0.5 * arrowBody.height.
 
