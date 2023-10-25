@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getNodeClassName, changeNodeClassName } from '../functions/formulaNode';
+import { getAllSymbolsContainingPosition } from '../functions/symbolSelection';
+import OverlapSymbolsMenu from './OverlapSymbolsMenu';
 import Latex from '../react-latex/latex';
 import '../katex/katex.css';
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
@@ -25,122 +27,123 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
         }
     }
 
-    // find the target symbols
-    const getOffsetFromMathRegionNode = (node, attrSuffix) => {
-        const attribute = `data-source-location-${attrSuffix}`;
-        if (!node.hasAttribute(attribute)) {
-            return null;
-        }
+    const [hoveredSymbols, changeHoveredSymbols] = useState([]);
 
-        return parseInt(node.getAttribute(attribute));
-    }
-
-    const getRawMathRegionCodeRangeOfNode = (node) => {
-        const start = getOffsetFromMathRegionNode(node, "start");
-        const end = getOffsetFromMathRegionNode(node, "end");
-
-        if (start === null || end === null) {
-            return null;
-        }
-
-        return {start: start, end: end};
-    }
-
-    const getDeepestMathRegionNodeContainingPosition = (clientX, clientY) => {
-        const allNodesContainingPosition = document.elementsFromPoint(clientX, clientY);
-        // console.log("allNodesContainingPosition", allNodesContainingPosition);
-
-        const mathRegionNodesContainingPositionToCodeRanges = [];
-        for (let node of allNodesContainingPosition) {
-            const codeRange = getRawMathRegionCodeRangeOfNode(node);
-            if (codeRange) {
-                mathRegionNodesContainingPositionToCodeRanges.push({node, codeRange});
+    const isInSymbolsArray = (symbol, symbolsArray) => {
+        for(let i=0 ; i<symbolsArray.length ; i++){
+            if(symbolsArray[i].node === symbol.node){
+                return true;
             }
         }
-        // console.log("mathRegionNodesContainingPositionToCodeRanges", mathRegionNodesContainingPositionToCodeRanges);
-
-        let bestNodeAndCodeRange = null;
-        for (let nodeAndCodeRange of mathRegionNodesContainingPositionToCodeRanges) {
-            if (!bestNodeAndCodeRange) {
-                bestNodeAndCodeRange = nodeAndCodeRange;
-                continue;
-            }
-
-            // If the code range of the best match contains the current code range, update it
-            if (bestNodeAndCodeRange.codeRange.start < nodeAndCodeRange.codeRange.start
-            || nodeAndCodeRange.codeRange.end < bestNodeAndCodeRange.codeRange.end) {
-                bestNodeAndCodeRange = nodeAndCodeRange;
-            }
-        }
-        // console.log("bestNodeAndCodeRange", bestNodeAndCodeRange);
-
-        return bestNodeAndCodeRange;
+        return false;
     }
-
-    const [hoveredMathRegionNode, changeHoveredMathRegionNode] = useState(null);
 
     const onMouseMove = (clientX, clientY) => {
-        if(mode !== 1){
+        // symbols are hoverable only in Visual Link Creation mode
+        if(mode !== 1 || rightClicked){
             return;
         }
         
-        const potentialMathRegionNode = getDeepestMathRegionNodeContainingPosition(clientX, clientY)?.node;
+        const targetSymbols = getAllSymbolsContainingPosition(clientX, clientY);
+
         // Always reset the hovered region when the mouse moves over the typeset math
-        if (hoveredMathRegionNode !== null) {
-            if(hoveredMathRegionNode === potentialMathRegionNode){
-                return;
+        hoveredSymbols.forEach((item) => {
+            if(!isInSymbolsArray(item, targetSymbols)){
+                changeNodeClassName("remove", item.node, "hovered");
             }
-            changeNodeClassName("remove", hoveredMathRegionNode, "hovered");
-            changeHoveredMathRegionNode(null);
-        }
+        })
 
         // Set the new hovered math region
-        if (potentialMathRegionNode) {
-            let className = getNodeClassName(potentialMathRegionNode);
-            if(!className.includes(" hovered") && !className.includes(" disabled")){
-                changeNodeClassName("add", potentialMathRegionNode, "hovered");
+        let newHoveredSymbols = [];
+        targetSymbols.forEach((item) => {
+            const className = getNodeClassName(item.node);
+            if(!className.includes("hovered") && !className.includes("disabled")){
+                changeNodeClassName("add", item.node, "hovered");
             }
 
-            changeHoveredMathRegionNode(potentialMathRegionNode);
+            const symbol = {
+                node: item.node,
+                text: formula.substring(item.start, item.end),
+                start: item.start,
+                end: item.end
+            }
+
+            newHoveredSymbols.push(symbol);
+        })
+        changeHoveredSymbols(newHoveredSymbols);
+    }
+
+    // if select === true, select the target symbol; otherwise deselect it
+    const switchSymbol = (targetSymbol, select) => {
+        const node = targetSymbol.node;
+        const start = targetSymbol.start;
+        const end = targetSymbol.end;
+
+        const symbol = {
+            node: node,
+            text: formula.substring(start, end),
+            start: start,
+            end: end
+        }
+
+        const className = getNodeClassName(node);
+        // don't select the disabled symbol
+        if(!className.includes("disabled")){
+            if(select){
+                // if it has been selected, don't select it again
+                if(!className.includes(`link_${linkIdx}`)){
+                    changeNodeClassName("add", node, `link_${linkIdx}`);
+                    changeSymbolsInLink("add", symbol);
+                }
+            }else{
+                changeNodeClassName("remove", node, `link_${linkIdx}`);
+                changeSymbolsInLink("remove", symbol);
+            }
         }
     }
 
-    const symbolOnClick = (clientX, clientY) => {
-        const targetMathRegionNode = getDeepestMathRegionNodeContainingPosition(clientX, clientY);
-        // console.log(targetMathRegionNode);
+    const symbolsOnClick = (clientX, clientY) => {
+        // symbols are selectable only in Visual Link Creation mode
+        if(mode !== 1 || rightClicked){
+            return;
+        }
 
+        const targetSymbols = getAllSymbolsContainingPosition(clientX, clientY);
+        // if the target symbols are all selected, deselect all; otherwise, select them all
+        let selectAll = false;
+        for(let i=0 ; i<targetSymbols.length ; i++){
+            const className = getNodeClassName(targetSymbols[i].node);
+            if(!className.includes("disabled") && !className.includes(`link_${linkIdx}`)){
+                selectAll = true;
+            }
+        }
+        targetSymbols.forEach((item) => switchSymbol(item, selectAll));
+    }
+
+    const [mouseLocation, changeMouseLocation] = useState({x: 0, y: 0});
+    const [rightClicked, changeRightClicked] = useState(false);
+
+    const symbolsOnRightClick = (clientX, clientY) => {
+        if(rightClicked){
+            changeRightClicked(false);
+            return;
+        }
+
+        // symbols are selectable only in Visual Link Creation mode
         if(mode !== 1){
             return;
         }
 
-        if(targetMathRegionNode){
-            // fix the code range with the length with style prefix
-            const codeRange = {start: targetMathRegionNode.codeRange.start, end: targetMathRegionNode.codeRange.end};
-
-            const symbol = {
-                node: targetMathRegionNode.node,
-                text: formula.substring(codeRange.start, codeRange.end),
-                start: codeRange.start,
-                end: codeRange.end
-            }
-
-            const node = targetMathRegionNode.node;
-            let className = getNodeClassName(node);
-            if(!className.includes(" disabled")){
-                if(className.includes( ` link_${linkIdx}`)){
-                    changeNodeClassName("remove", node, `link_${linkIdx}`);
-                    changeSymbolsInLink("remove", symbol);
-                }else{
-                    changeNodeClassName("add", node, `link_${linkIdx}`);
-                    changeSymbolsInLink("add", symbol);
-                }
-            }
-        }
+        // open the overlap symbols menu
+        changeRightClicked(true);
+        changeMouseLocation({x: clientX, y:clientY});
     }
 
     useEffect(() => {
         // clear all highlighted and disabled class
-        const allSymbols = [...document.querySelectorAll("svg")].concat([...document.getElementsByClassName("symbolNode")]).concat([...document.getElementsByClassName("spanNode")]);
+        const allSymbols = [...document.getElementsByClassName("symbolNode")]
+            .concat([...document.getElementsByClassName("spanNode")])
+            .concat([...document.getElementsByClassName("svgNode")]);
         // console.log(allSymbols);
         allSymbols.forEach((item) => {
             for(let i=links.length-1 ; i>=0 ; i--){
@@ -170,15 +173,25 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
             <div 
                 className={`formulaView unselectable formulaFontSize_${formulaFontSize}`}
                 onMouseMove={({clientX, clientY}) => onMouseMove(clientX, clientY)} 
-                onClick={({clientX, clientY}) => symbolOnClick(clientX, clientY)}
+                onClick={({clientX, clientY}) => symbolsOnClick(clientX, clientY)}
+                onContextMenu={(e) => {
+                    e.preventDefault(); // prevent the default behaviour when right clicked
+                    symbolsOnRightClick(e.clientX, e.clientY);
+                }}
             >
-                
                 <Latex >{`\\[${formula}\\]`}</Latex>
             </div>
             <div className='push'></div>
             <Button type="text" icon={<ZoomInOutlined />} disabled={formulaFontSize===formulaFontSizeRange.max} onClick={() => changeFontSize("+")}/>
+            {rightClicked && 
+                <OverlapSymbolsMenu 
+                    mouseLocation={mouseLocation} 
+                    hoveredSymbols={hoveredSymbols} changeHoveredSymbols={changeHoveredSymbols} 
+                    switchSymbol={switchSymbol} 
+                    changeRightClicked={changeRightClicked}
+                />
+            }
         </div>
-        
     );
 }
 

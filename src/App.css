@@ -59,7 +59,12 @@ p {
 }
 
 .formulaView .katex .hovered {
-  background-color: rgba(150, 150, 150, 0.8);
+  background-color: rgba(150, 150, 150, 0.5);
+}
+
+.formulaView .katex .outline {
+  outline: solid;
+  outline-color: red;
 }
 
 .unselectable {
@@ -88,6 +93,12 @@ p {
 
 .formulaFontSize_5 .katex { 
   font-size: 6.5em !important;
+}
+
+.contextMenu {
+  position: absolute;
+  background-color: #f5f5f5;
+  border-radius: 6px;
 }
 
 /* Output Area */

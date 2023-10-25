@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { changeNodeClassName } from '../functions/formulaNode';
 
 const useLinks = () => {
     // term = {text: "", start: 0, end: 0}
@@ -29,8 +30,8 @@ const useLinks = () => {
             case "remove":
                 const symbols = links[idx].symbols;
                 symbols.forEach((item) => {
-                    item.node.className = item.node.className.replace(" highlighted", "");
-                    item.node.className = item.node.className.replace(" disabled", "");
+                    changeNodeClassName("remove", item.node, "highlighted");
+                    changeNodeClassName("remove", item.node, "disabled");
                 })
                 const linksCopy = [...links];
                 linksCopy.splice(idx, 1);
