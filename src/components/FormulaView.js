@@ -150,6 +150,9 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
                 changeNodeClassName("remove", item, `link_${i}`);
             }
             changeNodeClassName("remove", item, "disabled");
+            if(mode !== 1){
+                changeNodeClassName("remove", item, "hovered");
+            }
         });
 
         // reassign class to all nodes
@@ -175,7 +178,9 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
                 onMouseMove={({clientX, clientY}) => onMouseMove(clientX, clientY)} 
                 onClick={({clientX, clientY}) => symbolsOnClick(clientX, clientY)}
                 onContextMenu={(e) => {
-                    e.preventDefault(); // prevent the default behaviour when right clicked
+                    if(mode === 1){
+                        e.preventDefault(); // prevent the default behaviour when right clicked
+                    }
                     symbolsOnRightClick(e.clientX, e.clientY);
                 }}
             >

@@ -5743,22 +5743,25 @@ var canCombine = function canCombine(prev, next) {
 
 
 var tryCombineChars = function tryCombineChars(chars) {
-  for (var i = 0; i < chars.length - 1; i++) {
-    var prev = chars[i];
-    var next = chars[i + 1];
+  // console.log("tryCombineChars", chars); // custom addition
 
-    if (prev instanceof SymbolNode && next instanceof SymbolNode && canCombine(prev, next)) {
-      prev.text += next.text;
-      prev.height = Math.max(prev.height, next.height);
-      prev.depth = Math.max(prev.depth, next.depth); // Use the last character's italic correction since we use
-      // it to add padding to the right of the span created from
-      // the combined characters.
+  // custom change: do not combine chars, make all chars independent & selectable
+  // for (var i = 0; i < chars.length - 1; i++) {
+  //   var prev = chars[i];
+  //   var next = chars[i + 1];
 
-      prev.italic = next.italic;
-      chars.splice(i + 1, 1);
-      i--;
-    }
-  }
+  //   if (prev instanceof SymbolNode && next instanceof SymbolNode && canCombine(prev, next)) {
+  //     prev.text += next.text;
+  //     prev.height = Math.max(prev.height, next.height);
+  //     prev.depth = Math.max(prev.depth, next.depth); // Use the last character's italic correction since we use
+  //     // it to add padding to the right of the span created from
+  //     // the combined characters.
+
+  //     prev.italic = next.italic;
+  //     chars.splice(i + 1, 1);
+  //     i--;
+  //   }
+  // }
 
   return chars;
 };
@@ -5856,8 +5859,6 @@ var makeFragment = function makeFragment(children) {
 
 var wrapFragment = function wrapFragment(group, options) {
   if (group instanceof DocumentFragment) {
-    // console.log("wrapFragment", group); // custom addition
-    // return makeSpan([], [group], options, undefined, group /* new custom addition, may be undefined */);
     return makeSpan([], [group], options);
   }
 
@@ -6639,8 +6640,6 @@ var buildGroup = function buildGroup(group, options, baseOptions) {
     // for that size difference.
 
     if (baseOptions && options.size !== baseOptions.size) {
-      // console.log("buildGroup", group); // custom addition
-      // groupNode = buildHTML_makeSpan(options.sizingClasses(baseOptions), [groupNode], options, undefined, group /* new custom addition, may be undefined */);
       groupNode = buildHTML_makeSpan(options.sizingClasses(baseOptions), [groupNode], options);
       var multiplier = options.sizeMultiplier / baseOptions.sizeMultiplier;
       groupNode.height *= multiplier;
@@ -8075,7 +8074,8 @@ defineFunction({
       mode: parser.mode,
       label: funcName,
       body: args[0],
-      below: optArgs[0]
+      below: optArgs[0],
+      loc: _ref.loc // custom addition
     };
   },
   // Flow is unable to correctly infer the type of `group`, even though it's
@@ -8098,7 +8098,8 @@ defineFunction({
       lowerGroup.classes.push(arrowPrefix + "-arrow-pad");
     }
 
-    var arrowBody = stretchy.svgSpan(group, options); // Re shift: Note that stretchy.svgSpan returned arrowBody.depth = 0.
+    console.log("xArrow", group); // custom addition
+    var arrowBody = stretchy.svgSpan(group, options, undefined, group /* custom addition */); // Re shift: Note that stretchy.svgSpan returned arrowBody.depth = 0.
     // The point we want on the math axis is at 0.5 * arrowBody.height.
 
     var arrowShift = -options.fontMetrics().axisHeight + 0.5 * arrowBody.height; // 2 mu kern. Ref: amsmath.dtx: #7\if0#2\else\mkern#2mu\fi
@@ -8147,7 +8148,6 @@ defineFunction({
 
 
     vlist.children[0].children[0].children[1].classes.push("svg-align");
-    // return buildCommon.makeSpan(["mrel", "x-arrow"], [vlist], options, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mrel", "x-arrow"], [vlist], options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -12167,7 +12167,7 @@ var genfrac_htmlBuilder = function htmlBuilder(group, options) {
     rightDelim = delimiter.customSizedDelim(group.rightDelim, delimSize, true, options.havingStyle(style), group.mode, ["mclose"]);
   }
 
-  return buildCommon.makeSpan(["mord"].concat(newOptions.sizingClasses(options)), [leftDelim, buildCommon.makeSpan(["mfrac"], [frac]), rightDelim], options, undefined, group /* new custom addition, may be undefined */);
+  return buildCommon.makeSpan(["mord"].concat(newOptions.sizingClasses(options)), [leftDelim, buildCommon.makeSpan(["mfrac"], [frac]), rightDelim], options, undefined, group /* custom addition, may be undefined */);
 };
 
 var genfrac_mathmlBuilder = function mathmlBuilder(group, options) {
@@ -13206,7 +13206,6 @@ defineFunction({
     // This code resolves issue #1234
 
     node = buildCommon.makeSpan(["thinbox"], [node], options);
-    // return buildCommon.makeSpan(["mord", "vbox"], [node], options, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mord", "vbox"], [node], options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -13504,7 +13503,7 @@ var op_htmlBuilder = function htmlBuilder(grp, options) {
       stash = group.name.slice(1);
       group.name = stash === "oiint" ? "\\iint" : "\\iiint";
     }
-    base = buildCommon.makeSymbol(group.name, fontName, "math", options, ["mop", "op-symbol", large ? "large-op" : "small-op"], group /* new custom addition, may be undefined */);
+    base = buildCommon.makeSymbol(group.name, fontName, "math", options, ["mop", "op-symbol", large ? "large-op" : "small-op"], group /*custom addition, may be undefined */);
 
     if (stash.length > 0) {
       // We're in \oiint or \oiiint. Overlay the oval.
@@ -13826,10 +13825,8 @@ var operatorname_htmlBuilder = function htmlBuilder(grp, options) {
       }
     }
 
-    // base = buildCommon.makeSpan(["mop"], expression, options, undefined, grp /* new custom addition, may be undefined */);
     base = buildCommon.makeSpan(["mop"], expression, options);
   } else {
-    // base = buildCommon.makeSpan(["mop"], [], options, undefined, grp /* new custom addition, may be undefined */);
     base = buildCommon.makeSpan(["mop"], [], options);
   }
 
@@ -13939,7 +13936,6 @@ defineFunctionBuilders({
       return buildCommon.makeFragment(buildExpression(group.body, options, false));
     }
 
-    // return buildCommon.makeSpan(["mord"], buildExpression(group.body, options, true), options, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mord"], buildExpression(group.body, options, true), options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -14102,7 +14098,6 @@ defineFunction({
   htmlBuilder: function htmlBuilder(group, options) {
     var inner = buildCommon.makeSpan(["inner"], [buildGroup(group.body, options.withPhantom())]);
     var fix = buildCommon.makeSpan(["fix"], []);
-    // return buildCommon.makeSpan(["mord", "rlap"], [inner, fix], options, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mord", "rlap"], [inner, fix], options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -14206,7 +14201,6 @@ defineFunction({
   },
   htmlBuilder: function htmlBuilder(group, options) {
     // Make an empty span for the rule
-    // var rule = buildCommon.makeSpan(["mord", "rule"], [], options, undefined, group /* new custom addition, may be undefined */); // Calculate the shift, width, and height of the rule, and account for units
     var rule = buildCommon.makeSpan(["mord", "rule"], [], options); // Calculate the shift, width, and height of the rule, and account for units
 
     var width = calculateSize(group.width, options);
@@ -14521,7 +14515,6 @@ defineFunction({
     }, options);
 
     if (!group.index) {
-      // return buildCommon.makeSpan(["mord", "sqrt"], [body], options, undefined, group /* new custom addition, may be undefined */);
       return buildCommon.makeSpan(["mord", "sqrt"], [body], options);
     } else {
       // Handle the optional root index
@@ -14543,7 +14536,6 @@ defineFunction({
       // kerning
 
       var rootVListWrap = buildCommon.makeSpan(["root"], [rootVList]);
-      // return buildCommon.makeSpan(["mord", "sqrt"], [rootVListWrap, body], options, undefined, group /* new custom addition, may be undefined */);
       return buildCommon.makeSpan(["mord", "sqrt"], [rootVListWrap, body], options);
     }
   },
@@ -14804,8 +14796,6 @@ defineFunctionBuilders({
 
 
     var mclass = getTypeOfDomTree(base, "right") || "mord";
-    // console.log("msupsub", group); // custom addition
-    // return buildCommon.makeSpan([mclass], [base, buildCommon.makeSpan(["msupsub"], [supsub])], options, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan([mclass], [base, buildCommon.makeSpan(["msupsub"], [supsub])], options);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -15004,12 +14994,10 @@ defineFunctionBuilders({
         ord.classes.push(className);
         return ord;
       } else {
-        // return buildCommon.makeSpan(["mspace", className], [buildCommon.mathsym(group.text, group.mode, options)], options, undefined, group /* new custom addition, may be undefined */);
         return buildCommon.makeSpan(["mspace", className], [buildCommon.mathsym(group.text, group.mode, options)], options);
       }
     } else if (cssSpace.hasOwnProperty(group.text)) {
       // Spaces based on just a CSS class.
-      // return buildCommon.makeSpan(["mspace", cssSpace[group.text]], [], options, undefined, group /* new custom addition, may be undefined */);
       return buildCommon.makeSpan(["mspace", cssSpace[group.text]], [], options);
     } else {
       throw new src_ParseError("Unknown type of space \"" + group.text + "\"");
@@ -15117,7 +15105,6 @@ defineFunction({
   htmlBuilder: function htmlBuilder(group, options) {
     var newOptions = optionsWithFont(group, options);
     var inner = buildExpression(group.body, newOptions, true);
-    // return buildCommon.makeSpan(["mord", "text"], inner, newOptions, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mord", "text"], inner, newOptions);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {
@@ -15258,11 +15245,9 @@ defineFunction({
         c = '\\textasciitilde';
       }
 
-      // body.push(buildCommon.makeSymbol(c, "Typewriter-Regular", group.mode, newOptions, ["mord", "texttt"]), group /* new custom addition, may be undefined */);
       body.push(buildCommon.makeSymbol(c, "Typewriter-Regular", group.mode, newOptions, ["mord", "texttt"]));
     }
 
-    // return buildCommon.makeSpan(["mord", "text"].concat(newOptions.sizingClasses(options)), buildCommon.tryCombineChars(body), newOptions, undefined, group /* new custom addition, may be undefined */);
     return buildCommon.makeSpan(["mord", "text"].concat(newOptions.sizingClasses(options)), buildCommon.tryCombineChars(body), newOptions);
   },
   mathmlBuilder: function mathmlBuilder(group, options) {

@@ -1,8 +1,17 @@
 import { getNodeClassName, changeNodeClassName } from '../functions/formulaNode';
-import { CloseCircleOutlined } from '@ant-design/icons';
+import { useOutsideClick } from '../hooks/useOutsideClick';
 import { Button } from 'antd';
 
 function OverlapSymbolsMenu({mouseLocation, hoveredSymbols, changeHoveredSymbols, switchSymbol, changeRightClicked}) {
+    const leaveOverlapSymbolsMenu = () => {
+        changeRightClicked(false);
+        hoveredSymbols.forEach((item) => {
+            changeNodeClassName("remove", item.node, "outline");
+            changeNodeClassName("remove", item.node, "hovered");
+        })
+        changeHoveredSymbols([]);
+    }
+
     const contextMenuItemOnClick = (hoveredSymbolIdx) => {
         const targetSymbol = hoveredSymbols[hoveredSymbolIdx];
         const className = getNodeClassName(targetSymbol.node);
@@ -13,19 +22,13 @@ function OverlapSymbolsMenu({mouseLocation, hoveredSymbols, changeHoveredSymbols
         leaveOverlapSymbolsMenu();
     }
 
-    const leaveOverlapSymbolsMenu = () => {
-        changeRightClicked(false);
-        hoveredSymbols.forEach((item) => {
-            changeNodeClassName("remove", item.node, "outline");
-            changeNodeClassName("remove", item.node, "hovered");
-        })
-        changeHoveredSymbols([]);
-    }
+    const ref = useOutsideClick(leaveOverlapSymbolsMenu);
 
     return (
         <div
             className="contextMenu"
             style={{left: `${mouseLocation.x}px`, top: `${mouseLocation.y}px`}}
+            ref={ref}
         >
             {hoveredSymbols.map((item, i) => (
                 <Button
@@ -36,7 +39,6 @@ function OverlapSymbolsMenu({mouseLocation, hoveredSymbols, changeHoveredSymbols
                     {item.text}
                 </Button>
             ))}
-            <Button icon={<CloseCircleOutlined />} onClick={leaveOverlapSymbolsMenu}/>
         </div>
     );
 }
