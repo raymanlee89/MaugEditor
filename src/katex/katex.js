@@ -4373,6 +4373,9 @@ var SymbolNode = /*#__PURE__*/function () {
     // Custom addition:
     if (this.hasSourceLocation) {
       // console.log("SymbolNode._toMarkup", this.text, this.sourceLocation);
+      if(markup === "<span"){
+        markup += " class=\"symbolNode\"";
+      }
       markup += `data-source-location-start="${this.sourceLocation.start}"`;
       markup += `data-source-location-end="${this.sourceLocation.end}"`;
     }
@@ -5807,11 +5810,6 @@ var sizeElementFromChildren = function sizeElementFromChildren(elem) {
 
 
 var makeSpan = function makeSpan(classes, children, options, style, group /* custom addition, may be undefined */) {
-  // custonm addition
-  // if(group !== undefined){
-  //   console.log("makeSpan", group);
-  // }
-
   var span = new Span(classes, children, options, style, group /* custom addition, may be undefined */);
   sizeElementFromChildren(span);
   return span;

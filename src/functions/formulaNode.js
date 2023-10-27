@@ -16,7 +16,10 @@ export const changeNodeClassName = (type, node, classToken) => {
     
     switch (type) {
         case "add":
-            newClassName = newClassName.concat(" " + classToken);
+            // do not add duplicate class
+            if(!newClassName.includes(classToken)){
+                newClassName = newClassName.concat(" " + classToken);
+            }
             break;
         case "remove":
             newClassName = newClassName.replace(" " + classToken, "");

@@ -15,7 +15,7 @@ function ViewPage({mode, formula, prose, formulaFontSize, changeFormulaFontSize,
 
     useEffect(() => {
         // clean color (terms + HTML symbols + SVGs)
-        const defaultColorNodes = [...document.querySelectorAll("link_")]
+        const defaultColorNodes = [...document.getElementsByClassName("link_")]
             .concat([...document.querySelectorAll(".formulaView .symbolNode")])
             .concat([...document.querySelectorAll(".formulaView .spanNode")])
             .concat([...document.querySelectorAll(".formulaView .svgNode")]);

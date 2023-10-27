@@ -1,13 +1,5 @@
 import { mergeConnectedSymbols, mergeConnectedTerms } from './mergeConnectedString';
-
-const isInCharArray = (targetChar, charArray) => {
-    for(let i=0 ; i<charArray.length ; i++){
-        if(targetChar === charArray[i]){
-            return true;
-        }
-    }
-    return false;
-}
+import { isEntity, isInCharArray } from "./entityDetection";
 
 // add color marks to the formula
 export const addColorToFormula = (links, formula) => {
@@ -19,29 +11,29 @@ export const addColorToFormula = (links, formula) => {
         )
     ), []);
     mergedSymbols.sort((a, b) => a.start - b.start);
-    // console.log("mergedSymbols", [...mergedSymbols]);
+    console.log("mergedSymbols", [...mergedSymbols]);
 
     // create a default link to colorize the plain color
     for(let i=mergedSymbols.length ; i>-1 ; i--){
         let start = i === 0 ? 0 : mergedSymbols[i-1].end;
-        while(isInCharArray(formula[start], [" ", "{", "}"])){
+        while(isInCharArray(formula[start], [".", "^", "_", " ", "{", "}"])){
             start++; // remove the " " and "}" form the previous colorized element
         }
 
         let end = i === mergedSymbols.length ? formula.length : mergedSymbols[i].start;
-        while(isInCharArray(formula[end-1], [" ", "{", "}"])){
+        while(isInCharArray(formula[end-1], [".", "^", "_", " ", "{", "}"])){
             end--; // remove the " " and "{" form the next colorized element
         }
 
         if(start > end){
-            continue; // if the innerText is empty
+            continue; // if the plainText is empty
         }
 
-        // WARNNING!! innerText is not equal to between, it is the text in plain color
-        const innerText = formula.substring(start, end).replace(/[.^_ {}]/g, "");
-        if(innerText.length !== 0){
+        // WARNNING!! plainText is not equal to between, it is the text in plain color
+        const plainText = formula.substring(start, end);
+        if(plainText.replace(/[.^_ {}]/g, "").length !== 0){
             const newSym = {
-                text: formula.substring(start, end),
+                text: plainText,
                 start: start,
                 end: end,
                 link: -1
@@ -49,18 +41,29 @@ export const addColorToFormula = (links, formula) => {
             mergedSymbols.splice(i, 0, newSym);
         }
     }
-    // console.log("mergedSymbols + plain", mergedSymbols);
+    console.log("mergedSymbols + plainText", mergedSymbols);
     
     const reversed = [...mergedSymbols].reverse();
     let result = formula.trim();
     reversed.forEach((item) => {
         const colorMark = item.link === -1 ? "\\plain" : `\\link${item.link}`;
-        if(isInCharArray(formula[item.start-1], ["^", "_"])){
-            result = result.substring(0, item.start) + "\n{" + colorMark + " " + result.substring(item.start, item.end) + "}" + result.substring(item.end);
+        if(isEntity(formula, item)){
+            // if this symbol is an entity, use {} to protect it
+            let separator = item.start + 1;
+            if(formula[item.start] === "\\"){
+                const separatorEnd = formula.substring(item.start, item.end).search(" ");
+                separator = separatorEnd===-1 ?  item.end : item.start + separatorEnd;
+            }
+            const entity = result.substring(item.start, separator);
+            const remain = result.substring(separator, item.end);
+            console.log("Item", formula.substring(item.start, item.end), "Entity", entity, "Remain", remain);
+            if(separator !== item.end){
+                result = result.substring(0, separator) + "\n" + colorMark + " " + remain + result.substring(item.end);
+            }
+            result = result.substring(0, item.start) + "\n{" + colorMark + " " + entity + "}" + result.substring(separator);
         }else{
             result = result.substring(0, item.start) + "\n" + colorMark + " " + result.substring(item.start);
         }
-        
     });
     // console.log("result", result);
     return result;
