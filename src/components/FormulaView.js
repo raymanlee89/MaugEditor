@@ -9,7 +9,7 @@ import { Button } from 'antd';
 
 const formulaFontSizeRange = {max: 5, min: 1};
 
-function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, links, linkIdx, changeSymbolsInLink}) {
+function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, links, linkIdx, changeSymbolsInLink}) {
     const changeFontSize = (type) => {
         switch (type) {
             case "+":
@@ -39,8 +39,8 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
     }
 
     const onMouseMove = (clientX, clientY) => {
-        // symbols are hoverable only in Visual Link Creation mode
-        if(mode !== 1 || rightClicked){
+        // symbols are hoverable only in Visual Link Creation stage
+        if(stage !== 1 || rightClicked){
             return;
         }
         
@@ -103,8 +103,8 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
     }
 
     const symbolsOnClick = (clientX, clientY) => {
-        // symbols are selectable only in Visual Link Creation mode
-        if(mode !== 1 || rightClicked){
+        // symbols are selectable only in Visual Link Creation stage
+        if(stage !== 1 || rightClicked){
             return;
         }
 
@@ -129,8 +129,8 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
             return;
         }
 
-        // symbols are selectable only in Visual Link Creation mode
-        if(mode !== 1){
+        // symbols are selectable only in Visual Link Creation stage
+        if(stage !== 1){
             return;
         }
 
@@ -150,7 +150,7 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
                 changeNodeClassName("remove", item, `link_${i}`);
             }
             changeNodeClassName("remove", item, "disabled");
-            if(mode !== 1){
+            if(stage !== 1){
                 changeNodeClassName("remove", item, "hovered");
             }
         });
@@ -160,14 +160,14 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
         links.forEach((link, i) => {
             link.symbols.forEach((item) => {
                 const node = item.node;
-                if(mode === 1 && i !== linkIdx){
+                if(stage === 1 && i !== linkIdx){
                     changeNodeClassName("add", node, `link_${i} disabled`);
                 }else{
                     changeNodeClassName("add", node, `link_${i}`);
                 }
             })
         });
-    }, [mode, links, linkIdx]);
+    }, [stage, links, linkIdx]);
 
     return(
         <div className='element horizontal'>
@@ -178,7 +178,7 @@ function FormulaView({mode, formula, formulaFontSize, changeFormulaFontSize, lin
                 onMouseMove={({clientX, clientY}) => onMouseMove(clientX, clientY)} 
                 onClick={({clientX, clientY}) => symbolsOnClick(clientX, clientY)}
                 onContextMenu={(e) => {
-                    if(mode === 1){
+                    if(stage === 1){
                         e.preventDefault(); // prevent the default behaviour when right clicked
                     }
                     symbolsOnRightClick(e.clientX, e.clientY);

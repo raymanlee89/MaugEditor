@@ -11,7 +11,7 @@ export const addColorToFormula = (links, formula) => {
         )
     ), []);
     mergedSymbols.sort((a, b) => a.start - b.start);
-    console.log("mergedSymbols", [...mergedSymbols]);
+    // console.log("mergedSymbols", [...mergedSymbols]);
 
     // create a default link to colorize the plain color
     for(let i=mergedSymbols.length ; i>-1 ; i--){
@@ -41,7 +41,7 @@ export const addColorToFormula = (links, formula) => {
             mergedSymbols.splice(i, 0, newSym);
         }
     }
-    console.log("mergedSymbols + plainText", mergedSymbols);
+    // console.log("mergedSymbols + plainText", mergedSymbols);
     
     const reversed = [...mergedSymbols].reverse();
     let result = formula.trim();
@@ -56,7 +56,7 @@ export const addColorToFormula = (links, formula) => {
             }
             const entity = result.substring(item.start, separator);
             const remain = result.substring(separator, item.end);
-            console.log("Item", formula.substring(item.start, item.end), "Entity", entity, "Remain", remain);
+            // console.log("Item", formula.substring(item.start, item.end), "Entity", entity, "Remain", remain);
             if(separator !== item.end){
                 result = result.substring(0, separator) + "\n" + colorMark + " " + remain + result.substring(item.end);
             }

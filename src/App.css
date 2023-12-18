@@ -76,23 +76,23 @@ p {
 }
 
 .formulaFontSize_1 .katex { 
-  font-size: 2.5em !important;
+  font-size: 1em !important;
 }
 
 .formulaFontSize_2 .katex { 
-  font-size: 3.5em !important;
+  font-size: 2em !important;
 }
 
 .formulaFontSize_3 .katex { 
-  font-size: 4.5em !important;
+  font-size: 3em !important;
 }
 
 .formulaFontSize_4 .katex { 
-  font-size: 5.5em !important;
+  font-size: 4em !important;
 }
 
 .formulaFontSize_5 .katex { 
-  font-size: 6.5em !important;
+  font-size: 5em !important;
 }
 
 .contextMenu {

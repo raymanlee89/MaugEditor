@@ -1,8 +1,11 @@
+import React, { useState } from 'react';
 import CompositeSymbolsDisplay from '../components/CompositeSymbolsDisplay';
 import DefinitionsDisplay from '../components/DefinitionsDisplay';
-import { Divider, Tabs } from 'antd';
+import { Divider, Tabs, Modal } from 'antd';
 
 function LinkPage({formula, links, linkIdx, changeLinkIdx, changeLinkArray, changeTermsInLink, changeSymbolsInLink, tabItems, changeTabs}) {
+    const [removeLinkIdx, changeRemoveLinkIdx] = useState(-1);
+
     const onChange = (newActiveKey) => {
         const targetLinkIdx = Number(newActiveKey);
         // console.log("Change link", targetLinkIdx);
@@ -24,25 +27,36 @@ function LinkPage({formula, links, linkIdx, changeLinkIdx, changeLinkArray, chan
             // change picked link
             changeLinkIdx(links.length);
         } else {
-            const targetLinkIdx = Number(targetKey);
-            changeTabs("remove", targetLinkIdx);
-
-            // remove the target link in links
-            changeLinkArray("remove", targetLinkIdx);
-
-            // change picked link
-            if(targetLinkIdx < linkIdx || targetLinkIdx === linkIdx){
-                changeLinkIdx(linkIdx - 1);
-            }
+            changeRemoveLinkIdx(Number(targetKey));
         }
+    }
+
+    const onRemove = () => {
+        changeTabs("remove", removeLinkIdx);
+
+        // remove the target link in links
+        changeLinkArray("remove", removeLinkIdx);
+
+        // change picked link
+        if(removeLinkIdx < linkIdx || removeLinkIdx === linkIdx){
+            changeLinkIdx(linkIdx - 1);
+        }
+        changeRemoveLinkIdx(-1);
+    }
+
+    const onCancel = () => {
+        changeRemoveLinkIdx(-1);
     }
 
     return(
         <div className='page vertical'>
             <Tabs type="editable-card" tabPosition="top" onChange={onChange} activeKey={linkIdx.toString()} onEdit={onEdit} items={tabItems}/>
-            <CompositeSymbolsDisplay formula={formula} pickedSymbols={links[linkIdx].symbols} changeSymbolsInLink={changeSymbolsInLink}/>
+            <CompositeSymbolsDisplay formula={formula} pickedSymbols={links[linkIdx] === undefined? [] : links[linkIdx].symbols} changeSymbolsInLink={changeSymbolsInLink}/>
             <Divider />
-            <DefinitionsDisplay pickedTerms={links[linkIdx].terms} changeTermsInLink={changeTermsInLink}/>
+            <DefinitionsDisplay pickedTerms={links[linkIdx] === undefined? [] : links[linkIdx].terms} changeTermsInLink={changeTermsInLink}/>
+            <Modal title={`You are trying to remove ${tabItems[removeLinkIdx]?.label}`} open={removeLinkIdx!==-1} onOk={onRemove} onCancel={onCancel}>
+                Are you sure you want to remove this link?
+            </Modal>
         </div>
     );
 }

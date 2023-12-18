@@ -21,6 +21,12 @@ const useLinks = () => {
         return a.start === b.start && a.end === b.end;
     }
 
+    // get default links from the backend model
+    const setDefaultLinkArray = (defaultLinks) => {
+        console.log("setDefaultLinkArray", defaultLinks);
+        changeLinks(defaultLinks);
+    }
+
     const changeLinkArray = (type, idx) => {
         switch (type) {
             case "add":
@@ -52,7 +58,7 @@ const useLinks = () => {
     }
 
     const changeTermsInLink = (type, term, range) => {
-        // console.log("changeTermsInLink", type, term, range);
+        console.log("changeTermsInLink", type, term, range);
         const newLinks = [...links];
         switch (type) {
             case "add":
@@ -89,7 +95,7 @@ const useLinks = () => {
         changeLinks(newLinks);
     }
 
-    return {links, linkIdx, changeLinkIdx, changeLinkArray, changeTermsInLink, changeSymbolsInLink};
+    return {links, linkIdx, changeLinkIdx, setDefaultLinkArray, changeLinkArray, changeTermsInLink, changeSymbolsInLink};
 };
 
 export default useLinks;

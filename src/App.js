@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Divider, Button, Tooltip } from 'antd';
+import { Layout, Divider, Button, Tooltip, Switch } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import './App.css';
 import InputPage from './pages/InputPage';
@@ -8,35 +8,42 @@ import LinkPage from './pages/LinkPage';
 import OutputPage from './pages/OutputPage';
 import useLinks from './hooks/useLinks';
 import useTabs from './hooks/usetTabs';
+import { getLinks } from './api/linkCreation.api';
 
 const { Header, Footer, Content } = Layout;
-const modeNames = ["LaTeX Editing", "Visual Link Creation", "Output"];
+const stageNames = ["LaTeX Editing", "Visual Link Creation", "Output"];
 
 function App() {
-  const [mode, changeMode] = useState(0);
-  const [formula, changeFormula] = useState("c^2 = a^2 + b^2");
-  const [prose, changeProse] = useState("When an object spans perpendicular directions, its area is the combined area of each part.");
+  const [mode, changeMode] = useState(true); // AI mode
+  const [stage, changeStage] = useState(0);
+  const [loading, changeLoading] = useState(false);
+  const [formula, changeFormula] = useState("\\displaystyle p_i = (p_{chipset} + \\sum^G_{g=1}p_g)\\cdot 1.59");
+  const [prose, changeProse] = useState("Every 10 seconds, the total instantaneous power usage $p_i$, in watts, is computed as the sum of those of your chipset $p_{chipset}$(CPU and DRAM) and graphics cards $p_g$, multiplied by a PUE coefficient (default value at 1.59[Ascierto 2020]) that adjusts for electricity used by other resources like cooling and lighting.");
   const [formulaFontSize, changeFormulaFontSize] = useState(3);
-  const {links, linkIdx, changeLinkIdx, changeLinkArray, changeTermsInLink, changeSymbolsInLink} = useLinks();
+  const [defaultLinks, changeDefaultLinks] = useState([]); 
+  const {links, linkIdx, changeLinkIdx, setDefaultLinkArray, changeLinkArray, changeTermsInLink, changeSymbolsInLink} = useLinks();
   // Warning: the label of tab is different from the link idx in links
-  const {tabItems, changeTabs, changeColor} = useTabs();
+  const {tabItems, setDefaultTabs, changeTabs, changeColor} = useTabs();
 
   return (
     <Layout style={{ height: "100vh", width: "100vw"}}>
       <Header className='horizontal' style={{ color: "white", fontSize: "2em" }}>
         <div>MaugEditor</div>
+        <div style={{ width: "30px"}}/>
+        <Switch checkedChildren="AI" unCheckedChildren="Manual" defaultChecked onChange={(checked) => changeMode(checked)}/>
         <div className='push'></div>
-        <div>{modeNames[mode]}</div>
+        <div>{stageNames[stage]}</div>
       </Header>
       <Content className='horizontal'>
         {(() => {
-          switch (mode) {
+          switch (stage) {
             case 0:
               return <InputPage formula={formula} changeFormula={changeFormula} prose={prose} changeProse={changeProse}/>;
             case 1:
             case 2:
-              return <ViewPage mode={mode} formula={formula} prose={prose}
+              return <ViewPage stage={stage} formula={formula} prose={prose}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                defaultLinks={defaultLinks} setDefaultLinkArray={setDefaultLinkArray}
                 links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                 tabItems={tabItems} changeColor={changeColor}/>;
             default:
@@ -45,10 +52,11 @@ function App() {
         })()}
         <Divider style={{ height: "100%" }} type="vertical"/>
         {(() => {
-          switch (mode) {
+          switch (stage) {
             case 0:
-              return <ViewPage mode={mode} formula={formula} prose={prose}
+              return <ViewPage stage={stage} formula={formula} prose={prose}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                defaultLinks={defaultLinks} setDefaultLinkArray={setDefaultLinkArray}
                 links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                 tabItems={tabItems} changeColor={changeColor}/>;
             case 1:
@@ -66,22 +74,37 @@ function App() {
       <Footer className='horizontal'>
         <Tooltip title="Return">
           <Button
-            shape="circle" icon={<ArrowLeftOutlined />} style={{ scale: "150%" }} disabled={mode === 0}
+            shape="circle" icon={<ArrowLeftOutlined />} style={{ scale: "150%" }} disabled={stage === 0} loading={loading}
             onClick={() => {
-              if(mode === 1){
+              if(stage === 1){
+                changeDefaultLinks([]);
                 changeLinkArray("clear");
                 changeTabs("clear");
               }
-              changeMode(mode-1);
+              changeStage(stage-1);
             }}
           />
         </Tooltip>
         <div className='push'></div>
         <Tooltip title="Next">
           <Button
-            shape="circle" icon={<ArrowRightOutlined />} style={{ scale: "150%" }} disabled={mode === 2}
-            onClick={() => {
-              changeMode(mode+1);
+            shape="circle" icon={<ArrowRightOutlined />} style={{ scale: "150%" }} disabled={stage === 2} loading={loading}
+            onClick={async () => {
+              if(stage === 0 && mode){
+                console.log("call getLinks");
+                try {
+                  changeLoading(true);
+                  let res = await getLinks(prose);
+                  res.sort((a, b) => b.length - a.length);
+                  console.log("defaultLinks:", res, res.length);
+                  changeLoading(false);
+                  changeDefaultLinks(res);
+                  setDefaultTabs(res.length);
+                } catch (e) {
+                  console.error(e);
+                }
+              }
+              changeStage(stage+1);
             }}
           />
         </Tooltip>

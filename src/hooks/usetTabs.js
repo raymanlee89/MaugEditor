@@ -21,6 +21,19 @@ const useTabs = () => {
         { label: 'Link 3', key: '2', closable: true, color: defaultColors[2] }
     ]);
 
+    const setDefaultTabs = (tabCount) => {
+        let newTabItems = [];
+        for(let i=0 ; i<tabCount ; i++){
+            newTabItems.push({
+                label: `Link ${i+1}`,
+                key: i.toString(),
+                closable: true,
+                color: defaultColors[i % defaultColors.length]
+            })
+        }
+        changeTabItems(newTabItems);
+    }
+
     const changeTabs = (type, targetLinkIdx) => {
         let tabItemsCopy = [...tabItems];
         switch (type) {
@@ -62,7 +75,7 @@ const useTabs = () => {
         changeTabItems(tabItemsCopy);
     }
 
-    return {tabItems, changeTabs, changeColor};
+    return {tabItems, setDefaultTabs, changeTabs, changeColor};
 };
 
 export default useTabs;

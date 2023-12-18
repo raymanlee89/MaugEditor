@@ -32,7 +32,7 @@ function OutputPage({formula, prose, links, tabItems}) {
         let outputProse = addColorToProse(links, prose);
         // console.log(outputProse);
     
-        changeOutput(header + "\n\n\\[" + outputFormula + "\n\\]\n\n" + outputProse);
+        changeOutput(header + "\n\n\\$" + outputFormula + "\n\\$\n\n" + outputProse);
     }, [tabItems, formula, prose, links])
 
     const [messageApi, contextHolder] = message.useMessage();
@@ -46,15 +46,15 @@ function OutputPage({formula, prose, links, tabItems}) {
             <div className='element'>
                 <p>Output</p>
                 <div className='vertical outputArea'>
-                    <div className='outputText'>
-                        {output}
-                    </div>
                     <div className="horizontal" style={{ width: "100%" }}>
                         <div className='push'></div>
                         {contextHolder}
                         <Tooltip title="Copy">
                             <Button type="text" shape="circle" icon={<CopyOutlined />} onClick={copyContent}/>
                         </Tooltip>
+                    </div>
+                    <div className='outputText'>
+                        {output}
                     </div>
                 </div>
             </div>

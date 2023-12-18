@@ -1,5 +1,6 @@
 // merge connected symbols in the same link
 export const mergeConnectedSymbols = (formula, symbols, linkIdx) => {
+    symbols.sort((a, b) => a.start - b.start);
     let mergedSymbols = [];
     let newSym = null;
     symbols.forEach((item) => {
