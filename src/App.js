@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Divider, Button, Tooltip, Switch } from 'antd';
+import { Layout, Divider, Button, Tooltip, Switch, Modal } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import './App.css';
 import InputPage from './pages/InputPage';
@@ -30,7 +30,7 @@ function App() {
       <Header className='horizontal' style={{ color: "white", fontSize: "2em" }}>
         <div>MaugEditor</div>
         <div style={{ width: "30px"}}/>
-        <Switch checkedChildren="AI" unCheckedChildren="Manual" defaultChecked onChange={(checked) => changeMode(checked)}/>
+        <Switch checkedChildren="AI" unCheckedChildren="Manual" checked={mode} onChange={(checked) => changeMode(checked)}/>
         <div className='push'></div>
         <div>{stageNames[stage]}</div>
       </Header>
@@ -98,13 +98,29 @@ function App() {
                   res.sort((a, b) => b.length - a.length);
                   console.log("defaultLinks:", res, res.length);
                   changeLoading(false);
-                  changeDefaultLinks(res);
-                  setDefaultTabs(res.length);
+                  if(res.length > 0){
+                    changeDefaultLinks(res);
+                    setDefaultTabs(res.length);
+                  }
+                  changeStage(stage+1);
                 } catch (e) {
                   console.error(e);
+                  Modal.warning({
+                    title: 'Cannot connect to the backend!',
+                    content: 'MaugEditor will switch to the Manual mode automatically.',
+                    footer: (_, { OkBtn }) => (
+                      <OkBtn/>
+                    ),
+                    onOk() {
+                      changeLoading(false);
+                      changeStage(stage+1);
+                      changeMode(false);
+                    }
+                  });
                 }
+              }else{
+                changeStage(stage+1);
               }
-              changeStage(stage+1);
             }}
           />
         </Tooltip>

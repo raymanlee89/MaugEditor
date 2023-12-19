@@ -8,7 +8,7 @@ export const getLinks = async (prose) => {
         // console.log("getLinks res", res);
         return res.data;
     }catch(e){
-        console.log(e.response);
+        console.log(e);
         return "Api fail!!"
     }
 }
