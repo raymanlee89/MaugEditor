@@ -11,7 +11,7 @@ import useTabs from './hooks/usetTabs';
 import { getLinks } from './api/linkCreation.api';
 
 const { Header, Footer, Content } = Layout;
-const stageNames = ["LaTeX Editing", "Visual Link Creation", "Output"];
+const stageNames = ["LaTeX Editing", "Links Creation", "Output"];
 
 function App() {
   const [mode, changeMode] = useState(true); // AI mode
@@ -28,7 +28,7 @@ function App() {
   return (
     <Layout style={{ height: "100vh", width: "100vw"}}>
       <Header className='horizontal' style={{ color: "white", fontSize: "2em" }}>
-        <div>MaugEditor</div>
+        <div>MaugVLink</div>
         <div style={{ width: "30px"}}/>
         <Switch checkedChildren="AI" unCheckedChildren="Manual" checked={mode} onChange={(checked) => changeMode(checked)}/>
         <div className='push'></div>

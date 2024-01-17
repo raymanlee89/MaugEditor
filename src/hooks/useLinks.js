@@ -6,8 +6,6 @@ const useLinks = () => {
     // symbol = {node: node, text: "", start: 0, end: 0}
     // link = {terms: [], symbols: []}
     const [links, changeLinks] = useState([
-        {terms: [], symbols: []},
-        {terms: [], symbols: []},
         {terms: [], symbols: []}
     ]);
 
@@ -45,8 +43,6 @@ const useLinks = () => {
                 break;
             case "clear":
                 const newLinks = [
-                    {terms: [], symbols: []},
-                    {terms: [], symbols: []},
                     {terms: [], symbols: []}
                 ];
                 changeLinks(newLinks);

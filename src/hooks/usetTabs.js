@@ -16,9 +16,7 @@ const useTabs = () => {
 
     // Warning: the label of tab is different from the link idx in links
     const [tabItems, changeTabItems] = useState([
-        { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] },
-        { label: 'Link 2', key: '1', closable: true, color: defaultColors[1] },
-        { label: 'Link 3', key: '2', closable: true, color: defaultColors[2] }
+        { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] }
     ]);
 
     const setDefaultTabs = (tabCount) => {
@@ -58,9 +56,7 @@ const useTabs = () => {
                 break;
             case "clear":
                 tabItemsCopy = [
-                    { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] },
-                    { label: 'Link 2', key: '1', closable: true, color: defaultColors[1] },
-                    { label: 'Link 3', key: '2', closable: true, color: defaultColors[2] }
+                    { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] }
                 ];
                 break;
             default:

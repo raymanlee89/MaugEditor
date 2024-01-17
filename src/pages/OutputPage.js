@@ -16,6 +16,7 @@ function OutputPage({formula, prose, links, tabItems}) {
     }
 
     useEffect(() => {
+        console.log("links", links);
         // Create Output
         let header = "\\usepackage{color}\n\n";
         header = header + tabItems.reduce((accumulator, item, idx) => {
@@ -26,13 +27,21 @@ function OutputPage({formula, prose, links, tabItems}) {
         
         header = header + "\n\\newcommand{\\plain}{\\color{black}}\n\\newcommand{\\link}[1]{\\color{c#1}}";
     
+        header = header + "\n\n\\renewcommand{\\familydefault}{\\sfdefault}";
+
+        header = header + "\n\n\\begin{document}";
+        header = header + "\n\\begin{center}";
+
+        let tail = "\n\n\\end{center}";
+        tail += "\n\\end{document}";
+
         let outputFormula = addColorToFormula(links, formula);
-        // console.log(outputFormula);
+        // console.log("outputFormula", outputFormula);
     
         let outputProse = addColorToProse(links, prose);
-        // console.log(outputProse);
+        // console.log("outputProse", outputProse);
     
-        changeOutput(header + "\n\n\\$" + outputFormula + "\n\\$\n\n" + outputProse);
+        changeOutput(header + "\n\n\$\$" + outputFormula + "\n\$\$\n\n" + outputProse + tail);
     }, [tabItems, formula, prose, links])
 
     const [messageApi, contextHolder] = message.useMessage();
@@ -46,15 +55,15 @@ function OutputPage({formula, prose, links, tabItems}) {
             <div className='element'>
                 <p>Output</p>
                 <div className='vertical outputArea'>
+                    <div className='outputText'>
+                        {output}
+                    </div>
                     <div className="horizontal" style={{ width: "100%" }}>
                         <div className='push'></div>
                         {contextHolder}
                         <Tooltip title="Copy">
                             <Button type="text" shape="circle" icon={<CopyOutlined />} onClick={copyContent}/>
                         </Tooltip>
-                    </div>
-                    <div className='outputText'>
-                        {output}
                     </div>
                 </div>
             </div>

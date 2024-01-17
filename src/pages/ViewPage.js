@@ -81,7 +81,7 @@ function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize
                 }
             })
         })
-        console.log("targetLocs", targetLocs);
+        // console.log("targetLocs", targetLocs);
 
         // if the symbol is a substring in many composite symbols, keep the longest composite symbols
         targetLocs.sort((a, b) => a.text.length - b.text.length);
@@ -98,7 +98,7 @@ function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize
                 uniqueTargetLocs.push(targetLocs[i]);
             }
         }
-        console.log("uniqueTargetLocs", uniqueTargetLocs);
+        // console.log("uniqueTargetLocs", uniqueTargetLocs);
 
         // get all selectable math node
         const selectableMathNodes = [...document.querySelectorAll(".formulaView .symbolNode")]
