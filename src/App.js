@@ -20,8 +20,8 @@ function App() {
   const [formula, changeFormula] = useState("\\displaystyle p_i = (p_{chipset} + \\sum^G_{g=1}p_g)\\cdot 1.59");
   const [prose, changeProse] = useState("Every 10 seconds, the total instantaneous power usage $p_i$, in watts, is computed as the sum of those of your chipset $p_{chipset}$(CPU and DRAM) and graphics cards $p_g$, multiplied by a PUE coefficient (default value at 1.59[Ascierto 2020]) that adjusts for electricity used by other resources like cooling and lighting.");
   const [formulaFontSize, changeFormulaFontSize] = useState(3);
-  const [defaultLinks, changeDefaultLinks] = useState([]); 
-  const {links, linkIdx, changeLinkIdx, setDefaultLinkArray, changeLinkArray, changeTermsInLink, changeSymbolsInLink} = useLinks();
+  const [suggestedLinks, changeSuggestedLinks] = useState([]); 
+  const {links, linkIdx, changeLinkIdx, setSuggestedLinkArray, changeLinkArray, changeTermsInLink, changeSymbolsInLink} = useLinks();
   // Warning: the label of tab is different from the link idx in links
   const {tabItems, setDefaultTabs, changeTabs, changeColor} = useTabs();
 
@@ -43,7 +43,7 @@ function App() {
             case 2:
               return <ViewPage stage={stage} formula={formula} prose={prose}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                defaultLinks={defaultLinks} setDefaultLinkArray={setDefaultLinkArray}
+                suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
                 links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                 tabItems={tabItems} changeColor={changeColor}/>;
             default:
@@ -56,7 +56,7 @@ function App() {
             case 0:
               return <ViewPage stage={stage} formula={formula} prose={prose}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                defaultLinks={defaultLinks} setDefaultLinkArray={setDefaultLinkArray}
+                suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
                 links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                 tabItems={tabItems} changeColor={changeColor}/>;
             case 1:
@@ -77,7 +77,7 @@ function App() {
             shape="circle" icon={<ArrowLeftOutlined />} style={{ scale: "150%" }} disabled={stage === 0} loading={loading}
             onClick={() => {
               if(stage === 1){
-                changeDefaultLinks([]);
+                changeSuggestedLinks([]);
                 changeLinkArray("clear");
                 changeTabs("clear");
               }
@@ -96,10 +96,10 @@ function App() {
                   changeLoading(true);
                   let res = await getLinks(prose);
                   res.sort((a, b) => b.length - a.length);
-                  console.log("defaultLinks:", res, res.length);
+                  console.log("suggestedLinks:", res, res.length);
                   changeLoading(false);
                   if(res.length > 0){
-                    changeDefaultLinks(res);
+                    changeSuggestedLinks(res);
                     setDefaultTabs(res.length);
                   }
                   changeStage(stage+1);

@@ -16,7 +16,7 @@ function DefinitionsDisplay({pickedTerms, changeTermsInLink}) {
             <p>Definitions</p>
             <div className='horizontal buttonsContainer'>
                 {createDifinitions(pickedTerms).map((item) => (
-                    <Button type="primary" shape="round" size="large"
+                    <Button shape="round" size="large"
                         key={`${item.text}-${item.start}`}
                         onClick={() => definitionOnClick(item)}
                     >

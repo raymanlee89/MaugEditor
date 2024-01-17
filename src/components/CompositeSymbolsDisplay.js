@@ -16,7 +16,7 @@ function CompositeSymbolsDisplay({formula, pickedSymbols, changeSymbolsInLink}) 
             <p>Symbols</p>
             <div className='horizontal buttonsContainer'>
                 {createCompositeSymbols(pickedSymbols).map((item) => (
-                    <Button type="primary" shape="round" size="large"
+                    <Button shape="round" size="large"
                         key={`${item.text}-${item.start}`}
                         onClick={() => compositeSymbolsOnClick(item)}
                     >

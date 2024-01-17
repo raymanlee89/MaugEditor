@@ -1,12 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import FormulaView from '../components/FormulaView';
 import ProseView from '../components/ProseView';
 import ColorBar from '../components/ColorBar';
 import { getNodeClassName, changeNodeColor } from '../functions/formulaNode';
-import { createParagraphs, creatTerms } from '../functions/proseToTerms';
 import { Divider } from 'antd';
 
-function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize, defaultLinks, setDefaultLinkArray, links, linkIdx, changeTermsInLink, changeSymbolsInLink, tabItems, changeColor}) {
+function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize, suggestedLinks, setSuggestedLinkArray, links, linkIdx, changeTermsInLink, changeSymbolsInLink, tabItems, changeColor}) {
     // change alpha in a hex color
     const addAlpha = (color, opacity) => {
         // coerce values so ti is between 0 and 1.
@@ -39,108 +38,38 @@ function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize
         });
     }, [stage, tabItems, links, linkIdx]);
 
-    // check if loc1 is in the loc2
-    const isIn = (loc1, loc2) => {
-        return loc2.start <= loc1.start && loc1.end <= loc2.end;
-    }
-
-    // Set defaultLinks to real links
+    // Set suggestedLinks to real links
+    // since the math nodes in formula is rendered here, this step should be done here
     useEffect(() => {
-        // If defaultLinks is empty, skip this step
-        if(defaultLinks.length === 0){
+        // If suggestedLinks is empty, skip this step
+        if(suggestedLinks.length === 0){
             return;
         }
 
-        // console.log("Set defaultLinks", defaultLinks);
-        let newLinks = defaultLinks.map((item) => ({terms: [], symbols: []}));
+        setSuggestedLinkArray(suggestedLinks, prose, formula, document);
+    }, [suggestedLinks]);
 
-        // select math node in FormulaView with defaultLinks
-        // get all target symbols' locations in the formula
-        let targetLocs = [];
-        defaultLinks.forEach((item, defaultLinkIdx) => {
-            let targetTexts = new Set();
-            // make sure that the text is unique
-            item.forEach((i) => {
-                if(i.label === "SYMBOL"){
-                    const text = prose.substring(i.start, i.end);
-                    targetTexts.add(text);
-                }
-            })
-            targetTexts.forEach((text) => {
-                let startIdx = 0;
-                let idx = formula.indexOf(text, startIdx);
-                while (idx !== -1) {
-                    targetLocs.push({
-                        linkIdx: defaultLinkIdx,
-                        text: text,
-                        start: idx,
-                        end: idx + text.length
-                    });
-                    startIdx = idx + text.length;
-                    idx = formula.indexOf(text, startIdx);
-                }
-            })
-        })
-        // console.log("targetLocs", targetLocs);
+    // Color mark in the cursor
+    const cursor = useRef(null);
+    const [showCursor, changeShowCursor] = useState(false);
+    const changePosition = (e) => {
+      cursor.current.style.top = `${e.clientY}px`;
+      cursor.current.style.left = `${e.clientX}px`;
+    }
 
-        // if the symbol is a substring in many composite symbols, keep the longest composite symbols
-        targetLocs.sort((a, b) => a.text.length - b.text.length);
-        let uniqueTargetLocs = []
-        for(let i=0 ; i<targetLocs.length ; i++){
-            let isUnique = true;
-            for(let j=i+1 ; j<targetLocs.length ; j++){
-                if(isIn(targetLocs[i], targetLocs[j])){
-                    isUnique = false;
-                    break;
-                }
-            }
-            if(isUnique){
-                uniqueTargetLocs.push(targetLocs[i]);
-            }
+    useEffect(() => {
+        if(showCursor === false){
+            return;
         }
-        // console.log("uniqueTargetLocs", uniqueTargetLocs);
-
-        // get all selectable math node
-        const selectableMathNodes = [...document.querySelectorAll(".formulaView .symbolNode")]
-            .concat([...document.querySelectorAll(".formulaView .spanNode")])
-            .concat([...document.querySelectorAll(".formulaView .svgNode")]);
-        // select math node in uniqueTargetLocs
-        selectableMathNodes.forEach((item) => {
-            const start = parseInt(item.getAttribute("data-source-location-start"));
-            const end = parseInt(item.getAttribute("data-source-location-end"));
-            uniqueTargetLocs.forEach((loc) => {
-                if(isIn({start: start, end: end}, loc)){
-                    newLinks[loc.linkIdx].symbols.push({
-                        node: item,
-                        text: formula.substring(start, end),
-                        start: start,
-                        end: end
-                    });
-                }
-            })
-        })
-
-        // select term button in ProseView with defaultLinks
-        let pStart = 0;
-        createParagraphs(prose).forEach((paragraph) => {
-            pStart += paragraph.length + 1;
-            const terms = creatTerms(paragraph, pStart - paragraph.length - 1).map((item, i) => (item));
-            terms.forEach((item) => {
-                defaultLinks.forEach((link, idx) => {
-                    link.forEach((i) => {
-                        if(isIn(item, i)){
-                            newLinks[idx].terms.push(item);
-                        }
-                    });
-                });
-            })
-        })
-        // console.log("newLinks", newLinks);
-        setDefaultLinkArray(newLinks);
-    }, [defaultLinks]);
+        const cursorNode = [...document.getElementsByClassName("cursor-style")];
+        if(cursorNode.length !== 0){
+            cursorNode[0].style.borderColor = tabItems[linkIdx].color;
+        }
+    }, [showCursor, tabItems, linkIdx]);
 
     return(
-        <div className='page vertical'>
+        <div className='page vertical' onMouseMove={changePosition} onMouseEnter={() => changeShowCursor(true)} onMouseLeave={() => changeShowCursor(false)}>
+            <div className={stage === 1 && showCursor ? "cursor-style" : ""} ref={cursor} ></div>
             {stage !== 0 ? <div style={{ height: "50px" }}></div> : <></>}
             <FormulaView stage={stage} formula={formula}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
