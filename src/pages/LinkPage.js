@@ -59,7 +59,7 @@ function LinkPage({formula, links, linkIdx, changeLinkIdx, changeLinkArray, chan
         const tabs = [...document.querySelectorAll(".ant-tabs-tab")];
         const tabTexts = [...document.querySelectorAll(".ant-tabs-tab-btn")];
         const tabCrosses = [...document.querySelectorAll(".ant-tabs-tab-remove")];
-        console.log("tabs", tabs);
+        // console.log("tabs", tabs);
         tabs.forEach((item, i) => {
             if(i === linkIdx){
                 item.style.backgroundColor = tabItems[i].color;
@@ -74,7 +74,7 @@ function LinkPage({formula, links, linkIdx, changeLinkIdx, changeLinkArray, chan
                 tabCrosses[i].style.color = null;
             }
         })
-    }, [tabItems, linkIdx]);
+    }, [links, tabItems, linkIdx]);
 
     return(
         <div className='page vertical'>

@@ -8,7 +8,7 @@ import LinkPage from './pages/LinkPage';
 import OutputPage from './pages/OutputPage';
 import useLinks from './hooks/useLinks';
 import useTabs from './hooks/usetTabs';
-import { getLinks } from './api/linkCreation.api';
+import { getLinks, getLinksGPT } from './api/linkCreation.api';
 
 const { Header, Footer, Content } = Layout;
 const stageNames = ["LaTeX Editing", "Links Creation", "Output"];
@@ -94,17 +94,26 @@ function App() {
                 console.log("call getLinks");
                 try {
                   changeLoading(true);
-                  let res = await getLinks(prose);
+                  // get suggestedLinks from the backend
+                  let res = await getLinks(formula, prose);
+                  // use GPT if NER & RE cannot handle the prose
+                  if(res.length === 0){
+                    console.log("use GPT");
+                    res = await getLinksGPT(formula, prose);
+                  }
                   res.sort((a, b) => b.length - a.length);
-                  console.log("suggestedLinks:", res, res.length);
-                  changeLoading(false);
+                  console.log("suggestedLinks:", res);
+                  // set the suggested links as the default links
                   if(res.length > 0){
                     changeSuggestedLinks(res);
                     setDefaultTabs(res.length);
                   }
+                  // go to the next page
+                  changeLoading(false);
                   changeStage(stage+1);
                 } catch (e) {
                   console.error(e);
+                  // show the warning Modal
                   Modal.warning({
                     title: 'Cannot connect to the backend!',
                     content: 'MaugEditor will switch to the Manual mode automatically.',

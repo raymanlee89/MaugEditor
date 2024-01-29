@@ -25,38 +25,32 @@ const useLinks = () => {
         return loc2.start <= loc1.start && loc1.end <= loc2.end;
     }
 
+    // check if loc1 and loc2 has union
+    const hasUnion = (loc1, loc2) => {
+        if((loc2.start <= loc1.start && loc1.start <= loc2.end) || (loc2.start <= loc1.end && loc1.end <= loc2.end)){
+            return true;
+        }
+        if((loc1.start <= loc2.start && loc2.start <= loc1.end) || (loc1.start <= loc2.end && loc2.end <= loc1.end)){
+            return true;
+        }
+        return false;
+    }
+
     // get suggested links from the backend model
     // need the math nodes in FormulaView and the term buttons in ProseView => document
     const setSuggestedLinkArray = (suggestedLinks, prose, formula, document) => {
-        console.log("setSuggestedLinkArray", suggestedLinks);
-
         let newLinks = suggestedLinks.map((item) => ({terms: [], symbols: []}));
 
         // select math node in FormulaView with suggestedLinks
-        // get all target symbols' locations in the formula
         let targetLocs = [];
         suggestedLinks.forEach((item, defaultLinkIdx) => {
-            let targetTexts = new Set();
-            // make sure that the text is unique
-            item.forEach((i) => {
-                if(i.label === "SYMBOL"){
-                    const text = prose.substring(i.start, i.end);
-                    targetTexts.add(text);
-                }
-            })
-            targetTexts.forEach((text) => {
-                let startIdx = 0;
-                let idx = formula.indexOf(text, startIdx);
-                while (idx !== -1) {
-                    targetLocs.push({
-                        linkIdx: defaultLinkIdx,
-                        text: text,
-                        start: idx,
-                        end: idx + text.length
-                    });
-                    startIdx = idx + text.length;
-                    idx = formula.indexOf(text, startIdx);
-                }
+            item.symbols.forEach((s) => {
+                targetLocs.push({
+                    linkIdx: defaultLinkIdx,
+                    text: s.text,
+                    start: s.start,
+                    end: s.end
+                });
             })
         })
         // console.log("targetLocs", targetLocs);
@@ -102,18 +96,18 @@ const useLinks = () => {
         let pStart = 0;
         createParagraphs(prose).forEach((paragraph) => {
             pStart += paragraph.length + 1;
-            const terms = creatTerms(paragraph, pStart - paragraph.length - 1).map((item, i) => (item));
+            const terms = creatTerms(paragraph, pStart - paragraph.length - 1).map((item) => (item));
             terms.forEach((item) => {
                 suggestedLinks.forEach((link, idx) => {
-                    link.forEach((i) => {
-                        if(isIn(item, i)){
+                    link.terms.forEach((i) => {
+                        if(hasUnion(item, i)){
                             newLinks[idx].terms.push(item);
                         }
                     });
                 });
             })
         })
-        // console.log("newLinks", newLinks);
+        console.log("setSuggestedLinkArray", newLinks);
 
         changeLinks(newLinks);
     }

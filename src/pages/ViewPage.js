@@ -49,27 +49,29 @@ function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize
         setSuggestedLinkArray(suggestedLinks, prose, formula, document);
     }, [suggestedLinks]);
 
-    // Color mark in the cursor
-    const cursor = useRef(null);
-    const [showCursor, changeShowCursor] = useState(false);
-    const changePosition = (e) => {
-      cursor.current.style.top = `${e.clientY}px`;
-      cursor.current.style.left = `${e.clientX}px`;
-    }
+    // // Color mark in the cursor
+    // const cursor = useRef(null);
+    // const [showCursor, changeShowCursor] = useState(false);
+    // const changePosition = (e) => {
+    //   cursor.current.style.top = `${e.clientY}px`;
+    //   cursor.current.style.left = `${e.clientX}px`;
+    // }
 
-    useEffect(() => {
-        if(showCursor === false){
-            return;
-        }
-        const cursorNode = [...document.getElementsByClassName("cursor-style")];
-        if(cursorNode.length !== 0){
-            cursorNode[0].style.borderColor = tabItems[linkIdx].color;
-        }
-    }, [showCursor, tabItems, linkIdx]);
+    // useEffect(() => {
+    //     if(showCursor === false){
+    //         return;
+    //     }
+    //     const cursorNode = [...document.getElementsByClassName("cursor-style")];
+    //     if(cursorNode.length !== 0){
+    //         cursorNode[0].style.borderColor = tabItems[linkIdx].color;
+    //     }
+    // }, [showCursor, tabItems, linkIdx]);
 
+    // return(
+    //     <div className='page vertical' onMouseMove={changePosition} onMouseEnter={() => changeShowCursor(true)} onMouseLeave={() => changeShowCursor(false)}>
+    //         <div className={stage === 1 && showCursor ? "cursor-style" : ""} ref={cursor} ></div>
     return(
-        <div className='page vertical' onMouseMove={changePosition} onMouseEnter={() => changeShowCursor(true)} onMouseLeave={() => changeShowCursor(false)}>
-            <div className={stage === 1 && showCursor ? "cursor-style" : ""} ref={cursor} ></div>
+        <div className='page vertical'>
             {stage !== 0 ? <div style={{ height: "50px" }}></div> : <></>}
             <FormulaView stage={stage} formula={formula}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
