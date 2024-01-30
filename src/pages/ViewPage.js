@@ -1,11 +1,31 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import FormulaView from '../components/FormulaView';
 import ProseView from '../components/ProseView';
 import ColorBar from '../components/ColorBar';
+import ColorOrderBar from '../components/ColorOrderBar';
 import { getNodeClassName, changeNodeColor } from '../functions/formulaNode';
 import { Divider } from 'antd';
 
-function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize, suggestedLinks, setSuggestedLinkArray, links, linkIdx, changeTermsInLink, changeSymbolsInLink, tabItems, changeColor}) {
+function ViewPage({
+    stage, formula, prose, 
+    formulaFontSize, changeFormulaFontSize, 
+    suggestedLinks, setSuggestedLinkArray, 
+    links, linkIdx, changeTermsInLink, changeSymbolsInLink, 
+    tabItems, changeColor
+}) {
+    // the coloring order
+    const [colorOrder, changeColorOrder] = useState([]);
+
+    useEffect(() => {
+        if(stage === 2){
+            changeColorOrder(tabItems.map((item) => ({
+                label: item.label,
+                id: item.key,
+                color: item.color
+            })))
+        }
+    }, [stage])
+
     // change alpha in a hex color
     const addAlpha = (color, opacity) => {
         // coerce values so ti is between 0 and 1.
@@ -16,7 +36,7 @@ function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize
     // Modify colors in ViewPage
     useEffect(() => {
         // clean color (terms + HTML symbols + SVGs)
-        const defaultColorNodes = [...document.getElementsByClassName("link_")]
+        const defaultColorNodes = [...document.getElementsByClassName("term")]
             .concat([...document.querySelectorAll(".formulaView .symbolNode")])
             .concat([...document.querySelectorAll(".formulaView .spanNode")])
             .concat([...document.querySelectorAll(".formulaView .svgNode")]);
@@ -25,18 +45,31 @@ function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize
         });
 
         // draw color
-        tabItems.forEach((item) => {
-            const targetNodes = [...document.getElementsByClassName(`link_${item.key}`)];
-            targetNodes.forEach((i) => {
-                let className = getNodeClassName(i);
-                if(className?.includes("disabled") && stage === 1){
-                    changeNodeColor(i, addAlpha(item.color, 0.4));
-                }else{
-                    changeNodeColor(i, item.color);
-                }
+        if(stage === 1){
+            // in Links Creation page
+            tabItems.forEach((item) => {
+                const targetNodes = [...document.getElementsByClassName(`link_${item.key}`)];
+                targetNodes.forEach((i) => {
+                    let className = getNodeClassName(i);
+                    if(className.includes("disabled") && !className.includes(`link_${linkIdx}`)){
+                        changeNodeColor(i, addAlpha(item.color, 0.4));
+                    }else{
+                        changeNodeColor(i, item.color);
+                    }
+                });
             });
-        });
-    }, [stage, tabItems, links, linkIdx]);
+        }else if(stage === 2){
+            // in Output
+            // console.log("colorOrder", colorOrder);
+            colorOrder.forEach((item) => {
+                const targetNodes = [...document.getElementsByClassName(`link_${item.id}`)];
+                targetNodes.forEach((i) => {
+                    const color = tabItems[item.id].color;
+                    changeNodeColor(i, color);
+                });
+            });
+        }
+    }, [stage, tabItems, links, linkIdx, colorOrder]);
 
     // Set suggestedLinks to real links
     // since the math nodes in formula is rendered here, this step should be done here
@@ -45,34 +78,13 @@ function ViewPage({stage, formula, prose, formulaFontSize, changeFormulaFontSize
         if(suggestedLinks.length === 0){
             return;
         }
-
         setSuggestedLinkArray(suggestedLinks, prose, formula, document);
     }, [suggestedLinks]);
 
-    // // Color mark in the cursor
-    // const cursor = useRef(null);
-    // const [showCursor, changeShowCursor] = useState(false);
-    // const changePosition = (e) => {
-    //   cursor.current.style.top = `${e.clientY}px`;
-    //   cursor.current.style.left = `${e.clientX}px`;
-    // }
-
-    // useEffect(() => {
-    //     if(showCursor === false){
-    //         return;
-    //     }
-    //     const cursorNode = [...document.getElementsByClassName("cursor-style")];
-    //     if(cursorNode.length !== 0){
-    //         cursorNode[0].style.borderColor = tabItems[linkIdx].color;
-    //     }
-    // }, [showCursor, tabItems, linkIdx]);
-
-    // return(
-    //     <div className='page vertical' onMouseMove={changePosition} onMouseEnter={() => changeShowCursor(true)} onMouseLeave={() => changeShowCursor(false)}>
-    //         <div className={stage === 1 && showCursor ? "cursor-style" : ""} ref={cursor} ></div>
     return(
         <div className='page vertical'>
-            {stage !== 0 ? <div style={{ height: "50px" }}></div> : <></>}
+            {stage === 2 ? <><ColorOrderBar tabItems={tabItems} colorOrder={colorOrder} changeColorOrder={changeColorOrder}/> <Divider /></> : <></>}
+            {stage === 1 ? <div style={{ height: "50px" }}/> : <></>}
             <FormulaView stage={stage} formula={formula}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                 links={links} linkIdx={linkIdx} changeSymbolsInLink={changeSymbolsInLink}/>

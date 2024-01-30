@@ -64,6 +64,10 @@ p {
   align-items: flex-start;
 }
 
+.termsContainer .term {
+  margin-right: 4px;
+}
+
 /* Formula View */
 .formulaView {
   max-width: 100%;
@@ -131,8 +135,4 @@ p {
   height: auto;
   min-height: 64px;
   width: 100%;
-}
-
-.term{
-  margin-right: 4px;
 }

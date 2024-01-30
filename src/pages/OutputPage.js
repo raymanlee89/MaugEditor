@@ -22,7 +22,7 @@ function OutputPage({formula, prose, links, tabItems}) {
         header = header + tabItems.reduce((accumulator, item, idx) => {
             // hex to rgb
             let rgb = hexToRgb(item.color);
-            return links[idx].terms.length + links[idx].symbols.length > 0 ? accumulator + `\\definecolor{c${idx}}{RGB}{${rgb.r},${rgb.g},${rgb.b}}\n` : accumulator;
+            return accumulator + `\\definecolor{c${idx}}{RGB}{${rgb.r},${rgb.g},${rgb.b}}\n`;
         }, "");
         
         header = header + "\n\\newcommand{\\plain}{\\color{black}}\n\\newcommand{\\link}[1]{\\color{c#1}}";

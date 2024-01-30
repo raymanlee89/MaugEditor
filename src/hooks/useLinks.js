@@ -110,6 +110,7 @@ const useLinks = () => {
         console.log("setSuggestedLinkArray", newLinks);
 
         changeLinks(newLinks);
+        changeLinkIdx(newLinks.length - 1);
     }
 
     const changeLinkArray = (type, idx) => {

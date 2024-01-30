@@ -19,6 +19,9 @@ const useTabs = () => {
         { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] }
     ]);
 
+    // Number of colors
+    const [numOfColors, changeNumOfColors] = useState(0);
+
     const setDefaultTabs = (tabCount) => {
         let newTabItems = [];
         for(let i=0 ; i<tabCount ; i++){
@@ -71,7 +74,7 @@ const useTabs = () => {
         changeTabItems(tabItemsCopy);
     }
 
-    return {tabItems, setDefaultTabs, changeTabs, changeColor};
+    return {tabItems, setDefaultTabs, changeTabs, changeColor, numOfColors, changeNumOfColors};
 };
 
 export default useTabs;

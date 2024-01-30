@@ -20,29 +20,38 @@ function ProseView({stage, prose, links, linkIdx, changeTermsInLink}) {
         return links[idx]?.terms.find(item => item.start === term.start);
     }
 
-    // if the term is picked in other link
+    // if the term is picked in other link and is not picked in this link
     const isPickedInOtherLink = (term) => {
-        let result = false;
+        if(isPicked(linkIdx, term)){
+            return false;
+        }
+
         for(let i=0 ; i<links.length ; i++){
-            if(i === linkIdx){
-                continue;
-            }
             if(isPicked(i, term)){
-                result = true;
-                break;
+                return true;
             }
         }
-        return result;
+        return false;
     }
 
-    // get link idx for a term
-    const getLinkIdx = (term) => {
+    // get all link indices for a term
+    const getAllLinkIdx = (term) => {
+        let res = [];
         for(let i=0 ; i<links.length ; i++){
             if(isPicked(i, term)){
-                return i
+                res.push(i);
             }
         }
-        return "";
+        return res
+    }
+
+    // create link marks
+    const createLinkMarks = (term) => {
+        let res = "";
+        getAllLinkIdx(term).forEach((item) => {
+            res = res + " link_" + item;
+        })
+        return res;
     }
 
     return(
@@ -59,7 +68,7 @@ function ProseView({stage, prose, links, linkIdx, changeTermsInLink}) {
                                 <div>
                                     {creatTerms(paragraph, pStart - paragraph.length - 1).map((item, i) => (
                                         <Button
-                                            className={`link_${getLinkIdx(item)}${isPickedInOtherLink(item) ? " disabled": ""}`}
+                                            className={`term ${createLinkMarks(item)}${isPickedInOtherLink(item) ? " disabled": ""}`}
                                             key={`prose_${i}`}
                                             type="text"
                                             style={{ padding: "0.3em"}}
@@ -74,7 +83,7 @@ function ProseView({stage, prose, links, linkIdx, changeTermsInLink}) {
                                                     termOnClick(item);
                                                 }
                                             }}
-                                            disabled={isPickedInOtherLink(item)}
+                                            // disabled={isPickedInOtherLink(item)}
                                         >
                                             <Latex>{item.text}</Latex>
                                         </Button>
@@ -90,7 +99,7 @@ function ProseView({stage, prose, links, linkIdx, changeTermsInLink}) {
                                     return (
                                         <div className='horizontal termsContainer'> 
                                             {creatTerms(paragraph, pStart - paragraph.length - 1).map((item, i) => (
-                                                <div className={`term link_${getLinkIdx(item)}`} key={`prose_${i}`}>
+                                                <div className={`term ${createLinkMarks(item)}`} key={`prose_${i}`}>
                                                     <Latex>{item.text}</Latex>
                                                 </div>
                                             ))}

@@ -57,7 +57,7 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         let newHoveredSymbols = [];
         targetSymbols.forEach((item) => {
             const className = getNodeClassName(item.node);
-            if(!className.includes("hovered") && !className.includes("disabled")){
+            if(!className.includes("hovered") /*&& !className.includes("disabled")*/){
                 changeNodeClassName("add", item.node, "hovered");
             }
 
@@ -88,17 +88,27 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
 
         const className = getNodeClassName(node);
         // don't select the disabled symbol
-        if(!className.includes("disabled")){
-            if(select){
-                // if it has been selected, don't select it again
-                if(!className.includes(`link_${linkIdx}`)){
-                    changeNodeClassName("add", node, `link_${linkIdx}`);
-                    changeSymbolsInLink("add", symbol);
-                }
-            }else{
-                changeNodeClassName("remove", node, `link_${linkIdx}`);
-                changeSymbolsInLink("remove", symbol);
+        // if(!className.includes("disabled")){
+        //     if(select){
+        //         // if it has been selected, don't select it again
+        //         if(!className.includes(`link_${linkIdx}`)){
+        //             changeNodeClassName("add", node, `link_${linkIdx}`);
+        //             changeSymbolsInLink("add", symbol);
+        //         }
+        //     }else{
+        //         changeNodeClassName("remove", node, `link_${linkIdx}`);
+        //         changeSymbolsInLink("remove", symbol);
+        //     }
+        // }
+        if(select){
+            // if it has been selected, don't select it again
+            if(!className.includes(`link_${linkIdx}`)){
+                changeNodeClassName("add", node, `link_${linkIdx}`);
+                changeSymbolsInLink("add", symbol);
             }
+        }else{
+            changeNodeClassName("remove", node, `link_${linkIdx}`);
+            changeSymbolsInLink("remove", symbol);
         }
     }
 
@@ -113,7 +123,7 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         let selectAll = false;
         for(let i=0 ; i<targetSymbols.length ; i++){
             const className = getNodeClassName(targetSymbols[i].node);
-            if(!className.includes("disabled") && !className.includes(`link_${linkIdx}`)){
+            if(/*!className.includes("disabled") &&*/ !className.includes(`link_${linkIdx}`)){
                 selectAll = true;
             }
         }
