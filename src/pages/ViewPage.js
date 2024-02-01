@@ -10,7 +10,7 @@ function ViewPage({
     stage, formula, prose, 
     formulaFontSize, changeFormulaFontSize, 
     suggestedLinks, setSuggestedLinkArray, 
-    links, linkIdx, changeTermsInLink, changeSymbolsInLink, 
+    links, linkIdx, changeLinkIdx, changeTermsInLink, changeSymbolsInLink, 
     tabItems, changeColor
 }) {
     // the coloring order
@@ -50,13 +50,22 @@ function ViewPage({
             tabItems.forEach((item) => {
                 const targetNodes = [...document.getElementsByClassName(`link_${item.key}`)];
                 targetNodes.forEach((i) => {
+                    // skip the current link
+                    if(i === linkIdx){
+                        return;
+                    }
                     let className = getNodeClassName(i);
-                    if(className.includes("disabled") && !className.includes(`link_${linkIdx}`)){
+                    if(className.includes("disabled")){
                         changeNodeColor(i, addAlpha(item.color, 0.4));
                     }else{
                         changeNodeColor(i, item.color);
                     }
                 });
+            });
+            // color the current link last => prevent overlapping
+            const targetNodes = [...document.getElementsByClassName(`link_${linkIdx}`)];
+            targetNodes.forEach((i) => {
+                changeNodeColor(i, tabItems[linkIdx].color);
             });
         }else if(stage === 2){
             // in Output
@@ -64,8 +73,7 @@ function ViewPage({
             colorOrder.forEach((item) => {
                 const targetNodes = [...document.getElementsByClassName(`link_${item.id}`)];
                 targetNodes.forEach((i) => {
-                    const color = tabItems[item.id].color;
-                    changeNodeColor(i, color);
+                    changeNodeColor(i, tabItems[item.id].color);
                 });
             });
         }
@@ -91,7 +99,7 @@ function ViewPage({
             <Divider />
             <ProseView stage={stage} prose={prose}
                 links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
-            {stage !== 0 ? <ColorBar tabItems={tabItems} changeColor={changeColor}/> : <></>}
+            {stage !== 0 ? <ColorBar tabItems={tabItems} changeColor={changeColor} changeLinkIdx={changeLinkIdx}/> : <></>}
         </div>
     );
 }

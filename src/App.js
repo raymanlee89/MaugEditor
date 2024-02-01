@@ -30,7 +30,20 @@ function App() {
       <Header className='horizontal' style={{ color: "white", fontSize: "2em" }}>
         <div>MaugVLink</div>
         <div style={{ width: "30px"}}/>
-        <Switch checkedChildren="AI" unCheckedChildren="Manual" checked={mode} onChange={(checked) => changeMode(checked)}/>
+        <Switch 
+          checkedChildren="AI"
+          unCheckedChildren="Manual"
+          checked={mode}
+          onChange={(checked) => {
+          changeMode(checked)
+            if(stage === 1){
+              changeSuggestedLinks([]);
+              changeLinkArray("clear");
+              changeTabs("clear");
+            }
+          }}
+          disabled={stage === 2}
+        />
         <div className='push'></div>
         <div>{stageNames[stage]}</div>
       </Header>
@@ -44,7 +57,7 @@ function App() {
               return <ViewPage stage={stage} formula={formula} prose={prose}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                 suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
-                links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+                links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                 tabItems={tabItems} changeColor={changeColor}/>;
             default:
               return <div className='page vertical'></div>;
@@ -57,7 +70,7 @@ function App() {
               return <ViewPage stage={stage} formula={formula} prose={prose}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                 suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
-                links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+                links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                 tabItems={tabItems} changeColor={changeColor}/>;
             case 1:
               return <LinkPage formula={formula} links={links} linkIdx={linkIdx}
@@ -101,7 +114,6 @@ function App() {
                     console.log("use GPT");
                     res = await getLinksGPT(formula, prose);
                   }
-                  res.sort((a, b) => b.length - a.length);
                   console.log("suggestedLinks:", res);
                   // set the suggested links as the default links
                   if(res.length > 0){

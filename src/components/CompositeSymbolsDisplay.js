@@ -13,7 +13,7 @@ function CompositeSymbolsDisplay({formula, pickedSymbols, changeSymbolsInLink}) 
 
     return(
         <div className='element fixedHightElement'>
-            <p>Symbols</p>
+            <p className='noMarginBottom'>Symbols</p>
             <div className='horizontal buttonsContainer'>
                 {createCompositeSymbols(pickedSymbols).map((item) => (
                     <Button shape="round" size="large"

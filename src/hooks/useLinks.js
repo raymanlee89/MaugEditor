@@ -36,6 +36,18 @@ const useLinks = () => {
         return false;
     }
 
+    // the coverage of link => in order to sort the links
+    const linkCoverage = (link) => {
+        let coverage = 0;
+        link.terms.forEach((item) => {
+            coverage += (item.end - item.start);
+        });
+        link.symbols.forEach((item) => {
+            coverage += (item.end - item.start);
+        });
+        return coverage;
+    }
+
     // get suggested links from the backend model
     // need the math nodes in FormulaView and the term buttons in ProseView => document
     const setSuggestedLinkArray = (suggestedLinks, prose, formula, document) => {
@@ -107,10 +119,12 @@ const useLinks = () => {
                 });
             })
         })
+
+        // sort the links with their coverage
+        newLinks.sort((a, b) => linkCoverage(b) - linkCoverage(a));
         console.log("setSuggestedLinkArray", newLinks);
 
         changeLinks(newLinks);
-        changeLinkIdx(newLinks.length - 1);
     }
 
     const changeLinkArray = (type, idx) => {

@@ -1,8 +1,8 @@
 import { ColorPicker } from 'antd';
 
-function ColorBar({tabItems, changeColor}) {
+function ColorBar({tabItems, changeColor, changeLinkIdx}) {
     return (
-        <div className='horizontal'>
+        <div className='element horizontal colorBar'>
             {tabItems.map((item, idx) => 
                 <div className='vertical' style={{margin: "10px"}} key={`colorPicker_${item.label}`}>
                 {item.label}
@@ -23,11 +23,16 @@ function ColorBar({tabItems, changeColor}) {
                     ]
                     }]}
                     onChange={(color) => {
-                    const targets = [...document.getElementsByClassName(`link_${item.key}`)];
-                    targets.forEach((i) => {
-                        i.style.color = color.toHexString();
-                    });
-                    changeColor(idx, color.toHexString());
+                        const targets = [...document.getElementsByClassName(`link_${item.key}`)];
+                        targets.forEach((i) => {
+                            i.style.color = color.toHexString();
+                        });
+                        changeColor(idx, color.toHexString());
+                    }}
+                    onOpenChange={(open) => {
+                        if(open){
+                            changeLinkIdx(Number(item.key));
+                        }
                     }}
                 />
                 </div>

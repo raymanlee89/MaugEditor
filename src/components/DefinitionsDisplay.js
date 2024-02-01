@@ -13,7 +13,7 @@ function DefinitionsDisplay({pickedTerms, changeTermsInLink}) {
     
     return(
         <div className='element fixedHightElement'>
-            <p>Definitions</p>
+            <p className='noMarginBottom'>Definitions</p>
             <div className='horizontal buttonsContainer'>
                 {createDifinitions(pickedTerms).map((item) => (
                     <Button shape="round" size="large"
