@@ -105,16 +105,16 @@ function App() {
             onClick={async () => {
               if(stage === 0 && mode){
                 console.log("call getLinks");
-                try {
-                  changeLoading(true);
-                  // get suggestedLinks from the backend
-                  let res = await getLinks(formula, prose);
-                  // use GPT if NER & RE cannot handle the prose
-                  if(res.length === 0){
-                    console.log("use GPT");
-                    res = await getLinksGPT(formula, prose);
-                  }
-                  console.log("suggestedLinks:", res);
+                changeLoading(true);
+                // get suggestedLinks from the backend
+                let res = await getLinks(formula, prose);
+                // use GPT if NER & RE cannot handle the prose
+                if(res.length === 0){
+                  console.log("use GPT");
+                  res = await getLinksGPT(formula, prose);
+                }
+                console.log("suggestedLinks:", res);
+                if(res !== "Api fail!!"){
                   // set the suggested links as the default links
                   if(res.length > 0){
                     changeSuggestedLinks(res);
@@ -123,8 +123,7 @@ function App() {
                   // go to the next page
                   changeLoading(false);
                   changeStage(stage+1);
-                } catch (e) {
-                  console.error(e);
+                }else{
                   // show the warning Modal
                   Modal.warning({
                     title: 'Cannot connect to the backend!',

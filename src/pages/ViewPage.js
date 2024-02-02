@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import FormulaView from '../components/FormulaView';
 import ProseView from '../components/ProseView';
+import SlideView from '../components/SlideView';
 import ColorBar from '../components/ColorBar';
 import ColorOrderBar from '../components/ColorOrderBar';
 import { getNodeClassName, changeNodeColor } from '../functions/formulaNode';
@@ -82,6 +83,7 @@ function ViewPage({
     // Set suggestedLinks to real links
     // since the math nodes in formula is rendered here, this step should be done here
     useEffect(() => {
+        console.log("suggestedLinks", suggestedLinks);
         // If suggestedLinks is empty, skip this step
         if(suggestedLinks.length === 0){
             return;
@@ -99,6 +101,12 @@ function ViewPage({
             <Divider />
             <ProseView stage={stage} prose={prose}
                 links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
+            {stage === 2 ?
+                <>
+                    <Divider />
+                    <SlideView formula={formula} links={links}/>
+                </>
+            : <></>}
             {stage !== 0 ? <ColorBar tabItems={tabItems} changeColor={changeColor} changeLinkIdx={changeLinkIdx}/> : <></>}
         </div>
     );
