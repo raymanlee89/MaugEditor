@@ -12,10 +12,13 @@ function ViewPage({
     formulaFontSize, changeFormulaFontSize, 
     suggestedLinks, setSuggestedLinkArray, 
     links, linkIdx, changeLinkIdx, changeTermsInLink, changeSymbolsInLink, 
-    tabItems, changeColor
+    tabItems, changeColor,
+    linkElements, changeLinkElements
 }) {
     // the coloring order
     const [colorOrder, changeColorOrder] = useState([]);
+    // in SlideView => need redraw color
+    const [editingIdx, changeEditingIdx] = useState(-1);
 
     useEffect(() => {
         if(stage === 2){
@@ -78,7 +81,7 @@ function ViewPage({
                 });
             });
         }
-    }, [stage, tabItems, links, linkIdx, colorOrder]);
+    }, [stage, tabItems, links, linkIdx, colorOrder, editingIdx]);
 
     // Set suggestedLinks to real links
     // since the math nodes in formula is rendered here, this step should be done here
@@ -104,7 +107,10 @@ function ViewPage({
             {stage === 2 ?
                 <>
                     <Divider />
-                    <SlideView formula={formula} links={links}/>
+                    <SlideView
+                        formula={formula} links={links}
+                        linkElements={linkElements} changeLinkElements={changeLinkElements}
+                        editingIdx={editingIdx} changeEditingIdx={changeEditingIdx}/>
                 </>
             : <></>}
             {stage !== 0 ? <ColorBar tabItems={tabItems} changeColor={changeColor} changeLinkIdx={changeLinkIdx}/> : <></>}

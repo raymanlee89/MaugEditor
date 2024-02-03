@@ -24,6 +24,8 @@ function App() {
   const {links, linkIdx, changeLinkIdx, setSuggestedLinkArray, changeLinkArray, changeTermsInLink, changeSymbolsInLink} = useLinks();
   // Warning: the label of tab is different from the link idx in links
   const {tabItems, setDefaultTabs, changeTabs, changeColor} = useTabs();
+  // for Slide, linkElement = {compositeSymbols: "", definitions: ""}
+  const [linkElements, changeLinkElements] = useState([]);
 
   return (
     <Layout style={{ height: "100vh", width: "100vw"}}>
@@ -58,7 +60,8 @@ function App() {
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                 suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
                 links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                tabItems={tabItems} changeColor={changeColor}/>;
+                tabItems={tabItems} changeColor={changeColor}
+                linkElements={linkElements} changeLinkElements={changeLinkElements}/>;
             default:
               return <div className='page vertical'></div>;
           }
@@ -71,7 +74,8 @@ function App() {
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                 suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
                 links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                tabItems={tabItems} changeColor={changeColor}/>;
+                tabItems={tabItems} changeColor={changeColor}
+                linkElements={linkElements} changeLinkElements={changeLinkElements}/>;
             case 1:
               return <LinkPage formula={formula} links={links} linkIdx={linkIdx}
                 changeLinkIdx={changeLinkIdx} changeLinkArray={changeLinkArray}
