@@ -19,7 +19,7 @@ function ViewPage({
     const [colorOrder, changeColorOrder] = useState([]);
     // in SlideView => need redraw color
     const [editingIdx, changeEditingIdx] = useState(-1);
-
+    // Initialize colorOrder
     useEffect(() => {
         if(stage === 2){
             changeColorOrder(tabItems.map((item) => ({
@@ -28,17 +28,29 @@ function ViewPage({
                 color: item.color
             })))
         }
-    }, [stage])
+    }, [stage, tabItems])
 
-    // change alpha in a hex color
+    // Change alpha in a hex color
     const addAlpha = (color, opacity) => {
         // coerce values so ti is between 0 and 1.
         var _opacity = Math.round(Math.min(Math.max(opacity || 1, 0), 1) * 255);
         return color + _opacity.toString(16).toUpperCase();
     }
 
+    // Set suggestedLinks to real links
+    // since the math nodes in formula is rendered here, this step should be done here
+    useEffect(() => {
+        console.log("suggestedLinks", suggestedLinks);
+        // If suggestedLinks is empty, skip this step
+        if(suggestedLinks.length === 0){
+            return;
+        }
+        setSuggestedLinkArray(suggestedLinks, prose, formula, document);
+    }, [suggestedLinks]);
+
     // Modify colors in ViewPage
     useEffect(() => {
+        // console.log("Change color in ViewPage");
         // clean color (terms + HTML symbols + SVGs)
         const defaultColorNodes = [...document.getElementsByClassName("term")]
             .concat([...document.querySelectorAll(".formulaView .symbolNode")])
@@ -83,19 +95,8 @@ function ViewPage({
         }
     }, [stage, tabItems, links, linkIdx, colorOrder, editingIdx]);
 
-    // Set suggestedLinks to real links
-    // since the math nodes in formula is rendered here, this step should be done here
-    useEffect(() => {
-        console.log("suggestedLinks", suggestedLinks);
-        // If suggestedLinks is empty, skip this step
-        if(suggestedLinks.length === 0){
-            return;
-        }
-        setSuggestedLinkArray(suggestedLinks, prose, formula, document);
-    }, [suggestedLinks]);
-
     return(
-        <div className='page vertical'>
+        <div className='box'>
             {stage === 2 ? <><ColorOrderBar tabItems={tabItems} colorOrder={colorOrder} changeColorOrder={changeColorOrder}/> <Divider /></> : <></>}
             {stage === 1 ? <div style={{ height: "50px" }}/> : <></>}
             <FormulaView stage={stage} formula={formula}

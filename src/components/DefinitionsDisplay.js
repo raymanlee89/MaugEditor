@@ -13,8 +13,8 @@ function DefinitionsDisplay({pickedTerms, changeTermsInLink}) {
     
     return(
         <div className='element fixedHightElement'>
-            <p className='noMarginBottom'>Definitions</p>
-            <div className='horizontal buttonsContainer'>
+            <p>Definitions</p>
+            <div className='buttonsContainer'>
                 {createDifinitions(pickedTerms).map((item) => (
                     <Button shape="round" size="large"
                         key={`${item.text}-${item.start}`}

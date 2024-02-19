@@ -79,7 +79,7 @@ function LinkPage({formula, links, linkIdx, changeLinkIdx, changeLinkArray, chan
     }, [links, tabItems, linkIdx]);
 
     return(
-        <div className='page vertical'>
+        <div className='box linkPage'>
             <div className='element'>
                 <Tabs type="editable-card" tabPosition="top" onChange={onChange} activeKey={linkIdx.toString()} onEdit={onEdit} items={tabItems}/>
             </div>

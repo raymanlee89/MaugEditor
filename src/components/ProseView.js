@@ -4,20 +4,9 @@ import '../katex/katex.css';
 import { createParagraphs, creatTerms } from '../functions/proseToTerms';
 
 function ProseView({stage, prose, links, linkIdx, changeTermsInLink}) {
-    // handle click on term
-    const termOnClick = (term) => {
-        // console.log("termOnClick", term);
-        if(links[linkIdx].terms.find(item => item.start === term.start)){
-            changeTermsInLink("remove", term);
-        }else{
-            changeTermsInLink("add", term);
-        }
-        // console.log("changeTermsInLink", links[linkIdx].terms);
-    }
-
     // if the term is picked in this link
     const isPicked = (idx, term) => {
-        return links[idx]?.terms.find(item => item.start === term.start);
+        return links[idx]?.terms.find(item => item.start === term.start && item.end === term.end);
     }
 
     // if the term is picked in other link and is not picked in this link
@@ -34,24 +23,31 @@ function ProseView({stage, prose, links, linkIdx, changeTermsInLink}) {
         return false;
     }
 
-    // get all link indices for a term
-    const getAllLinkIdx = (term) => {
-        let res = [];
-        for(let i=0 ; i<links.length ; i++){
-            if(isPicked(i, term)){
-                res.push(i);
-            }
-        }
-        return res
-    }
-
     // create link marks
     const createLinkMarks = (term) => {
+        let allLinkIdx = [];
+        for(let i=0 ; i<links.length ; i++){
+            if(isPicked(i, term)){
+                allLinkIdx.push(i);
+            }
+        }
+
         let res = "";
-        getAllLinkIdx(term).forEach((item) => {
+        allLinkIdx.forEach((item) => {
             res = res + " link_" + item;
         })
         return res;
+    }
+
+    // handle click on term
+    const termOnClick = (term) => {
+        // console.log("termOnClick", term);
+        if(isPicked(linkIdx, term)){
+            changeTermsInLink("remove", term);
+        }else{
+            changeTermsInLink("add", term);
+        }
+        // console.log("changeTermsInLink", links[linkIdx].terms);
     }
 
     return(

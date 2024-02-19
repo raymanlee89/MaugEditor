@@ -50,43 +50,47 @@ function App() {
         <div>{stageNames[stage]}</div>
       </Header>
       <Content className='horizontal'>
-        {(() => {
-          switch (stage) {
-            case 0:
-              return <InputPage formula={formula} changeFormula={changeFormula} prose={prose} changeProse={changeProse}/>;
-            case 1:
-            case 2:
-              return <ViewPage stage={stage} formula={formula} prose={prose}
-                formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
-                links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                tabItems={tabItems} changeColor={changeColor}
-                linkElements={linkElements} changeLinkElements={changeLinkElements}/>;
-            default:
-              return <div className='page vertical'></div>;
-          }
-        })()}
+        <div className='page vertical'>
+          {(() => {
+            switch (stage) {
+              case 0:
+                return <InputPage formula={formula} changeFormula={changeFormula} prose={prose} changeProse={changeProse}/>;
+              case 1:
+              case 2:
+                return <ViewPage stage={stage} formula={formula} prose={prose}
+                  formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                  suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
+                  links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+                  tabItems={tabItems} changeColor={changeColor}
+                  linkElements={linkElements} changeLinkElements={changeLinkElements}/>;
+              default:
+                return <div className='box'></div>;
+            }
+          })()}
+        </div>
         <Divider style={{ height: "100%" }} type="vertical"/>
-        {(() => {
-          switch (stage) {
-            case 0:
-              return <ViewPage stage={stage} formula={formula} prose={prose}
-                formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
-                links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                tabItems={tabItems} changeColor={changeColor}
-                linkElements={linkElements} changeLinkElements={changeLinkElements}/>;
-            case 1:
-              return <LinkPage formula={formula} links={links} linkIdx={linkIdx}
-                changeLinkIdx={changeLinkIdx} changeLinkArray={changeLinkArray}
-                changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                tabItems={tabItems} changeTabs={changeTabs}/>;
-            case 2:
-              return <OutputPage formula={formula} prose={prose} links={links} tabItems={tabItems}/>;
-            default:
-              return <div className='page vertical'></div>;
-          }
-        })()}
+        <div className='page vertical'>
+          {(() => {
+            switch (stage) {
+              case 0:
+                return <ViewPage stage={stage} formula={formula} prose={prose}
+                  formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                  suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
+                  links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+                  tabItems={tabItems} changeColor={changeColor}
+                  linkElements={linkElements} changeLinkElements={changeLinkElements}/>;
+              case 1:
+                return <LinkPage formula={formula} links={links} linkIdx={linkIdx}
+                  changeLinkIdx={changeLinkIdx} changeLinkArray={changeLinkArray}
+                  changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+                  tabItems={tabItems} changeTabs={changeTabs}/>;
+              case 2:
+                return <OutputPage formula={formula} prose={prose} links={links} tabItems={tabItems}/>;
+              default:
+                return <div className='page vertical'></div>;
+            }
+          })()}
+        </div>
       </Content>
       <Footer className='horizontal'>
         <Tooltip title="Return">

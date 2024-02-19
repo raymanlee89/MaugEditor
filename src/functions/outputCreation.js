@@ -58,11 +58,11 @@ export const addColorToFormula = (links, formula) => {
             const remain = result.substring(separator, item.end);
             // console.log("Item", formula.substring(item.start, item.end), "Entity", entity, "Remain", remain);
             if(separator !== item.end){
-                result = result.substring(0, separator) + colorMark + " " + remain + result.substring(item.end);
+                result = result.substring(0, separator) + "\n" + colorMark + " " + remain + result.substring(item.end);
             }
-            result = result.substring(0, item.start) + "{" + colorMark + " " + entity + "}" + result.substring(separator);
+            result = result.substring(0, item.start) + "\n{" + colorMark + " " + entity + "}" + result.substring(separator);
         }else{
-            result = result.substring(0, item.start) + colorMark + " " + result.substring(item.start);
+            result = result.substring(0, item.start) + "\n" + colorMark + " " + result.substring(item.start);
         }
     });
     // console.log("result", result);
@@ -99,7 +99,7 @@ export const addColorToProse = (links, prose) => {
     let result = prose.trim();
     reversed.forEach((item) => {
         const colorMark = item.link === -1 ? "\\plain" : `\\link${item.link}`;
-        result = result.substring(0, item.start) + colorMark + " " + result.substring(item.start);
+        result = result.substring(0, item.start) + "\n" + colorMark + " " + result.substring(item.start);
     });
     // console.log("result", result);
     return result;

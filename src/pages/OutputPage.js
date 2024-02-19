@@ -26,7 +26,6 @@ function OutputPage({formula, prose, links, tabItems}) {
         }, "");
         
         header = header + "\n\\newcommand{\\plain}{\\color{black}}\n\\newcommand{\\link}[1]{\\color{c#1}}";
-    
         header = header + "\n\n\\renewcommand{\\familydefault}{\\sfdefault}";
 
         header = header + "\n\n\\begin{document}";
@@ -51,7 +50,7 @@ function OutputPage({formula, prose, links, tabItems}) {
     }
 
     return (
-        <div className='page vertical'>
+        <div className='box'>
             <div className='element'>
                 <p>Output</p>
                 <div className='vertical outputArea'>

@@ -5,6 +5,7 @@ export const createParagraphs = (prose) => {
 
 // split prose for the buttons => terms
 // pStart is the start location of this paragraph
+// term = {text: "", start: "", end: ""}
 export const creatTerms = (prose, pStart) => {
     let mark = 0;
     let latexMode = false;

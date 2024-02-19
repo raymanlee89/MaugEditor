@@ -25,21 +25,28 @@ p {
 .page {
   width: 50vw;
   height: 100%;
+  overflow: hidden;
+}
+
+.box{
+  width: 100%;
   overflow: auto;
 }
 
+.linkPage{
+  height: 100%;
+  padding: 10% 0 10% 0;
+}
+
 .element{
-  width: 80%;
+  width: 100%;
+  padding: 0 10% 0 10%;
   white-space: pre-line;
 }
 
 .fixedHightElement{
   /* Tabs: 16px + 2 * 9px + 2px + 1.6em,  Divider: 49px*/
   min-height: calc((90% - 36px - 1.6em - 50px) / 2);
-}
-
-.noMarginBottom {
-  margin-block-end: 0;
 }
 
 /* Containers */
@@ -50,8 +57,9 @@ p {
 }
 
 .buttonsContainer {
-  /* Mark(<p>): 2em,  Margin: 1em*/
-  min-height: calc(100% - 4em);
+  padding-top: 10%;
+  display: flex;
+  flex-direction: row;
   justify-content: space-around;
   align-items: center;
   flex-wrap: wrap;
@@ -119,8 +127,6 @@ p {
 /* Output Area */
 .outputArea {
   width: 100%;
-  height: auto;
-  min-height: 96px;
   background-color: rgb(200, 200, 200);
   padding: 4px 11px;
   border-radius: 6px;
@@ -131,8 +137,6 @@ p {
 
 .outputText{
   white-space: pre-line;
-  height: auto;
-  min-height: 64px;
   width: 100%;
 }
 

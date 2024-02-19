@@ -3,7 +3,7 @@ import { Divider } from 'antd';
 
 function InputPage({formula, changeFormula, prose, changeProse}) {
     return(
-        <div className='page vertical'>
+        <div className='box'>
             <InputArea type="Formula" defaultValue={formula} onChange={changeFormula}/>
             <Divider />
             <InputArea type="Prose" defaultValue={prose} onChange={changeProse}/>
