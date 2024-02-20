@@ -80,7 +80,8 @@ function App() {
                   tabItems={tabItems} changeColor={changeColor}
                   linkElements={linkElements} changeLinkElements={changeLinkElements}/>;
               case 1:
-                return <LinkPage formula={formula} links={links} linkIdx={linkIdx}
+                return <LinkPage formula={formula} prose={prose}
+                  links={links} linkIdx={linkIdx}
                   changeLinkIdx={changeLinkIdx} changeLinkArray={changeLinkArray}
                   changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                   tabItems={tabItems} changeTabs={changeTabs}/>;

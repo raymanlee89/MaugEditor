@@ -40,7 +40,6 @@ function ViewPage({
     // Set suggestedLinks to real links
     // since the math nodes in formula is rendered here, this step should be done here
     useEffect(() => {
-        console.log("suggestedLinks", suggestedLinks);
         // If suggestedLinks is empty, skip this step
         if(suggestedLinks.length === 0){
             return;

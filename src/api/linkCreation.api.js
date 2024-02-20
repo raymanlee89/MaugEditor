@@ -23,3 +23,14 @@ export const getLinksGPT = async (formula, prose) => {
         return "Api fail!!"
     }
 }
+
+export const getDefinitionBySymbol = async (formula, prose, symbol) => {
+    try{
+        const res = await instance.post("\\definition", formula + "<;>" + prose + "<;>" + symbol);
+        // console.log("getDefinitionBySymbol res", res);
+        return res.data;
+    }catch(e){
+        console.log(e);
+        return "Api fail!!"
+    }
+}
