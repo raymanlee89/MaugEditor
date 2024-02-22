@@ -9,8 +9,7 @@ import { Divider } from 'antd';
 
 function ViewPage({
     stage, formula, prose, 
-    formulaFontSize, changeFormulaFontSize, 
-    suggestedLinks, setSuggestedLinkArray, 
+    formulaFontSize, changeFormulaFontSize,
     links, linkIdx, changeLinkIdx, changeTermsInLink, changeSymbolsInLink, 
     tabItems, changeColor,
     linkElements, changeLinkElements
@@ -36,16 +35,6 @@ function ViewPage({
         var _opacity = Math.round(Math.min(Math.max(opacity || 1, 0), 1) * 255);
         return color + _opacity.toString(16).toUpperCase();
     }
-
-    // Set suggestedLinks to real links
-    // since the math nodes in formula is rendered here, this step should be done here
-    useEffect(() => {
-        // If suggestedLinks is empty, skip this step
-        if(suggestedLinks.length === 0){
-            return;
-        }
-        setSuggestedLinkArray(suggestedLinks, prose, formula, document);
-    }, [suggestedLinks]);
 
     // Modify colors in ViewPage
     useEffect(() => {

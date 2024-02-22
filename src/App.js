@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Divider, Button, Tooltip, Switch, Modal } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import './App.css';
@@ -27,6 +27,16 @@ function App() {
   // for Slide, linkElement = {compositeSymbols: "", definitions: ""}
   const [linkElements, changeLinkElements] = useState([]);
 
+  // Set suggestedLinks to real links
+  useEffect(() => {
+    // If suggestedLinks is empty, skip this step
+    if(suggestedLinks.length === 0 || stage !== 1){
+        return;
+    }
+    setSuggestedLinkArray(suggestedLinks, prose, formula, document);
+    changeSuggestedLinks([]);
+  }, [suggestedLinks]);
+
   return (
     <Layout style={{ height: "100vh", width: "100vw"}}>
       <Header className='horizontal' style={{ color: "white", fontSize: "2em" }}>
@@ -36,14 +46,7 @@ function App() {
           checkedChildren="AI"
           unCheckedChildren="Manual"
           checked={mode}
-          onChange={(checked) => {
-          changeMode(checked)
-            if(stage === 1){
-              changeSuggestedLinks([]);
-              changeLinkArray("clear");
-              changeTabs("clear");
-            }
-          }}
+          onChange={(checked) => changeMode(checked)}
           disabled={stage === 2}
         />
         <div className='push'></div>
@@ -59,7 +62,6 @@ function App() {
               case 2:
                 return <ViewPage stage={stage} formula={formula} prose={prose}
                   formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                  suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
                   links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                   tabItems={tabItems} changeColor={changeColor}
                   linkElements={linkElements} changeLinkElements={changeLinkElements}/>;
@@ -75,7 +77,6 @@ function App() {
               case 0:
                 return <ViewPage stage={stage} formula={formula} prose={prose}
                   formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                  suggestedLinks={suggestedLinks} setSuggestedLinkArray={setSuggestedLinkArray}
                   links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                   tabItems={tabItems} changeColor={changeColor}
                   linkElements={linkElements} changeLinkElements={changeLinkElements}/>;

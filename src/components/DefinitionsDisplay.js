@@ -8,7 +8,7 @@ function DefinitionsDisplay({pickedTerms, changeTermsInLink}) {
     }
 
     const definitionOnClick = (difinition) => {
-        changeTermsInLink("remove with range", undefined, {start: difinition.start, end: difinition.end});
+        changeTermsInLink("remove with difinition", {start: difinition.start, end: difinition.end});
     }
     
     return(

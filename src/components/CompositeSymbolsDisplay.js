@@ -8,7 +8,7 @@ function CompositeSymbolsDisplay({formula, pickedSymbols, changeSymbolsInLink}) 
     }
 
     const compositeSymbolsOnClick = (compositeSymbol) => {
-        changeSymbolsInLink("remove with range", undefined, {start: compositeSymbol.start, end: compositeSymbol.end});
+        changeSymbolsInLink("remove with compositeSymbol", {start: compositeSymbol.start, end: compositeSymbol.end});
     }
 
     return(

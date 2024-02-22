@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import CompositeSymbolsDisplay from '../components/CompositeSymbolsDisplay';
 import DefinitionsDisplay from '../components/DefinitionsDisplay';
-import { mergeConnectedSymbols } from '../functions/mergeConnectedString';
-import { getDefinitionBySymbol } from '../api/linkCreation.api';
+import { mergeConnectedSymbols, mergeConnectedTerms } from '../functions/mergeConnectedString';
+import { getDefinitionBySymbol, getSymbolByDefinition } from '../api/linkCreation.api';
 
-import { Divider, Tabs, Modal, Button } from 'antd';
-import { ArrowDownOutlined } from '@ant-design/icons';
+import { Divider, Tabs, Modal, Button, Tooltip } from 'antd';
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 
 function LinkPage({formula, prose, links, linkIdx, changeLinkIdx, changeLinkArray, changeTermsInLink, changeSymbolsInLink, tabItems, changeTabs}) {
     const [removeLinkIdx, changeRemoveLinkIdx] = useState(-1);
+    const [loading, changeLoading] = useState(false);
 
     const onChange = (newActiveKey) => {
         const targetLinkIdx = Number(newActiveKey);
@@ -84,38 +85,31 @@ function LinkPage({formula, prose, links, linkIdx, changeLinkIdx, changeLinkArra
     }, [links, tabItems, linkIdx]);
 
     const getDefinition = async () => {
-        const pickedSymbols = mergeConnectedSymbols(formula, links[linkIdx].symbols, linkIdx);
-        console.log("getDefinition symbols", pickedSymbols.map((item) => item.text));
-        const res = await getDefinitionBySymbol(formula, prose, pickedSymbols.reduce((a, v, i) => i === 0 ? a + v.text : a + "<,>" + v.text, ""));
-        console.log("New definitions", res);
-        res.forEach((def) => {
-            const newTerms = splitDefinition(def);
-            console.log("newTerms", newTerms);
-            newTerms.forEach((term) => {
-                changeTermsInLink("add", term);
+        changeLoading(true);
+        if(links[linkIdx].symbols.length > 0){
+            const pickedSymbols = mergeConnectedSymbols(formula, links[linkIdx].symbols, linkIdx);
+            // console.log("getDefinition symbols", pickedSymbols.map((item) => item.text));
+            const res = await getDefinitionBySymbol(formula, prose, pickedSymbols.reduce((a, v, i) => i === 0 ? a + v.text : a + "<,>" + v.text, ""));
+            console.log("New definitions", res);
+            res.forEach((def) => {
+                changeTermsInLink("add with difinition", def, prose);
             })
-        })
+        }
+        changeLoading(false);
     }
 
-    const splitDefinition = (definition) => {
-        let terms = [];
-        let start = 0;
-        let split = definition.text.indexOf(" ");
-        while(split !== -1){
-            terms.push({
-                text: definition.text.substring(start, split),
-                start: definition.start + start,
-                end: definition.start + split
-            });
-            start = split + 1;
-            split = definition.text.indexOf(" ", start);
+    const getCompositeSymbol = async () => {
+        changeLoading(true);
+        if(links[linkIdx].terms.length > 0){
+            const pickedTerms = mergeConnectedTerms(links[linkIdx].terms, linkIdx);
+            console.log("getCompositeSymbol terms", pickedTerms.map((item) => item.text));
+            const res = await getSymbolByDefinition(formula, prose, pickedTerms.reduce((a, v, i) => i === 0 ? a + v.text : a + "<,>" + v.text, ""));
+            console.log("New composite symbols", res);
+            res.forEach((sym) => {
+                changeSymbolsInLink("add with compositeSymbol", sym, formula, document);
+            })
         }
-        terms.push({
-            text: definition.text.substring(start),
-            start: definition.start + start,
-            end: definition.end
-        });
-        return terms;
+        changeLoading(false);
     }
 
     return(
@@ -125,7 +119,13 @@ function LinkPage({formula, prose, links, linkIdx, changeLinkIdx, changeLinkArra
             </div>
             <CompositeSymbolsDisplay formula={formula} pickedSymbols={links[linkIdx] === undefined? [] : links[linkIdx].symbols} changeSymbolsInLink={changeSymbolsInLink}/>
             <Divider>
-                <Button shape="circle" icon={<ArrowDownOutlined />} onClick={async () => getDefinition()}/>
+                <Tooltip title="Get symbols">
+                    <Button shape="circle" icon={<ArrowUpOutlined />} loading={loading} onClick={async () => getCompositeSymbol()}/>
+                </Tooltip>
+                <div style={{ width: "5px", height: "5px"}}/>
+                <Tooltip title="Get definitions" placement="bottom">
+                    <Button shape="circle" icon={<ArrowDownOutlined />} loading={loading} onClick={async () => getDefinition()}/>
+                </Tooltip>
             </Divider>
             <DefinitionsDisplay pickedTerms={links[linkIdx] === undefined? [] : links[linkIdx].terms} changeTermsInLink={changeTermsInLink}/>
             <Modal title={`You are trying to remove ${tabItems[removeLinkIdx]?.label}`} open={removeLinkIdx!==-1} onOk={onRemove} onCancel={onCancel}>
