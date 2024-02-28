@@ -1,13 +1,35 @@
 import { mergeConnectedSymbols, mergeConnectedTerms } from './mergeConnectedString';
 import { isEntity, isInCharArray } from "./entityDetection";
 
+const getUniqueLinkItems = (itemName, colorOrder, links) => {
+    let uniqueLinkItems = []; // symbols in links, remove the overlapping colors
+    let itemStartsHasColor = new Set(); // items are object => use their start
+    const reversedColor = [...colorOrder].reverse();
+    reversedColor.forEach((color) => {
+        let newLinkItems = [];
+        links[color.id][itemName].forEach((item) => {
+            if(!itemStartsHasColor.has(item.start)){
+                newLinkItems.push(item);
+                itemStartsHasColor.add(item.start);
+            }
+        });
+        uniqueLinkItems.push(newLinkItems);
+    });
+    uniqueLinkItems.reverse();
+    // console.log("uniqueLinkItems", uniqueLinkItems);
+    return uniqueLinkItems;
+}
+
 // add color marks to the formula
-export const addColorToFormula = (links, formula) => {
+export const addColorToFormula = (colorOrder, links, formula) => {
+    // remove the overlapping colors
+    const uniqueSymbols = getUniqueLinkItems("symbols", colorOrder, links);
+
     // create the sorted array of the composite symbols in all links
-    let mergedSymbols = links.reduce((accumulator, item, idx) => (
+    let mergedSymbols = uniqueSymbols.reduce((accumulator, item, idx) => (
         accumulator.concat(
             // merge connected symbols in the same link
-            mergeConnectedSymbols(formula, item.symbols, idx)
+            mergeConnectedSymbols(formula, item, idx)
         )
     ), []);
     mergedSymbols.sort((a, b) => a.start - b.start);
@@ -70,15 +92,19 @@ export const addColorToFormula = (links, formula) => {
 }
 
 // add color marks to the prose
-export const addColorToProse = (links, prose) => {
+export const addColorToProse = (colorOrder, links, prose) => {
+    // remove the overlapping colors
+    const uniqueTerms = getUniqueLinkItems("terms", colorOrder, links);
+
     // create the sorted array of the composite terms in all links
-    let mergedTerms = links.reduce((accumulator, item, idx) => (
+    let mergedTerms = uniqueTerms.reduce((accumulator, item, idx) => (
         accumulator.concat(
             // merge connected terms in the same link
-            mergeConnectedTerms(item.terms, idx)
+            mergeConnectedTerms(item, idx)
         )
     ), []);
     mergedTerms.sort((a, b) => a.start - b.start);
+
     for(let i=mergedTerms.length ; i>-1 ; i--){
         let start = i === 0 ? 0 : mergedTerms[i-1].end;
         let end = i === mergedTerms.length ? prose.length : mergedTerms[i].start;
@@ -102,5 +128,14 @@ export const addColorToProse = (links, prose) => {
         result = result.substring(0, item.start) + "\n" + colorMark + " " + result.substring(item.start);
     });
     // console.log("result", result);
+    return result;
+}
+
+// itemize Link elements
+export const itemizeLink = (linkElements) => {
+    const linkString = linkElements.reduce((accumulator, item) => (
+        accumulator + `\\item $\\link${item.linkIdx} ${item.compositeSymbols}$: ${item.definitions}\n`
+    ), "");
+    const result = "\\begin{itemize}\n" + linkString + "\\end{itemize}";
     return result;
 }

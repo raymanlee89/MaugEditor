@@ -90,7 +90,7 @@ function ColorOrderBar({ tabItems, colorOrder, changeColorOrder }){
 
     return (
         <div className='element'>
-            <p>Coloring Order</p>
+            <p>Coloring Order:</p>
             <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                 <SortableContext items={colorOrder} strategy={horizontalListSortingStrategy}>
                     {colorOrder.map((item) => (

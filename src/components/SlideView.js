@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Latex from '../react-latex/latex';
 import { Input, Button } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, CheckOutlined } from '@ant-design/icons';
 import { mergeConnectedSymbols, mergeConnectedTerms } from '../functions/mergeConnectedString';
 
-function SlideView({formula, links, linkElements, changeLinkElements, editingIdx, changeEditingIdx}) {
+function SlideView({formula, links, colorOrder, linkElements, changeLinkElements, editingIdx, changeEditingIdx}) {
     const editInputRef = useRef(null);
 
     // create a link element with a link
     const createLinkElement = (link, idx) => {
         // the composite symbols on the left side should be unique
         const uniqueSymbols = new Set(mergeConnectedSymbols(formula, link.symbols, idx));
-        const compositeSymbols = Array.from(uniqueSymbols).reduce((a, v, i) => i === 0 ? a + `$${v.text}$` : a + `, $${v.text}$`, "");
+        const compositeSymbols = Array.from(uniqueSymbols).reduce((a, v, i) => i === 0 ? a + v.text : a + ", " + v.text, "");
 
         // the definitions on the right side should have no symbols
         const noSymbolsTerms = link.terms.filter((item) => item.text.indexOf("$") === -1);
         const definitions = mergeConnectedTerms(noSymbolsTerms, idx).reduce((a, v, i) => i === 0 ? a + v.text : a + ", " + v.text, "");
-
-        return {compositeSymbols, definitions};
+        const linkIdx = idx;
+        return {compositeSymbols, definitions, linkIdx};
     }
 
     const onChangeLinkElement = (idx, type, value) => {
@@ -29,13 +29,13 @@ function SlideView({formula, links, linkElements, changeLinkElements, editingIdx
     // update LinkElements
     useEffect(() => {
         let newLinkElements = [];
-        links.forEach((item, idx) => {
-            const newElement = createLinkElement(item, idx);
+        colorOrder.forEach((item) => {
+            const newElement = createLinkElement(links[item.id], item.id);
             newLinkElements.push(newElement);
         });
         changeLinkElements(newLinkElements);
-        console.log("linkElements", newLinkElements);
-    }, [links]);
+        // console.log("linkElements", newLinkElements);
+    }, [colorOrder, links]);
 
     return (
         <div className='element'>
@@ -63,11 +63,12 @@ function SlideView({formula, links, linkElements, changeLinkElements, editingIdx
                             ref={editInputRef}
                             onBlur={() => changeEditingIdx(-1)}
                         />
+                        <Button type="text" icon={<CheckOutlined/>} size="small" onClick={() => changeEditingIdx(-1)}/>
                     </div>
                     :
                     <div className='linkElement'>
-                        <div className={`link_${idx}`}>
-                            <Latex>{item.compositeSymbols}</Latex>
+                        <div className={`link_${item.linkIdx}`}>
+                            <Latex>{`$${item.compositeSymbols}$`}</Latex>
                         </div>
                         <div className='separator'>:</div>
                         <Latex>{item.definitions}</Latex>

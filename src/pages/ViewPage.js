@@ -8,26 +8,15 @@ import { getNodeClassName, changeNodeColor } from '../functions/formulaNode';
 import { Divider } from 'antd';
 
 function ViewPage({
-    stage, formula, prose, 
+    stage, options, formula, prose, 
     formulaFontSize, changeFormulaFontSize,
     links, linkIdx, changeLinkIdx, changeTermsInLink, changeSymbolsInLink, 
     tabItems, changeColor,
-    linkElements, changeLinkElements
+    linkElements, changeLinkElements,
+    colorOrder, changeColorOrder
 }) {
-    // the coloring order
-    const [colorOrder, changeColorOrder] = useState([]);
     // in SlideView => need redraw color
     const [editingIdx, changeEditingIdx] = useState(-1);
-    // Initialize colorOrder
-    useEffect(() => {
-        if(stage === 2){
-            changeColorOrder(tabItems.map((item) => ({
-                label: item.label,
-                id: item.key,
-                color: item.color
-            })))
-        }
-    }, [stage, tabItems])
 
     // Change alpha in a hex color
     const addAlpha = (color, opacity) => {
@@ -81,23 +70,30 @@ function ViewPage({
                 });
             });
         }
-    }, [stage, tabItems, links, linkIdx, colorOrder, editingIdx]);
+    }, [stage, options, tabItems, links, linkIdx, colorOrder, editingIdx, linkElements]);
 
     return(
         <div className='box'>
-            {stage === 2 ? <><ColorOrderBar tabItems={tabItems} colorOrder={colorOrder} changeColorOrder={changeColorOrder}/> <Divider /></> : <></>}
+            {stage === 2 ? <>
+                <ColorOrderBar tabItems={tabItems} colorOrder={colorOrder} changeColorOrder={changeColorOrder}/>
+                <Divider />
+            </> : <></>}
             {stage === 1 ? <div style={{ height: "50px" }}/> : <></>}
             <FormulaView stage={stage} formula={formula}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                 links={links} linkIdx={linkIdx} changeSymbolsInLink={changeSymbolsInLink}/>
-            <Divider />
-            <ProseView stage={stage} prose={prose}
-                links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
-            {stage === 2 ?
+            {stage !== 2 || options[0] ?
+                <>
+                    <Divider />
+                    <ProseView stage={stage} prose={prose}
+                        links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
+                </>
+            : <></>}
+            {stage === 2 && options[1] ?
                 <>
                     <Divider />
                     <SlideView
-                        formula={formula} links={links}
+                        formula={formula} links={links} colorOrder={colorOrder}
                         linkElements={linkElements} changeLinkElements={changeLinkElements}
                         editingIdx={editingIdx} changeEditingIdx={changeEditingIdx}/>
                 </>

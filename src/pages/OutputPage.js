@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Tooltip, message } from 'antd';
+import { Button, Tooltip, message, Select } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
-import { addColorToFormula, addColorToProse } from '../functions/outputCreation';
+import { addColorToFormula, addColorToProse, itemizeLink } from '../functions/outputCreation';
 
-function OutputPage({formula, prose, links, tabItems}) {
+function OutputPage({options, formula, prose, links, linkElements, colorOrder}) {
     const [output, changeOutput] = useState("");
+    const [medium, changeMedium] = useState("paper");
     
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -18,30 +19,45 @@ function OutputPage({formula, prose, links, tabItems}) {
     useEffect(() => {
         console.log("links", links);
         // Create Output
-        let header = "\\usepackage{color}\n\n";
-        header = header + tabItems.reduce((accumulator, item, idx) => {
+        let header = "\\usepackage{color}\n";
+        header += colorOrder.reduce((accumulator, item, idx) => {
             // hex to rgb
             let rgb = hexToRgb(item.color);
             return accumulator + `\\definecolor{c${idx}}{RGB}{${rgb.r},${rgb.g},${rgb.b}}\n`;
         }, "");
         
-        header = header + "\n\\newcommand{\\plain}{\\color{black}}\n\\newcommand{\\link}[1]{\\color{c#1}}";
-        header = header + "\n\n\\renewcommand{\\familydefault}{\\sfdefault}";
+        header += "\\newcommand{\\plain}{\\color{black}}\n\\newcommand{\\link}[1]{\\color{c#1}}";
 
-        header = header + "\n\n\\begin{document}";
-        header = header + "\n\\begin{center}";
+        header += "\n\n\\begin{document}";
+        let tail = "";
 
-        let tail = "\n\n\\end{center}";
+        switch (medium) {
+            case "slide":
+                header += "\n\\begin{frame}";
+                header += "\n\\frametitle{Title}"
+                tail = "\n\n\\end{frame}";
+                break
+            case "paper":
+            default:
+                header = header + "\n\\begin{center}";
+                tail = "\n\n\\end{center}";
+                break
+        }
+
         tail += "\n\\end{document}";
 
-        let outputFormula = addColorToFormula(links, formula);
-        // console.log("outputFormula", outputFormula);
+        let outputContext = "\n\n\$\$" + addColorToFormula(colorOrder, links, formula) + "\n\$\$";
     
-        let outputProse = addColorToProse(links, prose);
-        // console.log("outputProse", outputProse);
+        if(options[0]){
+            outputContext += "\n" + addColorToProse(colorOrder, links, prose);
+        }
+
+        if(options[1]){
+            outputContext += "\n\n" + itemizeLink(linkElements);
+        }
     
-        changeOutput(header + "\n\n\$\$" + outputFormula + "\n\$\$\n\n" + outputProse + tail);
-    }, [tabItems, formula, prose, links])
+        changeOutput(header + outputContext + tail);
+    }, [medium, options, formula, prose, links, linkElements, colorOrder])
 
     const [messageApi, contextHolder] = message.useMessage();
     const copyContent = () => {
@@ -52,7 +68,24 @@ function OutputPage({formula, prose, links, tabItems}) {
     return (
         <div className='box'>
             <div className='element'>
-                <p>Output</p>
+                <div className='horizontal justifyStart'>
+                    <p>Output</p>
+                    <div style={{ width: "30px"}}/>
+                    <Select
+                        value={medium}
+                        onChange={(v) => changeMedium(v)}
+                        options={[
+                            {
+                                value: 'paper',
+                                label: 'paper',
+                            },
+                            {
+                                value: 'slide',
+                                label: 'slide',
+                            }
+                        ]}
+                    />
+                </div>
                 <div className='vertical outputArea'>
                     <div className='outputText'>
                         {output}
