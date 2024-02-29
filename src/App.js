@@ -33,13 +33,11 @@ function App() {
   
   // Initialize colorOrder
   useEffect(() => {
-    if(stage === 2){
-        changeColorOrder(tabItems.map((item) => ({
-            label: item.label,
-            id: item.key,
-            color: item.color
-        })))
-    }
+    changeColorOrder(tabItems.map((item) => ({
+      label: item.label,
+      id: item.key,
+      color: item.color
+    })))
   }, [stage, tabItems])
   
   // Set suggestedLinks to real links

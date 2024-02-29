@@ -98,7 +98,7 @@ function ViewPage({
                         editingIdx={editingIdx} changeEditingIdx={changeEditingIdx}/>
                 </>
             : <></>}
-            {stage !== 0 ? <ColorBar tabItems={tabItems} changeColor={changeColor} changeLinkIdx={changeLinkIdx}/> : <></>}
+            {stage !== 0 ? <ColorBar colorOrder={colorOrder} tabItems={tabItems} changeColor={changeColor} changeLinkIdx={changeLinkIdx}/> : <></>}
         </div>
     );
 }
