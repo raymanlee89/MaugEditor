@@ -19,20 +19,23 @@ const useTabs = () => {
         { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] }
     ]);
 
-    // Number of colors
-    const [numOfColors, changeNumOfColors] = useState(0);
+    // colorOrder is a subset indices of tabItems, and it decides the coloring order in output page
+    const [colorOrder, changeColorOrder] = useState([0]);
 
     const setDefaultTabs = (tabCount) => {
         let newTabItems = [];
+        let newColorOrder = [];
         for(let i=0 ; i<tabCount ; i++){
             newTabItems.push({
                 label: `Link ${i+1}`,
                 key: i.toString(),
                 closable: true,
                 color: defaultColors[i % defaultColors.length]
-            })
+            });
+            newColorOrder.push(i);
         }
         changeTabItems(newTabItems);
+        changeColorOrder(newColorOrder);
     }
 
     const changeTabs = (type, targetLinkIdx) => {
@@ -66,15 +69,16 @@ const useTabs = () => {
                 console.log("No such type in changeTabs");
         }
         changeTabItems(tabItemsCopy);
+        changeColorOrder(tabItemsCopy.map((tab) => Number(tab.key)));
     }
 
     const changeColor = (idx, color) => {
-        const tabItemsCopy = [...tabItems];
-        tabItemsCopy[idx].color = color;
-        changeTabItems(tabItemsCopy);
+        const newTabItemsCopy = [...tabItems];
+        newTabItemsCopy[idx].color = color;
+        changeTabItems(newTabItemsCopy);
     }
 
-    return {tabItems, setDefaultTabs, changeTabs, changeColor, numOfColors, changeNumOfColors};
+    return {tabItems, setDefaultTabs, changeTabs, changeColor, colorOrder, changeColorOrder};
 };
 
 export default useTabs;

@@ -25,21 +25,17 @@ function App() {
   const [suggestedLinks, changeSuggestedLinks] = useState([]); 
   const {links, linkIdx, changeLinkIdx, setSuggestedLinkArray, changeLinkArray, changeTermsInLink, changeSymbolsInLink} = useLinks();
   // Warning: the label of tab is different from the link idx in links
-  const {tabItems, setDefaultTabs, changeTabs, changeColor} = useTabs();
+  const {tabItems, setDefaultTabs, changeTabs, changeColor, colorOrder, changeColorOrder} = useTabs();
   // for Slide, linkElement = {compositeSymbols: "", definitions: "", linkIdx: 0}
   const [linkElements, changeLinkElements] = useState([]);
-  // the coloring order, colorOrder = {label: "", id: 0, color: ""}, I use id not idx for the dnd-kit package
-  const [colorOrder, changeColorOrder] = useState([]);
   
-  // Initialize colorOrder
+  // Reset colorOrder
   useEffect(() => {
-    changeColorOrder(tabItems.map((item) => ({
-      label: item.label,
-      id: item.key,
-      color: item.color
-    })))
-  }, [stage, tabItems])
-  
+    if(stage === 1){
+      changeColorOrder(tabItems.map((item) => Number(item.key)));
+    }
+  }, [stage])
+
   // Set suggestedLinks to real links
   useEffect(() => {
     // If suggestedLinks is empty, skip this step
@@ -155,7 +151,9 @@ function App() {
                   changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                   tabItems={tabItems} changeTabs={changeTabs}/>;
               case 2:
-                return <OutputPage options={options} formula={formula} prose={prose} links={links} linkElements={linkElements} colorOrder={colorOrder}/>;
+                return <OutputPage options={options} formula={formula} prose={prose}
+                  links={links} linkElements={linkElements}
+                  tabItems={tabItems} colorOrder={colorOrder}/>;
               default:
                 return <div className='page vertical'></div>;
             }

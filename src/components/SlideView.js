@@ -29,8 +29,8 @@ function SlideView({formula, links, colorOrder, linkElements, changeLinkElements
     // update LinkElements
     useEffect(() => {
         let newLinkElements = [];
-        colorOrder.forEach((item) => {
-            const newElement = createLinkElement(links[item.id], item.id);
+        colorOrder.forEach((idx) => {
+            const newElement = createLinkElement(links[idx], idx);
             newLinkElements.push(newElement);
         });
         changeLinkElements(newLinkElements);

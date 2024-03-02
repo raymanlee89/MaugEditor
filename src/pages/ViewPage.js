@@ -63,10 +63,10 @@ function ViewPage({
         }else if(stage === 2){
             // in Output
             // console.log("colorOrder", colorOrder);
-            colorOrder.forEach((item) => {
-                const targetNodes = [...document.getElementsByClassName(`link_${item.id}`)];
+            colorOrder.forEach((idx) => {
+                const targetNodes = [...document.getElementsByClassName(`link_${idx}`)];
                 targetNodes.forEach((i) => {
-                    changeNodeColor(i, tabItems[item.id].color);
+                    changeNodeColor(i, tabItems[idx].color);
                 });
             });
         }

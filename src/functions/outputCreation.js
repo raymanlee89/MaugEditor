@@ -5,9 +5,9 @@ const getUniqueLinkItems = (itemName, colorOrder, links) => {
     let uniqueLinkItems = []; // symbols in links, remove the overlapping colors
     let itemStartsHasColor = new Set(); // items are object => use their start
     const reversedColor = [...colorOrder].reverse();
-    reversedColor.forEach((color) => {
+    reversedColor.forEach((tabIdx) => {
         let newLinkItems = [];
-        links[color.id][itemName].forEach((item) => {
+        links[tabIdx][itemName].forEach((item) => {
             if(!itemStartsHasColor.has(item.start)){
                 newLinkItems.push(item);
                 itemStartsHasColor.add(item.start);

@@ -20,33 +20,17 @@ function ColorOrderBar({ tabItems, colorOrder, changeColorOrder }){
         if (!over) return;
         if (active.id !== over.id) {
             changeColorOrder((data) => {
-                const oldIndex = data.findIndex((item) => item.id === active.id);
-                const newIndex = data.findIndex((item) => item.id === over.id);
+                const oldIndex = data.findIndex((item) => item === active.id);
+                const newIndex = data.findIndex((item) => item === over.id);
                 return arrayMove(data, oldIndex, newIndex);
             });
         }
     };
 
-    const addTag = (value) => {
-        // console.log("addTag", value);
-        const newColorOrder = {
-            label: tabItems[value].label,
-            id: value,
-            color: tabItems[value].color
-        }
-        changeColorOrder([...colorOrder, newColorOrder]);
-    }
-
-    const removeTag = (value) => {
-        // console.log("removeTag", value);
-        const newTags = colorOrder.filter((tag) => tag.id !== value);
-        changeColorOrder(newTags);
-    };
-
     const isInColorOrder = (id) => {
         let res = false;
         colorOrder.forEach((item) => {
-            if(id === item.id){
+            if(id === item){
                 res = true;
             }
         });
@@ -55,7 +39,7 @@ function ColorOrderBar({ tabItems, colorOrder, changeColorOrder }){
 
     const DraggableTag = ({ tag }) => {
         const { listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-            id: tag.id,
+            id: tag.idx,
         });
 
         const commonStyle = {
@@ -76,7 +60,7 @@ function ColorOrderBar({ tabItems, colorOrder, changeColorOrder }){
                 closable
                 onClose={(e) => {
                     e.preventDefault();
-                    removeTag(tag.id);
+                    changeColorOrder(colorOrder.filter((idx) => idx !== tag.idx));
                 }}
                 color={tag.color}
                 style={style}
@@ -93,8 +77,8 @@ function ColorOrderBar({ tabItems, colorOrder, changeColorOrder }){
             <p>Coloring Order:</p>
             <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                 <SortableContext items={colorOrder} strategy={horizontalListSortingStrategy}>
-                    {colorOrder.map((item) => (
-                        <DraggableTag tag={item} key={item.id} />
+                    {colorOrder.map((idx) => (
+                        <DraggableTag tag={{label: tabItems[idx].label, idx: idx, color:tabItems[idx].color}} key={idx} />
                     ))}
                 </SortableContext>
             </DndContext>
@@ -102,9 +86,13 @@ function ColorOrderBar({ tabItems, colorOrder, changeColorOrder }){
                 <Popover
                     placement="bottomLeft"
                     content={tabItems
-                        .filter((item) => !isInColorOrder(item.key))
+                        .filter((item) => !isInColorOrder(Number(item.key)))
                         .map((item) => (
-                            <Button style={{ color: "white", backgroundColor: item.color }} onClick={() => addTag(item.key)}>
+                            <Button style={{ color: "white", backgroundColor: item.color }} onClick={() => {
+                                let newColorOrder = [...colorOrder];
+                                newColorOrder.push(Number(item.key));
+                                changeColorOrder(newColorOrder);
+                            }}>
                                 {item.label}
                             </Button>
                         ))

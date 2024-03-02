@@ -1,28 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Tooltip, message, Select } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
+import { hexToRgba } from '@uiw/color-convert';
 import { addColorToFormula, addColorToProse, itemizeLink } from '../functions/outputCreation';
 
-function OutputPage({options, formula, prose, links, linkElements, colorOrder}) {
+function OutputPage({options, formula, prose, links, linkElements, tabItems, colorOrder}) {
     const [output, changeOutput] = useState("");
     const [medium, changeMedium] = useState("paper");
-    
-    function hexToRgb(hex) {
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16)
-        } : null;
-    }
 
     useEffect(() => {
         console.log("links", links);
         // Create Output
         let header = "\\usepackage{color}\n";
-        header += colorOrder.reduce((accumulator, item, idx) => {
+        header += colorOrder.reduce((accumulator, tabIdx, idx) => {
             // hex to rgb
-            let rgb = hexToRgb(item.color);
+            let rgb = hexToRgba(tabItems[tabIdx].color);
             return accumulator + `\\definecolor{c${idx}}{RGB}{${rgb.r},${rgb.g},${rgb.b}}\n`;
         }, "");
         
