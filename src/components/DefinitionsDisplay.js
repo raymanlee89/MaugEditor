@@ -20,7 +20,7 @@ function DefinitionsDisplay({pickedTerms, changeTermsInLink}) {
                         key={`${item.text}-${item.start}`}
                         onClick={() => definitionOnClick(item)}
                     >
-                        {item.text.length < 20 ? 
+                        {item.text.length < 40 ? 
                             <Latex>{item.text}</Latex> : 
                             <Latex>{item.text.substring(0, item.text.indexOf(" ")) + "..." + item.text.substring(item.text.lastIndexOf(" "))}</Latex>
                         }
