@@ -2,7 +2,7 @@ import { ColorPicker, Button } from 'antd';
 import space from 'color-space';
 import { rgbaToHex } from '@uiw/color-convert';
 
-function ColorBar({stage, colorOrder, tabItems, changeColor, changeLinkIdx}) {
+function ColorBar({colorOrder, tabItems, changeColor}) {
     const randomColor = () => {
         const colorNum = colorOrder.length;
         const angleBase = Math.random() * 2 * Math.PI;
@@ -15,17 +15,17 @@ function ColorBar({stage, colorOrder, tabItems, changeColor, changeLinkIdx}) {
             const rgb = space.luv.rgb([L, U, V]);
             return {color: rgbaToHex({r: rgb[0], g: rgb[1], b: rgb[2], a: 1}), tabIdx: idx};
         }) 
-        console.log("New random colors", newColors);
-        newColors.forEach((item) => changeColor(item.tabIdx, item.color));
+        // console.log("New random colors", newColors);
+        newColors.forEach((item) => changeColor(item.tabIdx + 1, item.color));
     }
 
     return (
         <div className='element vertical'>
             <div className='horizontal colorBar'>
                 {colorOrder.map((idx) => 
-                    <div className='vertical' style={{margin: "10px"}} key={`colorPicker_${tabItems[idx].label}`}>
-                        {tabItems[idx].label}
-                        <ColorPicker disabledAlpha value={tabItems[idx].color}
+                    <div className='vertical' style={{margin: "10px"}} key={`colorPicker_${tabItems[idx+1].label}`}>
+                        {tabItems[idx+1].label}
+                        <ColorPicker disabledAlpha value={tabItems[idx+1].color}
                             presets={[{
                             label: 'Recommended',
                             colors: [
@@ -42,16 +42,7 @@ function ColorBar({stage, colorOrder, tabItems, changeColor, changeLinkIdx}) {
                             ]
                             }]}
                             onChange={(color) => {
-                                const targets = [...document.getElementsByClassName(`link_${idx}`)];
-                                targets.forEach((i) => {
-                                    i.style.color = color.toHexString();
-                                });
-                                changeColor(idx, color.toHexString());
-                            }}
-                            onOpenChange={(open) => {
-                                if(open){
-                                    changeLinkIdx(Number(idx));
-                                }
+                                changeColor(idx + 1, color.toHexString());
                             }}
                         />
                     </div>

@@ -78,15 +78,15 @@ function ColorOrderBar({ tabItems, colorOrder, changeColorOrder }){
             <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
                 <SortableContext items={colorOrder} strategy={horizontalListSortingStrategy}>
                     {colorOrder.map((idx) => (
-                        <DraggableTag tag={{label: tabItems[idx].label, idx: idx, color:tabItems[idx].color}} key={idx} />
+                        <DraggableTag tag={{label: tabItems[idx+1].label, idx: idx, color:tabItems[idx+1].color}} key={idx} />
                     ))}
                 </SortableContext>
             </DndContext>
-            {colorOrder.length === tabItems.length ? <></> : 
+            {colorOrder.length === tabItems.length-1 ? <></> : 
                 <Popover
                     placement="bottomLeft"
                     content={tabItems
-                        .filter((item) => !isInColorOrder(Number(item.key)))
+                        .filter((item) => (!isInColorOrder(Number(item.key)) && item.label !== "ALL"))
                         .map((item) => (
                             <Button style={{ color: "white", backgroundColor: item.color }} onClick={() => {
                                 let newColorOrder = [...colorOrder];

@@ -16,6 +16,7 @@ const useTabs = () => {
 
     // Warning: the label of tab is different from the link idx in links
     const [tabItems, changeTabItems] = useState([
+        { label: 'ALL', key: '-1', closable: false, color: "#000000" },
         { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] }
     ]);
 
@@ -23,7 +24,7 @@ const useTabs = () => {
     const [colorOrder, changeColorOrder] = useState([0]);
 
     const setDefaultTabs = (tabCount) => {
-        let newTabItems = [];
+        let newTabItems = [{ label: 'ALL', key: '-1', closable: false, color: "#000000" }];
         let newColorOrder = [];
         for(let i=0 ; i<tabCount ; i++){
             newTabItems.push({
@@ -50,7 +51,7 @@ const useTabs = () => {
                     color: defaultColors[isNaN(lastTabName) ? 0 : lastTabName%defaultColors.length]
                 }
                 tabItemsCopy.push(newTabItem);
-                tabItemsCopy.forEach((item) => item.closable = true);
+                tabItemsCopy.filter((item) => item.label !== "ALL").forEach((item) => item.closable = true);
                 break;
             case "remove":
                 tabItemsCopy.splice(targetLinkIdx, 1);
@@ -62,6 +63,7 @@ const useTabs = () => {
                 break;
             case "clear":
                 tabItemsCopy = [
+                    { label: 'ALL', key: '-1', closable: false, color: "#000000" },
                     { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] }
                 ];
                 break;
@@ -69,7 +71,7 @@ const useTabs = () => {
                 console.log("No such type in changeTabs");
         }
         changeTabItems(tabItemsCopy);
-        changeColorOrder(tabItemsCopy.map((tab) => Number(tab.key)));
+        changeColorOrder(tabItemsCopy.filter((item) => item.label !== "ALL").map((tab) => Number(tab.key)));
     }
 
     const changeColor = (idx, color) => {

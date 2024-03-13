@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Checkbox, Divider, Button, Tooltip, Switch, Modal } from 'antd';
+import { ConfigProvider, Layout, Checkbox, Divider, Button, Tooltip, Switch, Modal, Steps } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import './App.css';
 import InputPage from './pages/InputPage';
-import ViewPage from './pages/ViewPage';
-import LinkPage from './pages/LinkPage';
+import ExtractionPage from './pages/ExtractionPage';
 import OutputPage from './pages/OutputPage';
+import OutputViewPage from './pages/OutputViewPage';
+import EditViewPage from './pages/EditViewPage';
 import useLinks from './hooks/useLinks';
 import useTabs from './hooks/usetTabs';
 import { getLinks, getLinksGPT } from './api/linkCreation.api';
 
 const { Header, Footer, Content } = Layout;
-const stageNames = ["LaTeX Editing", "Links Creation", "Output"];
-const optionNames = ["Prose", "Itemize Links"];
+const optionNames = ["Prose", "Bulet points"];
 
 function App() {
   const [mode, changeMode] = useState(true); // AI mode
@@ -32,7 +32,7 @@ function App() {
   // Reset colorOrder
   useEffect(() => {
     if(stage === 1){
-      changeColorOrder(tabItems.map((item) => Number(item.key)));
+      changeColorOrder(tabItems.filter((item) => item.label !== "ALL").map((item) => Number(item.key)));
     }
   }, [stage])
 
@@ -88,107 +88,135 @@ function App() {
   }
 
   return (
-    <Layout style={{ height: "100vh", width: "100vw"}}>
-      <Header className='horizontal' style={{ color: "white", fontSize: "2em" }}>
-        <div>MaugVLink</div>
-        <div style={{ width: "30px"}}/>
-        <Switch 
-          checkedChildren="AI"
-          unCheckedChildren="Manual"
-          checked={mode}
-          onChange={(checked) => changeMode(checked)}
-          disabled={stage === 2}
-        />
-        {stage === 2 ? 
-          options.map((item, idx) => (
-            <>
-              <div style={{ width: "30px"}}/>
-              <Checkbox style={{ color: "white" }} checked={item} onChange={(e) => {
-                let newOptions = [...options];
-                newOptions[idx] = e.target.checked;
-                changeOptions(newOptions);
-              }}>{optionNames[idx]}</Checkbox>
-            </>
-          ))
-        : <></>}
+    <ConfigProvider
+      theme={{
+        components: {
+          Layout: {
+            bodyBg: "#FFFFFF",
+          },
+          Divider: {
+            colorSplit: "rgba(5, 5, 5, 0.1)"
+          }
+        }
+      }}
+    >
+      <Layout style={{ height: "100vh", width: "100vw"}}>
+        <Header className='horizontal' style={{ color: "white", fontSize: "2em" }}>
+          <div>DefExtractor</div>
+          <div style={{ width: "30px"}}/>
+          <Switch 
+            checkedChildren="AI"
+            unCheckedChildren="Manual"
+            checked={mode}
+            onChange={(checked) => changeMode(checked)}
+            disabled={stage === 2}
+          />
+          {stage === 2 ? 
+            options.map((item, idx) => (
+              <>
+                <div style={{ width: "30px"}}/>
+                <Checkbox style={{ color: "white" }} checked={item} onChange={(e) => {
+                  let newOptions = [...options];
+                  newOptions[idx] = e.target.checked;
+                  changeOptions(newOptions);
+                }}>{optionNames[idx]}</Checkbox>
+              </>
+            ))
+          : <></>}
         <div className='push'></div>
-        <div>{stageNames[stage]}</div>
-      </Header>
-      <Content className='horizontal'>
-        <div className='page vertical'>
+        </Header>
+        <Content className='horizontal'>
           {(() => {
             switch (stage) {
               case 0:
-                return <InputPage formula={formula} changeFormula={changeFormula} prose={prose} changeProse={changeProse}/>;
+                return (
+                  <>
+                    <div className='page vertical'>
+                      <InputPage formula={formula} changeFormula={changeFormula} prose={prose} changeProse={changeProse}/>
+                    </div>
+                    <Divider style={{ height: "100%" }} type="vertical"/>
+                    <div className='page vertical'>
+                      <EditViewPage formula={formula} prose={prose} formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}/>
+                    </div>
+                  </>
+                )
               case 1:
+                return (
+                  <>
+                    <ExtractionPage stage={stage} options={options} formula={formula} prose={prose}
+                      formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                      linkIdx={linkIdx} changeLinkIdx={changeLinkIdx}
+                      links={links} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink} changeLinkArray={changeLinkArray}
+                      tabItems={tabItems} changeTabs={changeTabs} changeColor={changeColor}
+                      linkElements={linkElements} changeLinkElements={changeLinkElements}
+                      colorOrder={colorOrder} changeColorOrder={changeColorOrder}/>
+                  </>
+                )
               case 2:
-                return <ViewPage stage={stage} options={options} formula={formula} prose={prose}
-                  formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                  links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                  tabItems={tabItems} changeColor={changeColor}
-                  linkElements={linkElements} changeLinkElements={changeLinkElements}
-                  colorOrder={colorOrder} changeColorOrder={changeColorOrder}/>;
+                return (
+                  <>
+                    <div className='page vertical'>
+                      <OutputViewPage stage={stage} options={options} formula={formula} prose={prose}
+                          formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                          links={links} tabItems={tabItems} changeColor={changeColor}
+                          linkElements={linkElements} changeLinkElements={changeLinkElements}
+                          colorOrder={colorOrder} changeColorOrder={changeColorOrder}/>
+                    </div>
+                    <Divider style={{ height: "100%" }} type="vertical"/>
+                    <div className='page vertical'>
+                      <OutputPage options={options} formula={formula} prose={prose}
+                        links={links} linkElements={linkElements}
+                        tabItems={tabItems} colorOrder={colorOrder}/>
+                    </div>
+                  </>
+                )
               default:
                 return <div className='box'></div>;
             }
           })()}
-        </div>
-        <Divider style={{ height: "100%" }} type="vertical"/>
-        <div className='page vertical'>
-          {(() => {
-            switch (stage) {
-              case 0:
-                return <ViewPage stage={stage} options={options} formula={formula} prose={prose}
-                  formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                  links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                  tabItems={tabItems} changeColor={changeColor}
-                  linkElements={linkElements} changeLinkElements={changeLinkElements}
-                  colorOrder={colorOrder} changeColorOrder={changeColorOrder}/>;
-              case 1:
-                return <LinkPage formula={formula} prose={prose}
-                  links={links} linkIdx={linkIdx}
-                  changeLinkIdx={changeLinkIdx} changeLinkArray={changeLinkArray}
-                  changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                  tabItems={tabItems} changeTabs={changeTabs}/>;
-              case 2:
-                return <OutputPage options={options} formula={formula} prose={prose}
-                  links={links} linkElements={linkElements}
-                  tabItems={tabItems} colorOrder={colorOrder}/>;
-              default:
-                return <div className='page vertical'></div>;
-            }
-          })()}
-        </div>
-      </Content>
-      <Footer className='horizontal'>
-        <Tooltip title="Return">
-          <Button
-            shape="circle" icon={<ArrowLeftOutlined />} style={{ scale: "150%" }} disabled={stage === 0} loading={loading}
-            onClick={() => {
-              if(stage === 1){
-                changeSuggestedLinks([]);
-                changeLinkArray("clear");
-                changeTabs("clear");
-              }
-              changeStage(stage-1);
-            }}
+        </Content>
+        <Footer className='horizontal'>
+          <Tooltip title="Return">
+            <Button
+              shape="circle" icon={<ArrowLeftOutlined />} style={{ scale: "150%" }} disabled={stage === 0} loading={loading}
+              onClick={() => {
+                if(stage === 1){
+                  changeSuggestedLinks([]);
+                  changeLinkArray("clear");
+                  changeTabs("clear");
+                }
+                changeLinkIdx(-1);
+                changeStage(stage-1);
+              }}
+            />
+          </Tooltip>
+          <Steps
+            size="small"
+            progressDot
+            current={stage}
+            labelPlacement="vertical"
+            style={{ marginLeft: "30%", marginRight: "30%" }}
+            items={[
+              { title: 'Formula Editing' },
+              { title: 'Pair Extraction' },
+              { title: 'Output' }
+            ]}
           />
-        </Tooltip>
-        <div className='push'></div>
-        <Tooltip title="Next">
-          <Button
-            shape="circle" icon={<ArrowRightOutlined />} style={{ scale: "150%" }} disabled={stage === 2} loading={loading}
-            onClick={async () => {
-              if(stage === 0 && mode){
-                callGetLinks(formula, prose);
-              }else{
-                changeStage(stage+1);
-              }
-            }}
-          />
-        </Tooltip>
-      </Footer>
-    </Layout>
+          <Tooltip title="Next">
+            <Button
+              shape="circle" icon={<ArrowRightOutlined />} style={{ scale: "150%" }} disabled={stage === 2} loading={loading}
+              onClick={async () => {
+                if(stage === 0 && mode){
+                  callGetLinks(formula, prose);
+                }else{
+                  changeStage(stage+1);
+                }
+              }}
+            />
+          </Tooltip>
+        </Footer>
+      </Layout>
+    </ConfigProvider>
   );
 }
 

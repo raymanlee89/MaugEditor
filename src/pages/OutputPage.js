@@ -77,17 +77,17 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
                             }
                         ]}
                     />
+                    <div className="horizontal" style={{ width: "100%" }}>
+                        <div className='push'></div>
+                        {contextHolder}
+                        <Tooltip title="Copy" placement="left">
+                            <Button type="text" shape="circle" icon={<CopyOutlined />} onClick={copyContent}/>
+                        </Tooltip>
+                    </div>
                 </div>
                 <div className='vertical outputArea'>
                     <div className='outputText'>
                         {output}
-                    </div>
-                    <div className="horizontal" style={{ width: "100%" }}>
-                        <div className='push'></div>
-                        {contextHolder}
-                        <Tooltip title="Copy">
-                            <Button type="text" shape="circle" icon={<CopyOutlined />} onClick={copyContent}/>
-                        </Tooltip>
                     </div>
                 </div>
             </div>

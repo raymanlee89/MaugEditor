@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { changeNodeClassName } from '../functions/formulaNode';
 import { createParagraphs, creatTerms } from '../functions/proseToTerms';
 
 const useLinks = () => {
     // term = {text: "", start: 0, end: 0}
-    // symbol = {node: node, text: "", start: 0, end: 0}
+    // symbol = {text: "", start: 0, end: 0}
     // link = {terms: [], symbols: []}
     const [links, changeLinks] = useState([
         {terms: [], symbols: []}
     ]);
 
-    const [linkIdx, changeLinkIdx] = useState(0);
+    const [linkIdx, changeLinkIdx] = useState(-1);
 
     const compareLocationStart = (a, b) => {
         return a.start - b.start;
@@ -66,7 +65,6 @@ const useLinks = () => {
             const end = parseInt(item.getAttribute("data-source-location-end"));
             if(isIn({start: start, end: end}, compositeSymbol)){
                 res.push({
-                    node: item,
                     text: formula.substring(start, end),
                     start: start,
                     end: end
@@ -155,11 +153,6 @@ const useLinks = () => {
                 changeLinks([...links, newLink]);
                 break;
             case "remove":
-                const symbols = links[idx].symbols;
-                symbols.forEach((item) => {
-                    changeNodeClassName("remove", item.node, "highlighted");
-                    changeNodeClassName("remove", item.node, "disabled");
-                })
                 const linksCopy = [...links];
                 linksCopy.splice(idx, 1);
                 changeLinks(linksCopy);
@@ -169,7 +162,7 @@ const useLinks = () => {
                     {terms: [], symbols: []}
                 ];
                 changeLinks(newLinks);
-                changeLinkIdx(0);
+                changeLinkIdx(-1);
                 break;
             default:
                 console.log("No such type in changeLinkArray");
@@ -177,7 +170,7 @@ const useLinks = () => {
     }
 
     const changeTermsInLink = (type, term, prose) => {
-        console.log("changeTermsInLink", type, term);
+        console.log("changeTermsInLink", type, linkIdx, term);
         const newLinks = [...links];
         switch (type) {
             case "add":
@@ -204,7 +197,7 @@ const useLinks = () => {
     }
 
     const changeSymbolsInLink = (type, symbol, formula, document) => {
-        console.log("changeSymbolsInLink", type, symbol);
+        console.log("changeSymbolsInLink", type, linkIdx, symbol);
         const newLinks = [...links];
         switch (type) {
             case "add":

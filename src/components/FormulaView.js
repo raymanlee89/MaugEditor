@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { getNodeClassName, changeNodeClassName } from '../functions/formulaNode';
-import { getAllSymbolsContainingPosition } from '../functions/symbolSelection';
+import { getAllSymbolsContainingPosition, getNodeWithLoc } from '../functions/symbolSelection';
 import OverlapSymbolsMenu from './OverlapSymbolsMenu';
 import Latex from '../react-latex/latex';
 import '../katex/katex.css';
@@ -10,6 +10,15 @@ import { Button } from 'antd';
 const formulaFontSizeRange = {max: 5, min: 1};
 
 function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, links, linkIdx, changeSymbolsInLink}) {
+    // reassign link_ class to mathNode
+    // becase KaTeX will rerender and clean all link_ class
+    links.forEach((link, idx) => {
+        link.symbols.forEach((symbol) => {
+            const node = getNodeWithLoc(symbol.start, symbol.end);
+            changeNodeClassName("add", node, `link_${idx}`);
+        })
+    })
+
     const changeFontSize = (type) => {
         switch (type) {
             case "+":
@@ -27,8 +36,6 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         }
     }
 
-    const [hoveredSymbols, changeHoveredSymbols] = useState([]);
-
     const isInSymbolsArray = (symbol, symbolsArray) => {
         for(let i=0 ; i<symbolsArray.length ; i++){
             if(symbolsArray[i].node === symbol.node){
@@ -38,9 +45,11 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         return false;
     }
 
+    const [hoveredSymbols, changeHoveredSymbols] = useState([]);
+
     const onMouseMove = (clientX, clientY) => {
-        // symbols are hoverable only in Visual Link Creation stage
-        if(stage !== 1 || rightClicked){
+        // symbols are not selectable in ALL mode
+        if(linkIdx === -1 || rightClicked){
             return;
         }
         
@@ -57,7 +66,7 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         let newHoveredSymbols = [];
         targetSymbols.forEach((item) => {
             const className = getNodeClassName(item.node);
-            if(!className.includes("hovered") /*&& !className.includes("disabled")*/){
+            if(!className.includes("hovered")){
                 changeNodeClassName("add", item.node, "hovered");
             }
 
@@ -80,26 +89,12 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         const end = targetSymbol.end;
 
         const symbol = {
-            node: node,
             text: formula.substring(start, end),
             start: start,
             end: end
         }
 
         const className = getNodeClassName(node);
-        // don't select the disabled symbol
-        // if(!className.includes("disabled")){
-        //     if(select){
-        //         // if it has been selected, don't select it again
-        //         if(!className.includes(`link_${linkIdx}`)){
-        //             changeNodeClassName("add", node, `link_${linkIdx}`);
-        //             changeSymbolsInLink("add", symbol);
-        //         }
-        //     }else{
-        //         changeNodeClassName("remove", node, `link_${linkIdx}`);
-        //         changeSymbolsInLink("remove", symbol);
-        //     }
-        // }
         if(select){
             // if it has been selected, don't select it again
             if(!className.includes(`link_${linkIdx}`)){
@@ -113,8 +108,8 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
     }
 
     const symbolsOnClick = (clientX, clientY) => {
-        // symbols are selectable only in Visual Link Creation stage
-        if(stage !== 1 || rightClicked){
+        // symbols are not selectable in ALL mode
+        if(linkIdx === -1 || rightClicked){
             return;
         }
 
@@ -123,7 +118,7 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         let selectAll = false;
         for(let i=0 ; i<targetSymbols.length ; i++){
             const className = getNodeClassName(targetSymbols[i].node);
-            if(/*!className.includes("disabled") &&*/ !className.includes(`link_${linkIdx}`)){
+            if(!className.includes(`link_${linkIdx}`)){
                 selectAll = true;
             }
         }
@@ -139,8 +134,8 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
             return;
         }
 
-        // symbols are selectable only in Visual Link Creation stage
-        if(stage !== 1){
+        // symbols are not selectable in ALL mode
+        if(linkIdx === -1){
             return;
         }
 
@@ -149,42 +144,12 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         changeMouseLocation({x: clientX, y:clientY});
     }
 
-    useEffect(() => {
-        // clear all highlighted and disabled class
-        const allSymbols = [...document.getElementsByClassName("symbolNode")]
-            .concat([...document.getElementsByClassName("spanNode")])
-            .concat([...document.getElementsByClassName("svgNode")]);
-        // console.log(allSymbols);
-        allSymbols.forEach((item) => {
-            for(let i=links.length-1 ; i>=0 ; i--){
-                changeNodeClassName("remove", item, `link_${i}`);
-            }
-            changeNodeClassName("remove", item, "disabled");
-            if(stage !== 1){
-                changeNodeClassName("remove", item, "hovered");
-            }
-        });
-
-        // reassign class to all nodes
-        // console.log(links);
-        links.forEach((link, i) => {
-            link.symbols.forEach((item) => {
-                const node = item.node;
-                if(stage === 1 && i !== linkIdx){
-                    changeNodeClassName("add", node, `link_${i} disabled`);
-                }else{
-                    changeNodeClassName("add", node, `link_${i}`);
-                }
-            })
-        });
-    }, [stage, links, linkIdx]);
-
     return(
         <div className='element horizontal'>
             <Button type="text" icon={<ZoomOutOutlined />} disabled={formulaFontSize===formulaFontSizeRange.min} onClick={() => changeFontSize("-")}/>
             <div className='push'></div>
             <div 
-                className={`formulaView unselectable formulaFontSize_${formulaFontSize}`}
+                className={`formulaView unselectable formulaBigFontSize_${formulaFontSize}`}
                 onMouseMove={({clientX, clientY}) => onMouseMove(clientX, clientY)} 
                 onClick={({clientX, clientY}) => symbolsOnClick(clientX, clientY)}
                 onContextMenu={(e) => {

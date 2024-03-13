@@ -1,5 +1,5 @@
 // find the target symbols
-// WARNNING!! these symbols are {node: node, start: 0, end: 0}, they don't have text
+// WARNNING!! these symbols are {node: node, start: 0, end: 0}, they have node and don't have text
 const getOffsetFromNode = (node, attrSuffix) => {
     const attribute = `data-source-location-${attrSuffix}`;
     if (!node.hasAttribute(attribute)) {
@@ -34,4 +34,19 @@ export const getAllSymbolsContainingPosition = (clientX, clientY) => {
     // console.log("allSymbolsContainingPosition", allSymbolsContainingPosition);
 
     return allSymbolsContainingPosition;
+}
+
+export const getNodeWithLoc = (start, end) => {
+    let res = null;
+    const allMathNodes = [...document.querySelectorAll(".formulaView .symbolNode")]
+        .concat([...document.querySelectorAll(".formulaView .spanNode")])
+        .concat([...document.querySelectorAll(".formulaView .svgNode")]);
+    
+    allMathNodes.forEach((node) => {
+        const location = getLocationOfNode(node);
+        if(location.start === start && location.end === end){
+            res = node;
+        }
+    })
+    return res;
 }
