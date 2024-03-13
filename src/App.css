@@ -21,6 +21,10 @@ p {
   justify-content: flex-start;
 }
 
+.alignStart {
+  align-items: flex-start;
+}
+
 .push{
   margin-left: auto;
 }
@@ -178,4 +182,19 @@ p {
 
 .separator{
   margin: 0 0.5em 0 0.5em;
+}
+
+/* Feedback Panel */
+.feedbackPanel p {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.satisfactionButton {
+  font-size: 1em;
+}
+
+.satisfactionButton svg{
+  margin-top: 5px;
+  font-size: 1.5em;
 }

@@ -71,7 +71,7 @@ const useLinks = () => {
                 });
             }
         });
-        console.log("selectSymbolsWithCompositeSymbol", compositeSymbol, res);
+        // console.log("selectSymbolsWithCompositeSymbol", compositeSymbol, res);
         return res;
     }
 
@@ -179,9 +179,10 @@ const useLinks = () => {
             case "add with difinition":
                 // the difinition is in term
                 const newTerms = selectTermsWithDefinition(term, prose);
-                const allTerms = newLinks[linkIdx].terms.concat(newTerms);
-                // get unique terms
-                newLinks[linkIdx].terms = [...new Map(allTerms.map(item => [item.start, item])).values()].sort(compareLocationStart);
+                // const allTerms = newLinks[linkIdx].terms.concat(newTerms);
+                // // get unique terms
+                // newLinks[linkIdx].terms = [...new Map(allTerms.map(item => [item.start, item])).values()].sort(compareLocationStart);
+                newLinks[linkIdx].terms = newTerms;
                 break;
             case "remove":
                 newLinks[linkIdx].terms = newLinks[linkIdx].terms.filter((item) => !haveSameLocation(item, term)).sort(compareLocationStart);
@@ -206,9 +207,10 @@ const useLinks = () => {
             case "add with compositeSymbol":
                 // the compositeSymbol is in symbol
                 const newSymbols = selectSymbolsWithCompositeSymbol(symbol, formula, document);
-                const allSymbols = newLinks[linkIdx].symbols.concat(newSymbols);
-                // get unique symbols
-                newLinks[linkIdx].symbols = [...new Map(allSymbols.map(item => [item.start, item])).values()].sort(compareLocationStart);
+                // const allSymbols = newLinks[linkIdx].symbols.concat(newSymbols);
+                // // get unique symbols
+                // newLinks[linkIdx].symbols = [...new Map(allSymbols.map(item => [item.start, item])).values()].sort(compareLocationStart);
+                newLinks[linkIdx].symbols = newSymbols;
                 break;
             case "remove":
                 newLinks[linkIdx].symbols = newLinks[linkIdx].symbols.filter((item) => !haveSameLocation(item, symbol)).sort(compareLocationStart);

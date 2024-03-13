@@ -9,11 +9,12 @@ import { Tabs, Modal } from 'antd';
 function ExtractionPage({
     stage, options, formula, prose, 
     formulaFontSize, changeFormulaFontSize,
-    linkIdx, changeLinkIdx,
+    linkIdx, changeLinkIdx, setSuggestedLinkArray, 
     links, changeTermsInLink, changeSymbolsInLink, changeLinkArray, 
-    tabItems, changeTabs, changeColor,
+    tabItems, setDefaultTabs, changeTabs, changeColor,
     linkElements, changeLinkElements,
-    colorOrder, changeColorOrder
+    colorOrder, changeColorOrder,
+    conversationQueue, addConversationPair, addInitialResponse
 }) {
     const [removeLinkIdx, changeRemoveLinkIdx] = useState(-1);
 
@@ -110,21 +111,24 @@ function ExtractionPage({
     }, [stage, options, tabItems, links, linkIdx, colorOrder, linkElements]);
 
     return(
-        <div>
-            <div className='element'>
+        <div className='vertical' style={{ width: "80%", height: "100%" }}>
+            <div style={{ width: "100%", marginBottom: "50px"}}>
                 <Tabs type="editable-card" tabPosition="top" onChange={onChange} activeKey={linkIdx.toString()} onEdit={onEdit} items={tabItems}/>
             </div>
             <FormulaView stage={stage} formula={formula}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                 links={links} linkIdx={linkIdx} changeSymbolsInLink={changeSymbolsInLink}/>
             <FeedbackPanel formula={formula} prose={prose}
-                links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}/>
-            <div className='horizontal'>
-                <div style={{ marginLeft: "10%", paddingRight: "30px", width: "50%" }}>
+                links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+                setSuggestedLinkArray={setSuggestedLinkArray} setDefaultTabs={setDefaultTabs}
+                conversationQueue={conversationQueue} addConversationPair={addConversationPair} addInitialResponse={addInitialResponse}
+                />
+            <div className='horizontal' style={{ width: "100%" }}>
+                <div style={{ paddingRight: "30px", width: "60%" }}>
                     <ProseView stage={stage} prose={prose}
                         links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
                 </div>
-                <div style={{ paddingLeft: "30px", marginRight: "10%", width: "30%" }}>
+                <div style={{ paddingLeft: "30px", width: "40%" }}>
                     <StaticSlideView
                         formula={formula} links={links} changeLinkIdx={changeLinkIdx} 
                         tabItems={tabItems} colorOrder={colorOrder} changeColor={changeColor}

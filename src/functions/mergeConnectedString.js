@@ -1,3 +1,15 @@
+const noSymbolTexts = [
+    "\\text", "\\mathbf", "\\mathcal", "\\mathbin"
+]
+
+// remove no symbol text
+const removeNoSymbolText = (string) => {
+    noSymbolTexts.forEach((text) => {
+        string = string.replace(text, "")
+    })
+    return string;
+}
+
 // merge connected symbols in the same link
 export const mergeConnectedSymbols = (formula, symbols, linkIdx) => {
     symbols.sort((a, b) => a.start - b.start);
@@ -13,7 +25,7 @@ export const mergeConnectedSymbols = (formula, symbols, linkIdx) => {
                 link: linkIdx
             };
         }else{
-            const between = formula.substring(newSym.end, item.start).replace(/[.^_ \{\}]/g, "");
+            const between = removeNoSymbolText(formula.substring(newSym.end, item.start).replace(/[.^_ \{\}]/g, ""));
             if(between.length === 0){
                 newSym.text = formula.substring(newSym.start, item.end);
                 newSym.end = item.end;

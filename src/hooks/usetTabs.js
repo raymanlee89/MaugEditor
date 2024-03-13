@@ -54,9 +54,9 @@ const useTabs = () => {
                 tabItemsCopy.filter((item) => item.label !== "ALL").forEach((item) => item.closable = true);
                 break;
             case "remove":
-                tabItemsCopy.splice(targetLinkIdx, 1);
+                tabItemsCopy.splice(targetLinkIdx+1, 1);
                 // update the keys of tabs => the label of tab is different from the link idx in links
-                tabItemsCopy.forEach((item, idx) => item.key = idx.toString());
+                tabItemsCopy.forEach((item, idx) => item.key = (idx-1).toString());
                 if(tabItemsCopy.length === 1){
                     tabItemsCopy[0].closable = false;
                 }
@@ -70,6 +70,7 @@ const useTabs = () => {
             default:
                 console.log("No such type in changeTabs");
         }
+        console.log("changeTabs", tabItemsCopy, tabItemsCopy.filter((item) => item.label !== "ALL").map((tab) => Number(tab.key)));
         changeTabItems(tabItemsCopy);
         changeColorOrder(tabItemsCopy.filter((item) => item.label !== "ALL").map((tab) => Number(tab.key)));
     }

@@ -9,6 +9,7 @@ import OutputViewPage from './pages/OutputViewPage';
 import EditViewPage from './pages/EditViewPage';
 import useLinks from './hooks/useLinks';
 import useTabs from './hooks/usetTabs';
+import useConvesation from './hooks/useConvesation';
 import { getLinks, getLinksGPT } from './api/linkCreation.api';
 
 const { Header, Footer, Content } = Layout;
@@ -28,6 +29,8 @@ function App() {
   const {tabItems, setDefaultTabs, changeTabs, changeColor, colorOrder, changeColorOrder} = useTabs();
   // for Slide, linkElement = {compositeSymbols: "", definitions: "", linkIdx: 0}
   const [linkElements, changeLinkElements] = useState([]);
+  // for saving conversation with AI
+  const {conversationQueue, addConversationPair, addInitialResponse} = useConvesation();
   
   // Reset colorOrder
   useEffect(() => {
@@ -54,17 +57,18 @@ function App() {
     // get suggestedLinks from the backend
     let res = await getLinks(formula, prose);
     // use GPT if NER & RE cannot handle the prose
-    if(res.length === 0){
+    if(res.links.length === 0){
       console.log("use GPT");
-      res = await getLinksGPT(formula, prose);
+      res = await getLinksGPT(formula, prose, []);
     }
-    console.log("suggestedLinks:", res);
+    addInitialResponse(res.rawString);
+    console.log("suggestedLinks:", res.links);
 
     if(res !== "Api fail!!"){
-      if(res.length > 0){
+      if(res.links.length > 0){
         // set the suggested links as the default links
-        changeSuggestedLinks(res);
-        setDefaultTabs(res.length);
+        changeSuggestedLinks(res.links);
+        setDefaultTabs(res.links.length);
       }
       // go to the next page
       changeLoading(false);
@@ -91,12 +95,12 @@ function App() {
     <ConfigProvider
       theme={{
         components: {
-          Layout: {
-            bodyBg: "#FFFFFF",
-          },
-          Divider: {
-            colorSplit: "rgba(5, 5, 5, 0.1)"
-          }
+          // Layout: {
+          //   bodyBg: "#FFFFFF",
+          // },
+          // Divider: {
+          //   colorSplit: "rgba(5, 5, 5, 0.1)"
+          // }
         }
       }}
     >
@@ -145,11 +149,13 @@ function App() {
                   <>
                     <ExtractionPage stage={stage} options={options} formula={formula} prose={prose}
                       formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                      linkIdx={linkIdx} changeLinkIdx={changeLinkIdx}
+                      linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} setSuggestedLinkArray={setSuggestedLinkArray}
                       links={links} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink} changeLinkArray={changeLinkArray}
-                      tabItems={tabItems} changeTabs={changeTabs} changeColor={changeColor}
+                      tabItems={tabItems} setDefaultTabs={setDefaultTabs} changeTabs={changeTabs} changeColor={changeColor}
                       linkElements={linkElements} changeLinkElements={changeLinkElements}
-                      colorOrder={colorOrder} changeColorOrder={changeColorOrder}/>
+                      colorOrder={colorOrder} changeColorOrder={changeColorOrder}
+                      conversationQueue={conversationQueue} addConversationPair={addConversationPair} addInitialResponse={addInitialResponse}
+                      />
                   </>
                 )
               case 2:
@@ -157,11 +163,11 @@ function App() {
                   <>
                     <div className='page vertical'>
                       <OutputViewPage stage={stage} options={options} formula={formula} prose={prose}
-                          formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
-                          links={links} tabItems={tabItems} changeColor={changeColor}
-                          linkElements={linkElements} changeLinkElements={changeLinkElements}
-                          colorOrder={colorOrder} changeColorOrder={changeColorOrder}/>
-                    </div>
+                        formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
+                        links={links} tabItems={tabItems} changeColor={changeColor}
+                        linkElements={linkElements} changeLinkElements={changeLinkElements}
+                        colorOrder={colorOrder} changeColorOrder={changeColorOrder}/>
+                  </div>
                     <Divider style={{ height: "100%" }} type="vertical"/>
                     <div className='page vertical'>
                       <OutputPage options={options} formula={formula} prose={prose}

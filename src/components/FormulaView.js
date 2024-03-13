@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getNodeClassName, changeNodeClassName } from '../functions/formulaNode';
 import { getAllSymbolsContainingPosition, getNodeWithLoc } from '../functions/symbolSelection';
 import OverlapSymbolsMenu from './OverlapSymbolsMenu';
@@ -10,14 +10,28 @@ import { Button } from 'antd';
 const formulaFontSizeRange = {max: 5, min: 1};
 
 function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, links, linkIdx, changeSymbolsInLink}) {
-    // reassign link_ class to mathNode
-    // becase KaTeX will rerender and clean all link_ class
-    links.forEach((link, idx) => {
-        link.symbols.forEach((symbol) => {
-            const node = getNodeWithLoc(symbol.start, symbol.end);
-            changeNodeClassName("add", node, `link_${idx}`);
+    useEffect(() => {
+        // clear all highlighted and disabled class
+        const allSymbols = [...document.getElementsByClassName("symbolNode")]
+            .concat([...document.getElementsByClassName("spanNode")])
+            .concat([...document.getElementsByClassName("svgNode")]);
+        // console.log(allSymbols);
+        allSymbols.forEach((item) => {
+            for(let i=links.length-1 ; i>=0 ; i--){
+                changeNodeClassName("remove", item, `link_${i}`);
+            }
+        });
+
+        // reassign link_ class to mathNode
+        // becase KaTeX will rerender and clean all link_ class
+        links.forEach((link, idx) => {
+            console.log("link", link);
+            link.symbols.forEach((symbol) => {
+                const node = getNodeWithLoc(symbol.start, symbol.end);
+                changeNodeClassName("add", node, `link_${idx}`);
+            })
         })
-    })
+    }, [links]);
 
     const changeFontSize = (type) => {
         switch (type) {
