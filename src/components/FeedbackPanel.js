@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Latex from '../react-latex/latex';
 import { Button, Divider, Tooltip, Modal, Radio, Checkbox, Input } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, ReloadOutlined, SmileOutlined, MehOutlined, FrownOutlined } from '@ant-design/icons';
 import { mergeConnectedSymbols, mergeConnectedTerms } from '../functions/mergeConnectedString';
-import { getLinks, getLinksGPT, getDefinitionBySymbol, getSymbolByDefinition } from '../api/linkCreation.api';
+import { getLinksGPT, getDefinitionBySymbol, getSymbolByDefinition } from '../api/linkCreation.api';
 
 const satisfactions = [
     {icon: <SmileOutlined />, value: "It is a good response.", text: "Good"},
@@ -40,7 +41,7 @@ function FeedbackPanel({
     const [satis, changeSatis] = useState(satisfactions[0].value);
     const [adv, changeAdv] = useState([]);
     const [prefix, changePrefix] = useState("");
-    const [convMode, changeConvMode] = useState({API: "links", linkIdx: -1});
+    const [customFeedback, changeCustomFeedback] = useState("");
 
     const showModal = () => {
         console.log("conversationQueue", conversationQueue);
@@ -48,31 +49,20 @@ function FeedbackPanel({
     };
 
     const handleOk = async () => {
-        let api = convMode.API;
+        let API = conversationQueue.API;
         // generate new feedback
         let feedback = satis;
         adv.forEach((item) => {
-            if(advices[api][item].type === "static"){
-                feedback += " " + advices[api][item].text;
+            if (item === -1){
+                feedback += " " + customFeedback;
+            }else if(advices[API][item].type === "static"){
+                feedback += " " + advices[API][item].text;
             }else{
-                feedback += " " + prefix + advices[api][item].text;
+                feedback += " " + prefix + advices[API][item].text;
             }
         });
         console.log("feedback", feedback);
-        // console.log("convMode", convMode);
-        switch(api){
-            case "links":
-                callGetLinks(feedback);
-                break;
-            case "definitions":
-                getDefinition(feedback);
-                break;
-            case "symbols":
-                getCompositeSymbol(feedback);
-                break;
-            default:
-                console.log("convMode.API do not exist!!");
-        }
+        callAPIs(API, feedback);
         changeIsModalOpen(false);
     };
 
@@ -95,99 +85,78 @@ function FeedbackPanel({
         changeAdv(newAdv);
     }
 
-    const getDefinition = async (feedback) => {
+    // callGetLinks & getDefinition & getCompositeSymbol
+    const callAPIs = async (type, feedback) => {
         changeLoading(true);
-        if(links[linkIdx].symbols.length > 0){
-            let conversation = [...conversationQueue];
-            conversation.push(feedback);
-            let fromStart = false;
-            if(feedback === undefined || convMode.API !== "definitions" || convMode.linkIdx !== linkIdx){
-                // change mode and clean the conversation queue
-                changeConvMode({API: "definitions", linkIdx: linkIdx});
-                fromStart = true;
-                conversation = [];
-            }
-            const pickedSymbols = mergeConnectedSymbols(formula, links[linkIdx].symbols, linkIdx);
-            // console.log("getDefinition symbols", pickedSymbols.map((item) => item.text));
-            const res = await getDefinitionBySymbol(formula, prose, pickedSymbols.map((item) => item.text), conversation);
-            console.log("New definitions", res.link.terms);
-            res.link.terms.forEach((def) => {
-                changeTermsInLink("add with difinition", def, prose);
-            })
-            // update conversation queue
-            if(fromStart){
-                addInitialResponse(res.rawString);
-            }else{
-                addConversationPair(feedback, res.rawString);
-            }
-        }
-        changeLoading(false);
-    }
-
-    const getCompositeSymbol = async (feedback) => {
-        changeLoading(true);
-        if(links[linkIdx].terms.length > 0){
-            let conversation = [...conversationQueue];
-            conversation.push(feedback);
-            let fromStart = false;
-            if(feedback === undefined || convMode.API !== "symbols" || convMode.linkIdx !== linkIdx){
-                // change mode and clean the conversation queue
-                changeConvMode({API: "symbols", linkIdx: linkIdx});
-                fromStart = true;
-                conversation = [];
-            }
-            const pickedTerms = mergeConnectedTerms(links[linkIdx].terms, linkIdx);
-            // console.log("getCompositeSymbol terms", pickedTerms.map((item) => item.text));
-            const res = await getSymbolByDefinition(formula, prose, pickedTerms.map((item) => item.text), conversation);
-            console.log("New composite symbols", res.link);
-            res.link.symbols.forEach((sym) => {
-                changeSymbolsInLink("add with compositeSymbol", sym, formula, document);
-            })
-            // update conversation queue
-            if(fromStart){
-                addInitialResponse(res.rawString);
-            }else{
-                addConversationPair(feedback, res.rawString);
-            }
-        }
-        changeLoading(false);
-    }
-
-    const callGetLinks = async (feedback) => {
-        changeLoading(true);
-        let conversation = [...conversationQueue];
+        // prepare the conversations
+        let conversation = [...conversationQueue.queue];
         conversation.push(feedback);
         let fromStart = false;
-        if(convMode.API !== "links" || convMode.linkIdx !== linkIdx){
+        if(feedback === undefined || conversationQueue.API !== type || conversationQueue.linkIdx !== linkIdx){
             // change mode and clean the conversation queue
-            changeConvMode({API: "links", linkIdx: -1});
+            changeAdv([]);
             fromStart = true;
             conversation = [];
         }
 
-        let res = {links: [], rawString: ""}
-        if(conversation.length > 0){
-            console.log("use GPT");
-            res = await getLinksGPT(formula, prose, conversation);
+        // send the feedback to the backend
+        let res = { warning: "Feedback not sent", rawString: "You did not send your feedback!" };
+        switch (type) {
+            case "links":
+                res = await getLinksGPT(formula, prose, conversation);
+                break
+            case "definitions":
+                const pickedSymbols = mergeConnectedSymbols(formula, links[linkIdx].symbols, linkIdx);
+                res = await getDefinitionBySymbol(formula, prose, pickedSymbols.map((item) => item.text), conversation);
+                break
+            case "symbols":
+                const pickedTerms = mergeConnectedTerms(links[linkIdx].terms, linkIdx);
+                res = await getSymbolByDefinition(formula, prose, pickedTerms.map((item) => item.text), conversation);
+                break
+            default:
+                console.log("No such API");
+        }
+
+        if(res.warning !== undefined){
+            // show the warning Modal
+            Modal.warning({
+                title: res.warning,
+                content: res.rawString,
+                footer: (_, { OkBtn }) => (
+                    <OkBtn/>
+                ),
+            });
         }else{
-            res = await getLinks(formula, prose);
-            // use GPT if NER & RE cannot handle the prose
-            if(res.links.length === 0){
-              console.log("use GPT");
-              res = await getLinksGPT(formula, prose, conversation);
+            // save the response data
+            switch (type) {
+                case "links":
+                    if(fromStart){
+                        addInitialResponse("links", -1, res.rawString);
+                    }else{
+                        addConversationPair("links", -1, feedback, res.rawString);
+                    }
+                    console.log("New Links:", res.links);
+                    // set the suggested links as the default links
+                    setSuggestedLinkArray(res.links, prose, formula, document);
+                    setDefaultTabs(res.links.length);
+                    break
+                case "definitions":
+                    console.log("New definitions", res.link.terms);
+                    changeTermsInLink("add with difinitions", res.link.terms, prose);
+                    break
+                case "symbols":
+                    console.log("New composite symbols", res.link);
+                    changeSymbolsInLink("add with compositeSymbols", res.link.symbols, formula, document);
+                    break
+                default:
+                    console.log("No such API");
             }
-        }
-        if(fromStart){
-            addInitialResponse(res.rawString);
-        }else{
-            addConversationPair(feedback, res.rawString);
-        }
-        console.log("suggestedLinks:", res.links);
-    
-        if(res.links.length > 0){
-            // set the suggested links as the default links
-            setSuggestedLinkArray(res.links, prose, formula, document);
-            setDefaultTabs(res.links.length);
+            // update conversation queue
+            if(fromStart){
+                addInitialResponse(type, linkIdx, res.rawString);
+            }else{
+                addConversationPair(type, linkIdx, feedback, res.rawString);
+            }
         }
         changeLoading(false);
     }
@@ -196,21 +165,28 @@ function FeedbackPanel({
         <Divider style={{height: "50px"}}>
             {linkIdx >= 0 ? 
                 <Tooltip title="Get identifiers">
-                    <Button shape="circle" icon={<ArrowUpOutlined />} loading={loading} onClick={async () => getCompositeSymbol()}/>
+                    <Button shape="circle" icon={<ArrowUpOutlined />} loading={loading} onClick={async () => callAPIs("symbols")}/>
                 </Tooltip>
                 : <></>
             }
             <Tooltip title="Give feedback">
-                <Button shape="circle" icon={<ReloadOutlined />} loading={loading} onClick={() => showModal()} disabled={linkIdx !== convMode.linkIdx}/>
+                <Button shape="circle" icon={<ReloadOutlined />} loading={loading} onClick={() => showModal()}
+                    disabled={conversationQueue.queue.length === 0 || linkIdx !== conversationQueue.linkIdx}/>
             </Tooltip>
             {linkIdx >= 0 ? 
                 <Tooltip title="Get definitions" placement="bottom">
-                    <Button shape="circle" icon={<ArrowDownOutlined />} loading={loading} onClick={async () => getDefinition()}/>
+                    <Button shape="circle" icon={<ArrowDownOutlined />} loading={loading} onClick={async () => callAPIs("definitions")}/>
                 </Tooltip>
                 : <></>
             }
             <Modal title="Feedback Panel" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                 <div className='feedbackPanel'>
+                    <p>The AI response:</p>
+                    {conversationQueue.queue.length > 0 ? conversationQueue.queue[conversationQueue.queue.length-1].split("; ").map((link) => (
+                        <div>
+                            <Latex>{link}</Latex>
+                        </div>
+                    )) : <></>}
                     <p>Are you satisfied with the AI response?</p>
                     <Radio.Group onChange={onChangeSatisfaction} defaultValue={satisfactions[0].value}>
                         {satisfactions.map((item) => (
@@ -224,7 +200,7 @@ function FeedbackPanel({
                     </Radio.Group>
                     <p>What's your advice?</p>
                     <div className='vertical justifyStart alignStart'>
-                        {advices[convMode.API].map((item, idx) => (
+                        {advices[conversationQueue.API].map((item, idx) => (
                             item.type === "static" ? 
                             <Checkbox onChange={(e) => onCheck(e.target.checked, idx)}>
                                 {item.text}
@@ -245,6 +221,8 @@ function FeedbackPanel({
                             <Input
                                 type="text"
                                 size="small"
+                                value={customFeedback}
+                                onChange={(e) => changeCustomFeedback(e.target.value)}
                                 placeholder="Custom feedback"
                             />
                         </Checkbox>

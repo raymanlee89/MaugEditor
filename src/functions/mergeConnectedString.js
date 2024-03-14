@@ -43,7 +43,23 @@ export const mergeConnectedSymbols = (formula, symbols, linkIdx) => {
     if(newSym !== null){
         mergedSymbols.push(newSym);
     }
-    return mergedSymbols;
+
+    // for the case that } is not merged 
+    const res = mergedSymbols.map((symbol) => {
+        const leftBracket = symbol.text.lastIndexOf("{");
+        const rightBracket = symbol.text.lastIndexOf("}");
+        if(rightBracket < leftBracket && formula[symbol.end] === "}"){
+            return ({
+                text: symbol.text+"}",
+                start: symbol.start,
+                end: symbol.end+1,
+                link: linkIdx
+            })
+        }
+        return symbol
+    })
+
+    return res;
 }
 
 // merge connected terms in the same link

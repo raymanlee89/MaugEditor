@@ -23,7 +23,7 @@ function App() {
   const [formula, changeFormula] = useState("\\displaystyle p_i = (p_{chipset} + \\sum^G_{g=1}p_g)\\cdot 1.59");
   const [prose, changeProse] = useState("Every 10 seconds, the total instantaneous power usage $p_i$, in watts, is computed as the sum of those of your chipset $p_{chipset}$(CPU and DRAM) and graphics cards $p_g$, multiplied by a PUE coefficient (default value at 1.59[Ascierto 2020]) that adjusts for electricity used by other resources like cooling and lighting.");
   const [formulaFontSize, changeFormulaFontSize] = useState(3);
-  const [suggestedLinks, changeSuggestedLinks] = useState([]); 
+  const [suggestedLinks, changeSuggestedLinks] = useState([]);
   const {links, linkIdx, changeLinkIdx, setSuggestedLinkArray, changeLinkArray, changeTermsInLink, changeSymbolsInLink} = useLinks();
   // Warning: the label of tab is different from the link idx in links
   const {tabItems, setDefaultTabs, changeTabs, changeColor, colorOrder, changeColorOrder} = useTabs();
@@ -56,20 +56,18 @@ function App() {
 
     // get suggestedLinks from the backend
     let res = await getLinks(formula, prose);
-    // use GPT if NER & RE cannot handle the prose
-    if(res.links.length === 0){
-      console.log("use GPT");
-      res = await getLinksGPT(formula, prose, []);
-    }
-    addInitialResponse(res.rawString);
-    console.log("suggestedLinks:", res.links);
 
     if(res !== "Api fail!!"){
-      if(res.links.length > 0){
-        // set the suggested links as the default links
-        changeSuggestedLinks(res.links);
-        setDefaultTabs(res.links.length);
+      // use GPT if NER & RE cannot handle the prose
+      if(res.links.length === 0){
+        console.log("use GPT");
+        res = await getLinksGPT(formula, prose, []);
       }
+      addInitialResponse("links", -1, res.rawString);
+      console.log("suggestedLinks:", res.links);
+      // set the suggested links as the default links
+      changeSuggestedLinks(res.links);
+      setDefaultTabs(res.links.length);
       // go to the next page
       changeLoading(false);
       changeStage(stage+1);
@@ -146,8 +144,8 @@ function App() {
                 )
               case 1:
                 return (
-                  <>
-                    <ExtractionPage stage={stage} options={options} formula={formula} prose={prose}
+                  <div className='fullPage vertical'>
+                    <ExtractionPage mode={mode} stage={stage} options={options} formula={formula} prose={prose}
                       formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                       linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} setSuggestedLinkArray={setSuggestedLinkArray}
                       links={links} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink} changeLinkArray={changeLinkArray}
@@ -156,7 +154,7 @@ function App() {
                       colorOrder={colorOrder} changeColorOrder={changeColorOrder}
                       conversationQueue={conversationQueue} addConversationPair={addConversationPair} addInitialResponse={addInitialResponse}
                       />
-                  </>
+                  </div>
                 )
               case 2:
                 return (

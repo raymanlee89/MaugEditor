@@ -30,6 +30,12 @@ p {
 }
 
 /* Basic elements */
+.fullPage {
+  width: 100vw;
+  height: 100%;
+  overflow: hidden;
+}
+
 .page {
   width: 50vw;
   height: 100%;
@@ -81,6 +87,11 @@ p {
 
 .termsContainer .term {
   margin-right: 4px;
+  font-weight: 490;
+}
+
+.termsContainer button {
+  margin-right: 0px !important;
 }
 
 /* Formula View */
@@ -173,7 +184,8 @@ p {
 /* SlideView */
 .linkElement {
   font-size: 1.2em;
-  margin: 10px 0 10px 0;
+  padding: 10px;
+  margin-bottom: 5px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -182,6 +194,11 @@ p {
 
 .separator{
   margin: 0 0.5em 0 0.5em;
+}
+
+.currentLink{
+  border-radius: 10px;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
 /* Feedback Panel */

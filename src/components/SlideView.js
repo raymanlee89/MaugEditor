@@ -2,23 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import Latex from '../react-latex/latex';
 import { Input, Button } from 'antd';
 import { EditOutlined, CheckOutlined } from '@ant-design/icons';
-import { mergeConnectedSymbols, mergeConnectedTerms } from '../functions/mergeConnectedString';
+import { createLinkElement } from '../functions/createLinkElement';
 
 function SlideView({formula, links, colorOrder, linkElements, changeLinkElements, editingIdx, changeEditingIdx}) {
     const editInputRef = useRef(null);
-
-    // create a link element with a link
-    const createLinkElement = (link, idx) => {
-        // the composite symbols on the left side should be unique
-        const uniqueSymbols = new Set(mergeConnectedSymbols(formula, link.symbols, idx));
-        const compositeSymbols = Array.from(uniqueSymbols).reduce((a, v, i) => i === 0 ? a + v.text : a + ", " + v.text, "");
-
-        // the definitions on the right side should have no symbols
-        const noSymbolsTerms = link.terms.filter((item) => item.text.indexOf("$") === -1);
-        const definitions = mergeConnectedTerms(noSymbolsTerms, idx).reduce((a, v, i) => i === 0 ? a + v.text : a + ", " + v.text, "");
-        const linkIdx = idx;
-        return {compositeSymbols, definitions, linkIdx};
-    }
 
     const onChangeLinkElement = (idx, type, value) => {
         let newLinkElements = [...linkElements];
@@ -30,7 +17,7 @@ function SlideView({formula, links, colorOrder, linkElements, changeLinkElements
     useEffect(() => {
         let newLinkElements = [];
         colorOrder.forEach((idx) => {
-            const newElement = createLinkElement(links[idx], idx);
+            const newElement = createLinkElement(formula, links[idx], idx);
             newLinkElements.push(newElement);
         });
         changeLinkElements(newLinkElements);

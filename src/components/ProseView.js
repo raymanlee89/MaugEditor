@@ -61,7 +61,7 @@ function ProseView({prose, links, linkIdx, changeTermsInLink}) {
                 return createParagraphs(prose).map((paragraph) => {
                     pStart += paragraph.length + 1;
                     return (
-                        <div>
+                        <div className='termsContainer'>
                             {creatTerms(paragraph, pStart - paragraph.length - 1).map((item, i) => (
                                 <Button
                                     className={`term ${createLinkMarks(item)}${isPickedInOtherLink(item) ? " disabled": ""}`}

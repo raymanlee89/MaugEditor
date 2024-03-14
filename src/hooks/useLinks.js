@@ -176,9 +176,9 @@ const useLinks = () => {
             case "add":
                 newLinks[linkIdx].terms = [...newLinks[linkIdx].terms, term].sort(compareLocationStart);
                 break;
-            case "add with difinition":
-                // the difinition is in term
-                const newTerms = selectTermsWithDefinition(term, prose);
+            case "add with difinitions":
+                // the difinition is in term => term = [{ text: "", start: 0, end: 0 }]
+                const newTerms = term.reduce((acm, item) => acm.concat(selectTermsWithDefinition(item, prose)), []);
                 // const allTerms = newLinks[linkIdx].terms.concat(newTerms);
                 // // get unique terms
                 // newLinks[linkIdx].terms = [...new Map(allTerms.map(item => [item.start, item])).values()].sort(compareLocationStart);
@@ -188,7 +188,7 @@ const useLinks = () => {
                 newLinks[linkIdx].terms = newLinks[linkIdx].terms.filter((item) => !haveSameLocation(item, term)).sort(compareLocationStart);
                 break;
             case "remove with difinition":
-                // the difinition is in term
+                // the difinition is in term => term = { text: "", start: 0, end: 0 }
                 newLinks[linkIdx].terms = newLinks[linkIdx].terms.filter((item) => !(term.start <= item.start && item.end <= term.end));
                 break;
             default:
@@ -204,9 +204,9 @@ const useLinks = () => {
             case "add":
                 newLinks[linkIdx].symbols = [...newLinks[linkIdx].symbols, symbol].sort(compareLocationStart);
                 break;
-            case "add with compositeSymbol":
+            case "add with compositeSymbols":
                 // the compositeSymbol is in symbol
-                const newSymbols = selectSymbolsWithCompositeSymbol(symbol, formula, document);
+                const newSymbols = symbol.reduce((acm, item) => acm.concat(selectSymbolsWithCompositeSymbol(item, formula, document)), []);
                 // const allSymbols = newLinks[linkIdx].symbols.concat(newSymbols);
                 // // get unique symbols
                 // newLinks[linkIdx].symbols = [...new Map(allSymbols.map(item => [item.start, item])).values()].sort(compareLocationStart);

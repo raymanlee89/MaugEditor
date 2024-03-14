@@ -1,19 +1,20 @@
 import { useState } from 'react';
 
 const useConversation = () => {
-    const [conversationQueue, changeConversationQueue] = useState([]);
+    // conversationQueue: { API: "links", linkIdx: -1 , queue: [] }
+    const [conversationQueue, changeConversationQueue] = useState({ API: "links", linkIdx: -1 , queue: [] });
 
-    const addConversationPair = (feedback, response) => {
-        let newConversationQueue = [...conversationQueue];
+    const addConversationPair = (API, linkIdx, feedback, response) => {
+        let newConversationQueue = [...conversationQueue.queue];
         newConversationQueue.push(feedback);
         newConversationQueue.push(response);
-        changeConversationQueue(newConversationQueue);
+        changeConversationQueue({ API: API, linkIdx: linkIdx , queue: newConversationQueue });
     }
 
-    const addInitialResponse = (response) => {
+    const addInitialResponse = (API, linkIdx, response) => {
         let newConversationQueue = [];
         newConversationQueue.push(response);
-        changeConversationQueue(newConversationQueue);
+        changeConversationQueue({ API: API, linkIdx: linkIdx , queue: newConversationQueue });
     }
 
     return {conversationQueue, addConversationPair, addInitialResponse};

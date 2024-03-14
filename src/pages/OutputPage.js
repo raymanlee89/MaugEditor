@@ -14,7 +14,7 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
         let header = "\\usepackage{color}\n";
         header += colorOrder.reduce((accumulator, tabIdx, idx) => {
             // hex to rgb
-            let rgb = hexToRgba(tabItems[tabIdx].color);
+            let rgb = hexToRgba(tabItems[tabIdx+1].color);
             return accumulator + `\\definecolor{c${idx}}{RGB}{${rgb.r},${rgb.g},${rgb.b}}\n`;
         }, "");
         

@@ -1,22 +1,9 @@
 import React, { useEffect } from 'react';
 import Latex from '../react-latex/latex';
 import { List, ColorPicker } from 'antd';
-import { mergeConnectedSymbols, mergeConnectedTerms } from '../functions/mergeConnectedString';
+import { createLinkElement } from '../functions/createLinkElement';
 
-function StaticSlideView({formula, links, changeLinkIdx, tabItems, colorOrder, changeColor, linkElements, changeLinkElements}) {
-    // create a link element with a link
-    const createLinkElement = (link, idx) => {
-        // the composite symbols on the left side should be unique
-        const uniqueSymbols = new Set(mergeConnectedSymbols(formula, link.symbols, idx));
-        const compositeSymbols = Array.from(uniqueSymbols).reduce((a, v, i) => i === 0 ? a + v.text : a + ", " + v.text, "");
-
-        // the definitions on the right side should have no symbols
-        const noSymbolsTerms = link.terms.filter((item) => item.text.indexOf("$") === -1);
-        const definitions = mergeConnectedTerms(noSymbolsTerms, idx).reduce((a, v, i) => i === 0 ? a + v.text : a + ", " + v.text, "");
-        const linkIdx = idx;
-        return {compositeSymbols, definitions, linkIdx};
-    }
-
+function StaticSlideView({formula, links, linkIdx, changeLinkIdx, tabItems, colorOrder, changeColor, linkElements, changeLinkElements}) {
     // update LinkElements
     useEffect(() => {
         if(colorOrder.length > links.length){
@@ -24,10 +11,10 @@ function StaticSlideView({formula, links, changeLinkIdx, tabItems, colorOrder, c
         }
         console.log("colorOrder", colorOrder);
         console.log("links", links);
-        
+
         let newLinkElements = [];
         colorOrder.forEach((idx) => {
-            const newElement = createLinkElement(links[idx], idx);
+            const newElement = createLinkElement(formula, links[idx], idx);
             newLinkElements.push(newElement);
         });
         changeLinkElements(newLinkElements);
@@ -41,7 +28,7 @@ function StaticSlideView({formula, links, changeLinkIdx, tabItems, colorOrder, c
             }
             dataSource={linkElements}
             renderItem={(item) => (
-                <div className='linkElement'>
+                <div className={`linkElement ${item.linkIdx === linkIdx ? "currentLink" : ""}`}>
                     <ColorPicker disabledAlpha value={tabItems[item.linkIdx + 1]?.color}
                         presets={[{
                             label: 'Recommended',

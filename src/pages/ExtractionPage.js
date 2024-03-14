@@ -4,10 +4,10 @@ import ProseView from '../components/ProseView';
 import StaticSlideView from '../components/StaticSlideView';
 import FeedbackPanel from '../components/FeedbackPanel';
 import { changeNodeColor } from '../functions/formulaNode';
-import { Tabs, Modal } from 'antd';
+import { Tabs, Modal, Divider } from 'antd';
 
 function ExtractionPage({
-    stage, options, formula, prose, 
+    mode, stage, options, formula, prose, 
     formulaFontSize, changeFormulaFontSize,
     linkIdx, changeLinkIdx, setSuggestedLinkArray, 
     links, changeTermsInLink, changeSymbolsInLink, changeLinkArray, 
@@ -111,26 +111,30 @@ function ExtractionPage({
     }, [stage, options, tabItems, links, linkIdx, colorOrder, linkElements]);
 
     return(
-        <div className='vertical' style={{ width: "80%", height: "100%" }}>
-            <div style={{ width: "100%", marginBottom: "50px"}}>
+        <div className='box'>
+            <div className='element' style={{ margin: "50px 0px 50px 0px" }}>
                 <Tabs type="editable-card" tabPosition="top" onChange={onChange} activeKey={linkIdx.toString()} onEdit={onEdit} items={tabItems}/>
             </div>
             <FormulaView stage={stage} formula={formula}
                 formulaFontSize={formulaFontSize} changeFormulaFontSize={changeFormulaFontSize}
                 links={links} linkIdx={linkIdx} changeSymbolsInLink={changeSymbolsInLink}/>
-            <FeedbackPanel formula={formula} prose={prose}
-                links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
-                setSuggestedLinkArray={setSuggestedLinkArray} setDefaultTabs={setDefaultTabs}
-                conversationQueue={conversationQueue} addConversationPair={addConversationPair} addInitialResponse={addInitialResponse}
-                />
-            <div className='horizontal' style={{ width: "100%" }}>
+            {mode ? 
+                <FeedbackPanel formula={formula} prose={prose}
+                    links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
+                    setSuggestedLinkArray={setSuggestedLinkArray} setDefaultTabs={setDefaultTabs}
+                    conversationQueue={conversationQueue} addConversationPair={addConversationPair} addInitialResponse={addInitialResponse}
+                    />
+                :
+                <Divider style={{height: "50px"}}/>
+            }
+            <div className='element horizontal' style={{ width: "100%" }}>
                 <div style={{ paddingRight: "30px", width: "60%" }}>
                     <ProseView stage={stage} prose={prose}
                         links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink}/>
                 </div>
                 <div style={{ paddingLeft: "30px", width: "40%" }}>
                     <StaticSlideView
-                        formula={formula} links={links} changeLinkIdx={changeLinkIdx} 
+                        formula={formula} links={links} linkIdx={linkIdx} changeLinkIdx={changeLinkIdx} 
                         tabItems={tabItems} colorOrder={colorOrder} changeColor={changeColor}
                         linkElements={linkElements} changeLinkElements={changeLinkElements}/>
                 </div>
