@@ -30,7 +30,7 @@ function App() {
   // for Slide, linkElement = {compositeSymbols: "", definitions: "", linkIdx: 0}
   const [linkElements, changeLinkElements] = useState([]);
   // for saving conversation with AI
-  const {conversationQueue, addConversationPair, addInitialResponse} = useConvesation();
+  const {conversationQueue, addConversationPair, addInitialResponse, rollBackConversation, fixConversationLinkIdx} = useConvesation();
   
   // Reset colorOrder
   useEffect(() => {
@@ -63,7 +63,7 @@ function App() {
         console.log("use GPT");
         res = await getLinksGPT(formula, prose, []);
       }
-      addInitialResponse("links", -1, res.rawString);
+      addInitialResponse("links", -1, res.rawString, [{terms: [], symbols: []}]);
       console.log("suggestedLinks:", res.links);
       // set the suggested links as the default links
       changeSuggestedLinks(res.links);
@@ -153,6 +153,7 @@ function App() {
                       linkElements={linkElements} changeLinkElements={changeLinkElements}
                       colorOrder={colorOrder} changeColorOrder={changeColorOrder}
                       conversationQueue={conversationQueue} addConversationPair={addConversationPair} addInitialResponse={addInitialResponse}
+                      rollBackConversation={rollBackConversation} fixConversationLinkIdx={fixConversationLinkIdx}
                       />
                   </div>
                 )

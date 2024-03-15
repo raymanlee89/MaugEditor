@@ -14,7 +14,8 @@ function ExtractionPage({
     tabItems, setDefaultTabs, changeTabs, changeColor,
     linkElements, changeLinkElements,
     colorOrder, changeColorOrder,
-    conversationQueue, addConversationPair, addInitialResponse
+    conversationQueue, addConversationPair, addInitialResponse,
+    rollBackConversation, fixConversationLinkIdx
 }) {
     const [removeLinkIdx, changeRemoveLinkIdx] = useState(-1);
 
@@ -49,6 +50,9 @@ function ExtractionPage({
         // remove the target link in links
         changeLinkArray("remove", removeLinkIdx);
 
+        // fix the linkIdx in conversationQueue
+        fixConversationLinkIdx(removeLinkIdx);
+
         // change picked link
         if(removeLinkIdx < linkIdx || removeLinkIdx === linkIdx){
             changeLinkIdx(linkIdx - 1);
@@ -79,7 +83,7 @@ function ExtractionPage({
                 });
             });
         }else{
-            // color the current link last => prevent overlapping
+            // colorize only the current link items
             const targetNodes = [...document.getElementsByClassName(`link_${linkIdx}`)];
             targetNodes.forEach((i) => {
                 changeNodeColor(i, tabItems[linkIdx+1].color);
@@ -108,6 +112,13 @@ function ExtractionPage({
                 }
             }
         })
+
+        // for link element
+        const currentLinkElement = [...document.querySelectorAll(".currentLink")];
+        currentLinkElement.forEach((item) => {
+            item.style.borderColor = tabItems[linkIdx+1].color;
+        });
+
     }, [stage, options, tabItems, links, linkIdx, colorOrder, linkElements]);
 
     return(
@@ -122,7 +133,7 @@ function ExtractionPage({
                 <FeedbackPanel formula={formula} prose={prose}
                     links={links} linkIdx={linkIdx} changeTermsInLink={changeTermsInLink} changeSymbolsInLink={changeSymbolsInLink}
                     setSuggestedLinkArray={setSuggestedLinkArray} setDefaultTabs={setDefaultTabs}
-                    conversationQueue={conversationQueue} addConversationPair={addConversationPair} addInitialResponse={addInitialResponse}
+                    conversationQueue={conversationQueue} addConversationPair={addConversationPair} addInitialResponse={addInitialResponse} rollBackConversation={rollBackConversation}
                     />
                 :
                 <Divider style={{height: "50px"}}/>

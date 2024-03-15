@@ -9,9 +9,6 @@ function StaticSlideView({formula, links, linkIdx, changeLinkIdx, tabItems, colo
         if(colorOrder.length > links.length){
             return;
         }
-        console.log("colorOrder", colorOrder);
-        console.log("links", links);
-
         let newLinkElements = [];
         colorOrder.forEach((idx) => {
             const newElement = createLinkElement(formula, links[idx], idx);
@@ -28,7 +25,7 @@ function StaticSlideView({formula, links, linkIdx, changeLinkIdx, tabItems, colo
             }
             dataSource={linkElements}
             renderItem={(item) => (
-                <div className={`linkElement ${item.linkIdx === linkIdx ? "currentLink" : ""}`}>
+                <div className={`linkElement horizontal justifyStart ${item.linkIdx === linkIdx ? "currentLink" : ""}`}>
                     <ColorPicker disabledAlpha value={tabItems[item.linkIdx + 1]?.color}
                         presets={[{
                             label: 'Recommended',

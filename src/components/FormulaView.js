@@ -25,7 +25,7 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
         // reassign link_ class to mathNode
         // becase KaTeX will rerender and clean all link_ class
         links.forEach((link, idx) => {
-            console.log("link", link);
+            // console.log("link", link);
             link.symbols.forEach((symbol) => {
                 const node = getNodeWithLoc(symbol.start, symbol.end);
                 changeNodeClassName("add", node, `link_${idx}`);

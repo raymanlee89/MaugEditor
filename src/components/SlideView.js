@@ -28,7 +28,7 @@ function SlideView({formula, links, colorOrder, linkElements, changeLinkElements
         <div className='element'>
             {linkElements.map((item, idx) => (
                 idx === editingIdx ? 
-                    <div className='linkElement'>
+                    <div className='linkElement horizontal justifyStart'>
                         <Input
                             type="text"
                             size="small"
@@ -53,7 +53,7 @@ function SlideView({formula, links, colorOrder, linkElements, changeLinkElements
                         <Button type="text" icon={<CheckOutlined/>} size="small" onClick={() => changeEditingIdx(-1)}/>
                     </div>
                     :
-                    <div className='linkElement'>
+                    <div className='linkElement horizontal justifyStart'>
                         <div className={`link_${item.linkIdx}`}>
                             <Latex>{`$${item.compositeSymbols}$`}</Latex>
                         </div>
