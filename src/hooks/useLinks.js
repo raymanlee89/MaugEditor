@@ -87,6 +87,16 @@ const useLinks = () => {
         return coverage;
     }
 
+    const firstStart = (link) => {
+        let start = 0;
+        if(link.symbols.length > 0){
+            start = link.symbols[0].start;
+        }else if(link.terms.length > 0){
+            start = link.terms[0].start;
+        }
+        return start;
+    }
+
     // get suggested links from the backend model
     // need the math nodes in FormulaView and the term buttons in ProseView => document
     // the symbol & term in suggested links is actually composite symbols and definitions!!
@@ -140,8 +150,8 @@ const useLinks = () => {
         });
 
         // sort the links with their coverage
-        newLinks.sort((a, b) => linkCoverage(b) - linkCoverage(a));
-        console.log("setSuggestedLinkArray", newLinks);
+        newLinks.sort((a, b) => firstStart(a) - firstStart(b));
+        // console.log("setSuggestedLinkArray", newLinks);
 
         changeLinks(newLinks);
     }

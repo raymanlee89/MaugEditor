@@ -70,7 +70,7 @@ const useTabs = () => {
             default:
                 console.log("No such type in changeTabs");
         }
-        console.log("changeTabs", tabItemsCopy, tabItemsCopy.filter((item) => item.label !== "ALL").map((tab) => Number(tab.key)));
+        // console.log("changeTabs", tabItemsCopy, tabItemsCopy.filter((item) => item.label !== "ALL").map((tab) => Number(tab.key)));
         changeTabItems(tabItemsCopy);
         changeColorOrder(tabItemsCopy.filter((item) => item.label !== "ALL").map((tab) => Number(tab.key)));
     }

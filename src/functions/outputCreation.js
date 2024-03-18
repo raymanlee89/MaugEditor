@@ -127,6 +127,7 @@ export const addColorToProse = (colorOrder, links, prose) => {
         const colorMark = item.link === -1 ? "\\plain" : `\\link${item.link}`;
         result = result.substring(0, item.start) + "\n" + colorMark + " " + result.substring(item.start);
     });
+    result += "\n\\plain";
     // console.log("result", result);
     return result;
 }

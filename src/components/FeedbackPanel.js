@@ -72,7 +72,7 @@ function FeedbackPanel({
     const [customFeedback, changeCustomFeedback] = useState("");
 
     const showModal = () => {
-        console.log("conversationQueue", conversationQueue);
+        // console.log("conversationQueue", conversationQueue);
         changeIsModalOpen(true);
     };
 
@@ -85,6 +85,9 @@ function FeedbackPanel({
                 feedback += " " + item;
             }
         })
+        if(customFeedback !== ""){
+            feedback += " " + customFeedback;
+        }
         console.log("feedback", feedback);
         callAPIs(API, feedback);
         changeIsModalOpen(false);
@@ -124,7 +127,7 @@ function FeedbackPanel({
         let newAdv = [...adv];
         newAdv[idx] = value;
         changeAdv(newAdv);
-        console.log("change advice", newAdv);
+        // console.log("change advice", newAdv);
     }
 
     // callGetLinks & getDefinition & getCompositeSymbol
@@ -138,6 +141,7 @@ function FeedbackPanel({
             // change mode and clean the conversation queue
             changeAdv(["", ""]);
             changeSatis(satisfactions[0].value);
+            changeCustomFeedback("");
             fromStart = true;
             conversation = [];
         }
@@ -176,19 +180,19 @@ function FeedbackPanel({
             switch (type) {
                 case "links":
                     currentData = [...links];
-                    console.log("New Links:", res.links);
+                    // console.log("New Links:", res.links);
                     // set the suggested links as the default links
                     setSuggestedLinkArray(res.links, prose, formula, document);
                     setDefaultTabs(res.links.length);
                     break
                 case "definitions":
                     currentData = { symbols: links[linkIdx].symbols, terms: links[linkIdx].terms };
-                    console.log("New definitions", res.link);
+                    // console.log("New definitions", res.link);
                     changeTermsInLink("add with difinitions", res.link.terms, prose);
                     break
                 case "symbols":
                     currentData = { symbols: links[linkIdx].symbols, terms: links[linkIdx].terms };
-                    console.log("New composite symbols", res.link);
+                    // console.log("New composite symbols", res.link);
                     changeSymbolsInLink("add with compositeSymbols", res.link.symbols, formula, document);
                     break
                 default:
@@ -265,7 +269,7 @@ function FeedbackPanel({
                             </div>
                         ))}
                         <div className='horizontal justifyStart'>
-                            <div style={{marginRight: "5px", width: "120px"}}>Other advice</div>
+                            <div style={{marginRight: "5px", width: "130px"}}>Other advice?</div>
                             <Input
                                 type="text"
                                 size="small"

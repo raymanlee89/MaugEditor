@@ -64,7 +64,8 @@ function App() {
         res = await getLinksGPT(formula, prose, []);
       }
       addInitialResponse("links", -1, res.rawString, [{terms: [], symbols: []}]);
-      console.log("suggestedLinks:", res.links);
+      console.log("suggestedLinks", res.links);
+      
       // set the suggested links as the default links
       changeSuggestedLinks(res.links);
       setDefaultTabs(res.links.length);
@@ -204,7 +205,7 @@ function App() {
             items={[
               { title: 'Formula Editing' },
               { title: 'Pair Extraction' },
-              { title: 'Output' }
+              { title: 'Output Design' }
             ]}
           />
           <Tooltip title="Next">

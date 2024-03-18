@@ -63,6 +63,7 @@ function ColorOrderBar({ tabItems, colorOrder, changeColorOrder }){
                     changeColorOrder(colorOrder.filter((idx) => idx !== tag.idx));
                 }}
                 color={tag.color}
+                key={tag.key}
                 style={style}
                 ref={setNodeRef}
                 {...listeners}

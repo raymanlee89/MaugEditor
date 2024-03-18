@@ -15,7 +15,7 @@ function StaticSlideView({formula, links, linkIdx, changeLinkIdx, tabItems, colo
             newLinkElements.push(newElement);
         });
         changeLinkElements(newLinkElements);
-        console.log("linkElements", newLinkElements);
+        // console.log("linkElements", newLinkElements);
     }, [colorOrder, links]);
 
     return (

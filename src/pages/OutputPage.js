@@ -9,9 +9,30 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
     const [medium, changeMedium] = useState("paper");
 
     useEffect(() => {
-        console.log("links", links);
+        // console.log("links", links);
         // Create Output
-        let header = "\\usepackage{color}\n";
+        let header = "";
+        switch (medium) {
+            case "slide":
+                header += "\\documentclass{beamer}";
+                header += "\n\\usepackage{amsmath}";
+                header += "\n\\usepackage{amssymb}";
+                header += "\n\\usepackage{cmbright}";
+                header += "\n\n\\usetheme{Madrid}";
+                header += "\n\\usecolortheme{default}";
+                header += "\n\n\\usepackage{mathtools}";
+                header += "\n\\usepackage{annotate-equations}";
+                break
+            case "paper":
+            default:
+                header += "\\documentclass[preview]{standalone}";
+                header += "\n\\usepackage[utf8]{inputenc}";
+                header += "\n\\usepackage{amsmath}";
+                header += "\n\\usepackage{amssymb}";
+                header += "\n\n\\renewcommand{\\familydefault}{\\sfdefault}";
+                break
+        }
+        header += "\n\n\\usepackage{color}\n";
         header += colorOrder.reduce((accumulator, tabIdx, idx) => {
             // hex to rgb
             let rgb = hexToRgba(tabItems[tabIdx+1].color);
@@ -26,13 +47,13 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
         switch (medium) {
             case "slide":
                 header += "\n\\begin{frame}";
-                header += "\n\\frametitle{Title}"
-                tail = "\n\n\\end{frame}";
+                header += "\n\\frametitle{Title}";
+                tail += "\n\n\\end{frame}";
                 break
             case "paper":
             default:
-                header = header + "\n\\begin{center}";
-                tail = "\n\n\\end{center}";
+                header += "\n\\begin{center}";
+                tail += "\n\n\\end{center}";
                 break
         }
 
@@ -53,6 +74,7 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
 
     const [messageApi, contextHolder] = message.useMessage();
     const copyContent = () => {
+        console.log("Final links", links);
         navigator.clipboard.writeText(output);
         messageApi.info('Copied!');
     }
