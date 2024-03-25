@@ -6,7 +6,7 @@ import { addColorToFormula, addColorToProse, itemizeLink } from '../functions/ou
 
 function OutputPage({options, formula, prose, links, linkElements, tabItems, colorOrder}) {
     const [output, changeOutput] = useState("");
-    const [medium, changeMedium] = useState("paper");
+    const [medium, changeMedium] = useState("default");
 
     useEffect(() => {
         // console.log("links", links);
@@ -23,7 +23,7 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
                 header += "\n\n\\usepackage{mathtools}";
                 header += "\n\\usepackage{annotate-equations}";
                 break
-            case "paper":
+            case "default":
             default:
                 header += "\\documentclass[preview]{standalone}";
                 header += "\n\\usepackage[utf8]{inputenc}";
@@ -50,7 +50,7 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
                 header += "\n\\frametitle{Title}";
                 tail += "\n\n\\end{frame}";
                 break
-            case "paper":
+            case "default":
             default:
                 header += "\n\\begin{center}";
                 tail += "\n\n\\end{center}";
@@ -70,7 +70,7 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
         }
     
         changeOutput(header + outputContext + tail);
-    }, [medium, options, formula, prose, links, linkElements, colorOrder])
+    }, [medium, options, formula, prose, links, linkElements, colorOrder, tabItems])
 
     const [messageApi, contextHolder] = message.useMessage();
     const copyContent = () => {
@@ -90,8 +90,8 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
                         onChange={(v) => changeMedium(v)}
                         options={[
                             {
-                                value: 'paper',
-                                label: 'paper',
+                                value: 'default',
+                                label: 'default',
                             },
                             {
                                 value: 'slide',

@@ -17,7 +17,7 @@ const useTabs = () => {
     // Warning: the label of tab is different from the link idx in links
     const [tabItems, changeTabItems] = useState([
         { label: 'ALL', key: '-1', closable: false, color: "#000000" },
-        { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] }
+        { label: 'Pair 1', key: '0', closable: true, color: defaultColors[0] }
     ]);
 
     // colorOrder is a subset indices of tabItems, and it decides the coloring order in output page
@@ -28,7 +28,7 @@ const useTabs = () => {
         let newColorOrder = [];
         for(let i=0 ; i<tabCount ; i++){
             newTabItems.push({
-                label: `Link ${i+1}`,
+                label: `Pair ${i+1}`,
                 key: i.toString(),
                 closable: true,
                 color: defaultColors[i % defaultColors.length]
@@ -43,9 +43,9 @@ const useTabs = () => {
         let tabItemsCopy = [...tabItems];
         switch (type) {
             case "add":
-                const lastTabName = Number(tabItems[tabItems.length-1].label.replace("Link ", ""));
+                const lastTabName = Number(tabItems[tabItems.length-1].label.replace("Pair ", ""));
                 const newTabItem = {
-                    label: `Link ${isNaN(lastTabName) ? 1 : lastTabName+1}`,
+                    label: `Pair ${isNaN(lastTabName) ? 1 : lastTabName+1}`,
                     key: targetLinkIdx.toString(),
                     closable: true,
                     color: defaultColors[isNaN(lastTabName) ? 0 : lastTabName%defaultColors.length]
@@ -64,7 +64,7 @@ const useTabs = () => {
             case "clear":
                 tabItemsCopy = [
                     { label: 'ALL', key: '-1', closable: false, color: "#000000" },
-                    { label: 'Link 1', key: '0', closable: true, color: defaultColors[0] }
+                    { label: 'Pair 1', key: '0', closable: true, color: defaultColors[0] }
                 ];
                 break;
             default:

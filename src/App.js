@@ -13,7 +13,7 @@ import useConvesation from './hooks/useConvesation';
 import { getLinks, getLinksGPT } from './api/linkCreation.api';
 
 const { Header, Footer, Content } = Layout;
-const optionNames = ["Prose", "Bulet points"];
+const optionNames = ["Prose", "Bullet points"];
 
 function App() {
   const [mode, changeMode] = useState(true); // AI mode

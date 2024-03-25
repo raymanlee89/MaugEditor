@@ -88,6 +88,13 @@ function ExtractionPage({
             targetNodes.forEach((i) => {
                 changeNodeColor(i, tabItems[linkIdx+1].color);
             });
+            // update the color in slideView
+            tabItems.forEach((item) => {
+                const targetNodes = [...document.querySelectorAll(`.linkElement .link_${item.key}`)];
+                targetNodes.forEach((i) => {
+                    changeNodeColor(i, item.color);
+                });
+            });
         }
 
         // for tabs     
