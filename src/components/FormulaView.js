@@ -28,6 +28,7 @@ function FormulaView({stage, formula, formulaFontSize, changeFormulaFontSize, li
             // console.log("link", link);
             link.symbols.forEach((symbol) => {
                 const node = getNodeWithLoc(symbol.start, symbol.end);
+                // console.log("symbol", symbol, "node", node);
                 changeNodeClassName("add", node, `link_${idx}`);
             })
         })

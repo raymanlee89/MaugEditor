@@ -16,6 +16,7 @@ const { Header, Footer, Content } = Layout;
 const optionNames = ["Prose", "Bullet points"];
 
 function App() {
+  const [useSymlink, changeSymlink] = useState(true);
   const [mode, changeMode] = useState(true); // AI mode
   const [stage, changeStage] = useState(0);
   const [loading, changeLoading] = useState(false);
@@ -55,7 +56,10 @@ function App() {
     changeLoading(true);
 
     // get suggestedLinks from the backend
-    let res = await getLinks(formula, prose);
+    let res = {links: [], rawString: ""};
+    if(useSymlink){
+      res = await getLinks(formula, prose);
+    }
 
     if(res !== "Api fail!!"){
       // use GPT if NER & RE cannot handle the prose
@@ -94,9 +98,10 @@ function App() {
     <ConfigProvider
       theme={{
         components: {
-          // Layout: {
-          //   bodyBg: "#FFFFFF",
-          // },
+          Layout: {
+            bodyBg: "#FFFFFF",
+            headerBg: "#525252"
+          },
           // Divider: {
           //   colorSplit: "rgba(5, 5, 5, 0.1)"
           // }
@@ -114,6 +119,13 @@ function App() {
             onChange={(checked) => changeMode(checked)}
             disabled={stage === 2}
           />
+          {/* <Switch 
+            checkedChildren="Symlink first"
+            unCheckedChildren="Direct GPT"
+            checked={useSymlink}
+            onChange={(checked) => changeSymlink(checked)}
+            disabled={stage === 2}
+          /> */}
           {stage === 2 ? 
             options.map((item, idx) => (
               <>

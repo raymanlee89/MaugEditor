@@ -23,6 +23,13 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
                 header += "\n\n\\usepackage{mathtools}";
                 header += "\n\\usepackage{annotate-equations}";
                 break
+            case "paper":
+                header += "\\documentclass{article}";
+                header += "\n\\usepackage[utf8]{inputenc}";
+                header += "\n\\usepackage{amsmath}";
+                header += "\n\\usepackage{amssymb}";
+                header += "\n\n\\renewcommand{\\familydefault}{\\sfdefault}";
+                break
             case "default":
             default:
                 header += "\\documentclass[preview]{standalone}";
@@ -50,6 +57,7 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
                 header += "\n\\frametitle{Title}";
                 tail += "\n\n\\end{frame}";
                 break
+            case "paper":
             case "default":
             default:
                 header += "\n\\begin{center}";
@@ -96,6 +104,10 @@ function OutputPage({options, formula, prose, links, linkElements, tabItems, col
                             {
                                 value: 'slide',
                                 label: 'slide',
+                            },
+                            {
+                                value: 'paper',
+                                label: 'paper',
                             }
                         ]}
                     />
