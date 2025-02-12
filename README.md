@@ -3,9 +3,9 @@ A LaTeX-based math augmentations editor.
 
 The introduction video is [here](https://youtu.be/uL4SuGWe5R0).
 
-You can preview the system using GitHub Pages [here](https://raymanlee89.github.io/MaugEditor). Please note that this is only the front-end version and supports manual mode only. If you want to use the AI-assisted mode, please install the back end separately. The source code is available here.
+You can preview the system using GitHub Pages [here](https://raymanlee89.github.io/MaugEditor).
 
-https://github.com/raymanlee89/MaugEditor_backend
+Please note that this is only the front-end version and supports manual mode only. If you want to use the AI-assisted mode, please install the back end separately. The source code is available [here](https://github.com/raymanlee89/MaugEditor_backend).
 
 The detailed research on this tool can be accessed [here](https://tdr.lib.ntu.edu.tw/retrieve/38558148-4aa5-4d90-a8c2-e43e2c99695f/ntu-112-2.pdf).
 
