@@ -3,10 +3,10 @@ A LaTeX-based math augmentations editor.
 
 The introduction video is [here](https://youtu.be/uL4SuGWe5R0).
 
-Detailed research on this tool can be accessed here : 
-https://tdr.lib.ntu.edu.tw/retrieve/38558148-4aa5-4d90-a8c2-e43e2c99695f/ntu-112-2.pdf
+Detailed research on this tool can be accessed [here](https://tdr.lib.ntu.edu.tw/retrieve/38558148-4aa5-4d90-a8c2-e43e2c99695f/ntu-112-2.pdf).
 
 Additionally, the early version of this tool, MaugVLink, was presented at PacificVis 2024. The full paper can be accessed here : 
+
 https://ieeexplore.ieee.org/abstract/document/10541345
 
 # Introduction
@@ -30,4 +30,5 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 ### Back end
 
 The manual mode can operate independently on the front end. If you want to use the AI-assisted mode, please install the back end separately. The source code is provided here : 
+
 https://github.com/raymanlee89/MaugEditor_backend
