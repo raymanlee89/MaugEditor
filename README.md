@@ -1,11 +1,20 @@
-# MaugEditor
-A LaTeX-based Math Augmentations Editor
+# DefExtractor
+A LaTeX-based Math Augmentations Editor.\
 
-# Getting Started with Create React App
+The introduction video is [here](https://youtu.be/uL4SuGWe5R0).\
+
+The manual mode can operate independently on the front end. If you want to use the AI-assisted mode, please install the back end separately. The source code is provided [here](https://github.com/raymanlee89/MaugEditor_backend).\
+
+Detailed research on this tool can be accessed [here](https://tdr.lib.ntu.edu.tw/retrieve/38558148-4aa5-4d90-a8c2-e43e2c99695f/ntu-112-2.pdf).\
+
+Additionally, the early version of this tool, MaugVLink, was presented at PacificVis 2024. The full paper can be accessed [here](https://ieeexplore.ieee.org/abstract/document/10541345).\
+
+# Introduction
+Following mathematical formulas is a critical task in scientific paper reading. Readers would trace the definition and the relation of identifiers in a formula. To enhance the readability, it relies on paper authors to create effective visualization and structured text explanations, which is especially challenging for long formulas. We propose DefExtractor, an LLM-based tool that assists authors in extracting and visualizing identifier-definition pairs with AI interactively. Given a LaTeX input, DefExtractor identifies the semantics and automatically suggests colored identifiers and definitions based on the LLM response. Users can modify via text prompt or syntax, where AI adapts the edits iteratively. A technical evaluation showed our pair extraction pipeline outperforms previous model in our target scenario, and a usability study with 12 participants showed that DefExtractor effectively reduced the workloads of authors and shortened editing time compared with a baseline tool.
+
+## Quick Start
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
 
 In the project directory, you can run:
 
@@ -14,60 +23,3 @@ In the project directory, you can run:
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
